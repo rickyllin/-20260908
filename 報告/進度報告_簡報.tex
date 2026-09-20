@@ -185,7 +185,7 @@ BMS & 卜瓦松離差 ＋ 搜尋配適起始年\\
 $\min_z \|y-z\|_1+\lambda_{xx}\|D_{xx}z\|_1+\lambda_{xt}\|D_{xt}z\|_1+\lambda_{tt}\|D_{tt}z\|_1$
 \end{frame}
 
-\section{論文還原：成立的部分}
+\section{伍、論文還原：成立的部分}
 
 \begin{frame}{\gd{成立 (1)}：LASSO 修勻確實較準}
 \begin{columns}[T]
@@ -268,7 +268,7 @@ BMS & 0.1172 & 0.0270 & 0.7466 & 0.1293\\
 \end{alertblock}
 \end{frame}
 
-\section{論文還原：不成立的部分}
+\section{伍、論文還原：不成立的部分}
 
 \begin{frame}{\hi{不成立 (1)}：優勢僅限於近期短窗口}
 擴充成「性別 $\times$ 起始年」12 格面板後，$\LCe$ 的優勢\textbf{並非普遍}：
@@ -360,9 +360,9 @@ $\Rightarrow$ 這不是方法比較，是準則的定義決定的。
 \end{block}
 \end{frame}
 
-\section{延伸研究}
+\section{陸、電腦模擬}
 
-\begin{frame}{延伸 (1)：暴露數的蒙地卡羅實驗}
+\begin{frame}{陸之一：暴露數對估計的影響}
 以女性 2001--2024 的配適為真值，$D_{x,t}\sim\text{Poisson}(E_{x,t}m^{\text{true}}_{x,t})$，
 $E=N\cdot w$。
 \vspace{4pt}
@@ -371,10 +371,10 @@ $E=N\cdot w$。
 \toprule
 $N$ & 零格/528 & $\alpha$ 偏誤 & $\beta$ 相關（LC / LASSO） & drift 中位數\\
 \midrule
-10,000 & 214.6 & \hi{$+0.441$} & $-0.275$ / $-0.435$ & $-0.110$\\
-50,000 & 88.9 & $+0.033$ & $-0.128$ / $-0.030$ & $-0.078$\\
-200,000 & 21.8 & $-0.051$ & $+0.553$ / $+0.574$ & $-0.287$\\
-1,000,000 & 0.4 & $-0.017$ & $+0.830$ / $+0.865$ & $-0.315$\\
+10,000 & 214.0 & \hi{$+0.439$} & $-0.240$ / $-0.441$ & $-0.110$\\
+50,000 & 89.2 & $+0.033$ & $-0.045$ / $+0.045$ & $-0.065$\\
+200,000 & 21.7 & $-0.051$ & $+0.564$ / $+0.552$ & $-0.216$\\
+1,000,000 & 0.3 & $-0.021$ & $+0.823$ / $+0.862$ & $-0.340$\\
 \bottomrule
 \end{tabular}
 \end{center}
@@ -389,44 +389,80 @@ $N$ & 零格/528 & $\alpha$ 偏誤 & $\beta$ 相關（LC / LASSO） & drift 中�
 \end{itemize}
 \end{frame}
 
-\begin{frame}{延伸 (1)：圖示}
+\begin{frame}{陸之一：圖示}
 \begin{center}
 \includegraphics[height=0.80\textheight]{mc_plots.png}
 \end{center}
 \end{frame}
 
-\begin{frame}{延伸 (2)：$\lambda$ 的選擇與三個方向}
-\begin{columns}[T]
-\begin{column}{0.47\textwidth}
-\textbf{交叉驗證在最需要它的地方失效}
-\begin{itemize}\small
-  \item 大人口命中，小人口\hi{修勻不足七倍}。
-  \item 原因：CV 衡量\textbf{曲面}的預測誤差，
-        而 $\beta$ 是曲面的\textbf{泛函}、對雜訊敏感得多。
-  \item $\lambda=0$ \hi{根本無法被交叉驗證}
-        $\Rightarrow$ 回答不了「要不要修勻」。
-  \item 改用\gd{參數式 bootstrap 插入式選法}明顯較好。
-\end{itemize}
-\end{column}
-\begin{column}{0.5\textwidth}
-\textbf{三個方向拆開}（$N=2\times10^5$）
-\vspace{2pt}
-\begin{center}\scriptsize
-\begin{tabular}{cccrr}
+\begin{frame}{陸之二：修勻參數 $\lambda$ 的選擇}
+\footnotesize\textcolor{gray}{回應：既然修勻有效，$\lambda$ 該怎麼選？
+現行準則選得對嗎？}\normalsize
+\vspace{3pt}
+
+下表為四種選法與「已知真值」的 oracle 對照（重複 100 次）。
+\textbf{相對損失} $=$ 該選法的 SSE $/$ oracle 的 SSE，
+\gd{愈接近 1 代表愈接近最適}：
+\vspace{3pt}
+\begin{center}\small
+\begin{tabular}{rcccccc}
 \toprule
-$\lambda_{xx}$ & $\lambda_{xt}$ & $\lambda_{tt}$ & SSE($\beta$) & SSE($\alpha$)\\
+& \multicolumn{2}{c}{oracle} & \multicolumn{2}{c}{交叉驗證}
+& \multicolumn{2}{c}{參數式拔靴}\\
+\cmidrule(lr){2-3}\cmidrule(lr){4-5}\cmidrule(lr){6-7}
+$N$ & $\lambda$ & SSE($\beta$) & SSE($\beta$) & 相對損失 & SSE($\beta$) & 相對損失\\
 \midrule
-20 & 2 & 1 & 0.0065 & 5.131\\
-1 & 2 & 20 & 0.0069 & 0.219\\
-\gd{1} & \gd{2} & \gd{1} & \gd{0.0075} & \gd{0.203}\\
-0 & 0 & 0 & 0.0483 & 0.296\\
-20 & 0 & 0 & \hi{0.1235} & 5.976\\
+5 萬   & 40 & 0.0253 & 0.0881 & \hi{3.49} & 0.0531 & \gd{2.10}\\
+20 萬  & 20 & 0.0062 & 0.0175 & 2.82 & 0.0065 & \gd{1.05}\\
+100 萬 & \phantom{0}5 & 0.0036 & 0.0038 & \gd{1.07} & 0.0039 & 1.09\\
 \bottomrule
 \end{tabular}
 \end{center}
 \vspace{4pt}
+\begin{itemize}\footnotesize
+  \item \textbf{交叉驗證在最需要它的地方失效}：大人口命中（1.07），
+        小人口\hi{修勻不足 3.5 倍}。原因是 CV 衡量\textbf{曲面}的預測誤差，
+        而 $\beta$ 是曲面的\textbf{泛函}、對雜訊敏感得多。
+  \item $\lambda=0$ \hi{根本無法被交叉驗證}（沒有修勻就對留出格產生不了預測）
+        $\Rightarrow$ 回答不了「要不要修勻」。
+  \item 改用\gd{參數式拔靴的插入式選法}明顯較好，$N=20$ 萬時幾乎追平 oracle。
+\end{itemize}
+\end{frame}
+
+\begin{frame}{陸之三：三個方向的修勻參數應分開設定}
+\footnotesize\textcolor{gray}{回應：原文以單一 $\lambda$ 連動三個方向，
+拆開後是否有差？}\normalsize
+\vspace{2pt}
+\begin{columns}[T]
+\begin{column}{0.52\textwidth}
+\centering\small
+$N=2\times10^5$，重複 100 次
+\vspace{3pt}
+\begin{tabular}{cccrr}
+\toprule
+$\lambda_{xx}$ & $\lambda_{xt}$ & $\lambda_{tt}$ & SSE($\beta$) & SSE($\alpha$)\\
+\midrule
+20 & 5 & 5  & \gd{0.0054} & \hi{4.380}\\
+20 & 5 & 20 & 0.0056 & 4.432\\
+20 & 5 & 1  & 0.0059 & 4.476\\
+\gd{1} & \gd{5} & \gd{5} & \gd{0.0072} & \gd{0.196}\\
+0  & 0 & 0  & 0.0540 & 0.224\\
+20 & 0 & 0  & \hi{0.1135} & 6.157\\
+\bottomrule
+\end{tabular}
+\end{column}
+\begin{column}{0.46\textwidth}
+\begin{itemize}\footnotesize
+  \item \hi{$\lambda_{xt}$ 是主力}：前八名有七名取到格點上限 $\lambda_{xt}=5$，
+        最差三名全部 $\lambda_{xt}=0$。
+  \item 純年齡方向的修勻 $(20,0,0)$ 比\textbf{完全不修勻還糟一倍}。
+  \item $\lambda_{xx}$ 大會\textbf{毀掉 $\alpha$}（SSE 由 0.2 跳到 4--6）。
+  \item 「$\alpha$ 與 $\beta$ 要相反的 $\lambda$」是三方向耦合的\textbf{假象}：
+        $(1,5,5)$ 的 SSE($\beta$) 只差三成，SSE($\alpha$) 卻好 \gd{22 倍}。
+\end{itemize}
+\vspace{4pt}
 \footnotesize
-\hi{$\lambda_{xt}$ 是主力}：在 LC 底下
+\textbf{為何交叉項最有效}：在 LC 底下
 $\partial^2\log m/\partial x\partial t=\beta'_x\kappa'_t$，
 交叉項\textbf{本質上就是對 $\beta_x$ 粗糙度的懲罰}，
 是三個方向裡唯一直接瞄準 $\beta$ 的。
@@ -434,7 +470,7 @@ $\partial^2\log m/\partial x\partial t=\beta'_x\kappa'_t$，
 \end{columns}
 \end{frame}
 
-\begin{frame}{延伸 (3)：區間的不確定性來源分解\quad\small（$h=10$，名目 80\%）}
+\begin{frame}{陸之四：預測區間的來源分解\quad\small（$h=10$，名目 80\%）}
 \begin{center}\small
 \begin{tabular}{rlcc}
 \toprule
@@ -463,7 +499,46 @@ $N$ & 變體 & 平均寬度 & 涵蓋率\\
 \end{itemize}
 \end{frame}
 
-\begin{frame}{延伸 (4)：兩步校正}
+\begin{frame}{陸之五：配適期長度 $T$ 比人口規模 $N$ 更關鍵}
+以女性 1970--2024（55 年）為真值，$T\times N$ 二因子，各 100 次。
+\textbf{指標用 cor$(\hat\beta,\beta^{\text{true}})$ 而非 SSE}——
+$T$、$N$ 都小時 $\hat\beta$ 會\hi{完全塌陷為 $\mathbf{1}/A$}，
+此時 SSE 反而「看起來很好」。
+\vspace{3pt}
+\begin{columns}[T]
+\begin{column}{0.46\textwidth}
+\centering\scriptsize
+cor$(\hat\beta,\beta^{\text{true}})$ 中位數\\[2pt]
+\begin{tabular}{rcccc}
+\toprule
+$T$ & $2\!\times\!10^4$ & $5\!\times\!10^4$ & $2\!\times\!10^5$ & $10^6$\\
+\midrule
+10 & 0.25 & 0.16 & 0.17 & \hi{0.12}\\
+20 & 0.18 & 0.22 & 0.41 & 0.76\\
+30 & 0.32 & 0.59 & 0.79 & \gd{0.95}\\
+40 & 0.51 & 0.73 & \gd{0.90} & \gd{0.98}\\
+55 & \gd{0.75} & \gd{0.87} & \gd{0.97} & \gd{0.99}\\
+\bottomrule
+\end{tabular}
+\vspace{5pt}
+
+\scriptsize 退化率（塌陷為 $\mathbf{1}/A$）：
+$T{=}10,N{=}2\!\times\!10^4$ 時達 \hi{81\%}。
+\end{column}
+\begin{column}{0.52\textwidth}
+\includegraphics[width=\textwidth]{figB_TxN.png}
+\end{column}
+\end{columns}
+\vspace{3pt}
+\begin{itemize}\footnotesize
+  \item \hi{$T=10$ 年時即使 $N=10^6$ 也只有 0.12}；$T=55$ 年時 $N$ 僅 2 萬也有 0.75。
+        \gd{「長窗口配小人口」勝過「短窗口配大人口」}。
+  \item 以 0.8 為門檻：$T{=}55$ 需 $N\!\ge\!5$ 萬、$T{=}40$ 需 20 萬、$T{=}30$ 需 100 萬；
+        \hi{$T\le20$ 年時任何人口規模都達不到}。
+\end{itemize}
+\end{frame}
+
+\begin{frame}{陸之六：兩步校正}
 \begin{block}{步驟一（位置）：以卜瓦松 MLE 取代 SVD}
 \small
 \begin{center}
@@ -490,7 +565,7 @@ $N=2\times10^5$ 時 $1.152\to\gd{0.702}$；$N=10^6$ 時 $0.870\to\gd{0.751}$。\
 \end{block}
 \end{frame}
 
-\begin{frame}{兩步合併後的校準結果}
+\begin{frame}{陸之六：兩步合併後的校準結果}
 \begin{center}\small
 \begin{tabular}{rlcc}
 \toprule
@@ -519,7 +594,7 @@ $N$ & & 寬度 & 涵蓋率（名目 0.80）\\
 \end{itemize}
 \end{frame}
 
-\section{懲罰式 Lee-Carter}
+\section{柒、懲罰式 Lee-Carter}
 
 \begin{frame}{懲罰式 LC：收縮目標必須是非零向量}
 \begin{alertblock}{實作上的關鍵前提}
@@ -676,44 +751,6 @@ Ridge & 0.003 & .00270 & .00311 & \gd{.00578} & \gd{.721}\\
 \end{itemize}
 \end{frame}
 
-\begin{frame}{配適期長度 $T$ 比人口規模 $N$ 更關鍵}
-以女性 1970--2024（55 年）為真值，$T\times N$ 二因子，各 100 次。
-\textbf{指標用 cor$(\hat\beta,\beta^{\text{true}})$ 而非 SSE}——
-$T$、$N$ 都小時 $\hat\beta$ 會\hi{完全塌陷為 $\mathbf{1}/A$}，
-此時 SSE 反而「看起來很好」。
-\vspace{3pt}
-\begin{columns}[T]
-\begin{column}{0.46\textwidth}
-\centering\scriptsize
-cor$(\hat\beta,\beta^{\text{true}})$ 中位數\\[2pt]
-\begin{tabular}{rcccc}
-\toprule
-$T$ & $2\!\times\!10^4$ & $5\!\times\!10^4$ & $2\!\times\!10^5$ & $10^6$\\
-\midrule
-10 & 0.25 & 0.16 & 0.17 & \hi{0.12}\\
-20 & 0.18 & 0.22 & 0.41 & 0.76\\
-30 & 0.32 & 0.59 & 0.79 & \gd{0.95}\\
-40 & 0.51 & 0.73 & \gd{0.90} & \gd{0.98}\\
-55 & \gd{0.75} & \gd{0.87} & \gd{0.97} & \gd{0.99}\\
-\bottomrule
-\end{tabular}
-\vspace{5pt}
-
-\scriptsize 退化率（塌陷為 $\mathbf{1}/A$）：
-$T{=}10,N{=}2\!\times\!10^4$ 時達 \hi{81\%}。
-\end{column}
-\begin{column}{0.52\textwidth}
-\includegraphics[width=\textwidth]{figB_TxN.png}
-\end{column}
-\end{columns}
-\vspace{3pt}
-\begin{itemize}\footnotesize
-  \item \hi{$T=10$ 年時即使 $N=10^6$ 也只有 0.12}；$T=55$ 年時 $N$ 僅 2 萬也有 0.75。
-        \gd{「長窗口配小人口」勝過「短窗口配大人口」}。
-  \item 以 0.8 為門檻：$T{=}55$ 需 $N\!\ge\!5$ 萬、$T{=}40$ 需 20 萬、$T{=}30$ 需 100 萬；
-        \hi{$T\le20$ 年時任何人口規模都達不到}。
-\end{itemize}
-\end{frame}
 
 \begin{frame}{Elastic Net 族的其他變體}
 針對「LASSO 的弱點是偏誤」，另試三種以降低收縮偏誤為目的的變體：
@@ -743,6 +780,59 @@ Elastic Net & 0.10 & .00463 & .00255 & .00716\\
 \end{itemize}
 \end{frame}
 
+\begin{frame}{柒之九：小結——懲罰項該怎麼用}
+\begin{enumerate}\setlength{\itemsep}{9pt}
+  \item \textbf{收縮目標必須非零}，否則在 $\mathbf{1}_A^{\!\top}
+        \boldsymbol{\beta}=1$ 之下懲罰項退化為常數。
+  \item \textbf{若目標是估計精確度}，Ridge 或 Elastic Net 優於 LASSO——
+        稀疏性在此問題上並非正確的先驗。
+  \item \textbf{若目標是辨識關鍵年齡組}，LASSO 仍是唯一選擇，
+        與均方誤差之間的權衡約為 20\%。
+  \item \hi{$\lambda$ 必須隨人口規模調整}，固定比例在大人口反而有害
+        （最適比例由 $N=5$ 萬的 0.20 降至 20 萬的 0.03）。
+  \item \gd{懲罰在 $N\le20$ 萬時效益最大}——此區間正是我國多數鄉鎮市區的
+        規模，亦即本方法的實務適用範圍。
+\end{enumerate}
+\end{frame}
+
+\begin{frame}{附錄：懲罰前後 $\beta_x$ 的逐年齡比較}
+\begin{columns}[T]
+\begin{column}{0.56\textwidth}
+\includegraphics[width=\textwidth]{figA_beta_by_age.png}
+\end{column}
+\begin{column}{0.42\textwidth}
+\vspace{4pt}\scriptsize
+\textbf{偏誤最大的年齡組（$N=5$ 萬）}
+\begin{tabular}{lrrr}
+\toprule
+年齡 & 真值 & LASSO & 偏誤\\
+\midrule
+1--4   & .1107 & .0461 & \hi{$-.0646$}\\
+100+   & .0058 & .0455 & \hi{$+.0397$}\\
+5--9   & .0785 & .0455 & $-.0330$\\
+95--99 & .0127 & .0366 & $+.0239$\\
+\bottomrule
+\end{tabular}
+\vspace{6pt}
+
+\footnotesize
+\hi{1--4 歲的未懲罰估計值最大（0.107）卻被完全併入 $1/A$。}
+軟閾值為 $\lambda w_x/W_x$，而 $W_x=\sum_t\hat\mu_{xt}\kappa_t^2$
+是該年齡的\textbf{資訊量}——幼兒死亡數極少使 $W_x$ 很小，
+估計值雖大卻不精確，反受最重的懲罰。
+\vspace{4pt}
+
+\gd{懲罰強弱取決於資訊量而非係數大小}；
+存活下來的是 45--54 與 60--99 歲。
+\end{column}
+\end{columns}
+\vspace{2pt}
+\footnotesize
+標準差中位數降 \gd{75\%}，與絕對偏誤增為 1.8 倍之間取得平衡；
+偏誤集中在\textbf{兩端年齡}，正是未懲罰標準差高達 0.10--0.19、本就不堪用之處。
+\end{frame}
+
+
 \section{定位與下一步}
 
 \begin{frame}{四項議題}
@@ -756,7 +846,7 @@ Elastic Net & 0.10 & .00463 & .00255 & .00716\\
         該回顧討論節明確提出並\textbf{點名五齡組}，但未提供任何量化證據。
   \item \textbf{平滑參數的選擇準則與估計目標錯置。}
         Delwarde et al.\ (2007) 用交叉驗證、Rabbi and Mazzuco 用對觀測值的誤差；
-        前者小人口修勻不足七倍、後者在台灣數據上傾向選擇不修勻。
+        前者小人口修勻不足 3.5 倍、後者在台灣數據上傾向選擇不修勻。
   \item \hi{\textbf{時間參數 $\kappa_t$ 在小人口的行為尚未被檢驗。}}
         此點由 \textbf{Yue et al.\ (2019)} 於結論中明白指出。
         然而 $\kappa_t$ 的漂移項\textbf{直接乘上預測期長度}進入平均餘命，
@@ -782,20 +872,31 @@ Elastic Net & 0.10 & .00463 & .00255 & .00716\\
 \end{frame}
 
 \begin{frame}{下一步工作}
-\begin{enumerate}\setlength{\itemsep}{8pt}
-  \item \textbf{統一模擬規模}：所有蒙地卡羅以 reps $\ge100$ 重跑、固定種子。
-  \item \textbf{把 $T$ 納入設計}：改為 $T\times N$ 二因子，分離時間窗長度與人口規模。
-  \item \textbf{COVID 對照組}：補跑 2001--2019 並列。
-  \item \textbf{單齡組檢驗}：分離「五齡組近似誤差」與「台灣死亡轉型較快」
-        這兩個競爭解釋。
-  \item \textbf{jump-off 的取捨}：量化 Stoeldraijer 等人 (2018) 的準確度／穩健度
-        取捨在小人口下的位置——這是目前殘餘涵蓋誤差的主要來源。
+\footnotesize
+\textcolor{gray}{（統一模擬規模與 $T\times N$ 二因子設計已於本次完成，見陸之五）}
+\vspace{4pt}
+\begin{enumerate}\small\setlength{\itemsep}{7pt}
+  \item \textbf{COVID-19 對照組}：補跑 2001--2019 年並列，
+        分離結構性衝擊的影響。
+  \item \textbf{量化初始值的取捨}：Stoeldraijer et al.\ (2018) 指出初始值的
+        選擇存在準確度與穩健度之間的權衡；本文顯示這是\hi{殘餘涵蓋誤差的
+        主要來源}（$N=20$ 萬時寬度已對、涵蓋仍僅 0.63）。
+  \item \textbf{假設母體的敏感度分析}：以受控偏離
+        $\boldsymbol{\beta}^{\text{true}}(\delta)=(1-\delta)
+        \hat{\boldsymbol{\beta}}^{\text{全國}}+\delta\mathbf{v}$，
+        檢驗三個方向——\textbf{甲} 高齡改善較快、\textbf{乙} 幼年改善較快、
+        \textbf{丙} 中年反轉。判準：\gd{結論在 $\delta\le0.3$ 內維持不變
+        即可宣稱穩健}。
+  \item \textbf{壓力測試}：$\kappa_t$ 跳躍（結構性衝擊）、$\beta_x$ 緩慢旋轉
+        （違反 LC 核心假設）、負二項過度離散、人口降至 5{,}000，
+        以界定\hi{「在何種條件下本方法不應使用」}。
+  \item \textbf{懲罰強度的自動選取}，以及自適應權重與收斂理論的補強。
 \end{enumerate}
 \end{frame}
 
 \begin{frame}{請老師指教}
 \vspace{4pt}
-\begin{block}{想請教的三個方向}
+\begin{block}{想請教的四個方向}
 \begin{enumerate}\setlength{\itemsep}{8pt}
   \item 論文主軸要放在\textbf{議題二}（修勻壓低區間寬度）
         還是\textbf{議題四}（$\kappa_t$ 的偏誤而非變異）？
@@ -804,7 +905,8 @@ Elastic Net & 0.10 & .00463 & .00255 & .00716\\
         \textbf{Yue et al.\ (2019)} 建議的「依年齡選擇參考母體」？
   \item 既然純看 MSE 時 Ridge 優於 LASSO，論文要以\textbf{估計精確度}
         還是\textbf{年齡組的可解釋性}為主要訴求？
-  \item 是否值得把\textbf{單齡組}資料納入，以分離五齡組的近似誤差？
+  \item 假設母體的\textbf{敏感度分析}要做到什麼程度才足夠？
+        目前規劃以受控偏離檢驗三個方向（高齡改善較快、幼年改善較快、中年反轉）。
 \end{enumerate}
 \end{block}
 \vspace{6pt}

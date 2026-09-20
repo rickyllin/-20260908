@@ -62,9 +62,5 @@ Rabbi & Mazzuco 原文的「原文圖 8」）。
 
 ## 待處理
 
-- 標題頁的 `（學生姓名）` 需填入（三份都要）。
-- 參考文獻中「余清祥、王信忠、呂靖翎（2025）」與「Pitt, Li & Lim」的
-  卷期頁碼待補。
-- 正文引用但 `參考資料/` 尚無 PDF 者：Booth et al. (2005)、Shang et al. (2011)、
-  Alho (1992)、Wilmoth (1993)、Li et al. (2009)、Camarda & Basellini (2021)、
-  Dokumentov et al. (2018)、Friedman et al. (2010)。
+- 書目已完整（卷期頁碼全部核對過）。**尚缺 PDF 的 19 筆**列於
+  `建議文獻清單.md` 第二節，依重要性排序。

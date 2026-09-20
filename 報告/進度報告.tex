@@ -44,7 +44,7 @@
 \begin{center}
 {\zihao{3}\bfseries 小人口 Lee-Carter 模型之估計與區間推論}\\[4pt]
 {\zihao{5} —— 兼論修勻與壽命差異調整的適用界限}\\[12pt]
-{\zihao{5} （學生姓名）\quad 指導教授：余清祥\,教授}\\[4pt]
+{\zihao{5} （林子立）\quad 指導教授：余清祥\,教授}\\[4pt]
 {\zihao{5} 國立政治大學統計學系}\\[4pt]
 {\zihao{5} 中華民國 115 年 9 月 21 日}
 \end{center}
@@ -55,11 +55,11 @@
 \small
 \textbf{摘要}\par\vspace{4pt}
 我國多數鄉鎮市區的單一性別人數不足五萬，死亡率觀測值震盪劇烈，使
-Lee-Carter模型的年齡參數出現明顯偏誤。本文先復刻
+Lee-Carter模型的年齡參數出現明顯偏誤。在這次的進度中本文先還原
 Rabbi and Mazzuco（2021）的修勻搭配壽命差異調整，發現其優勢僅存在於
 近期的短配適期，且預測區間反而是各法中最寬者。蒙地卡羅模擬進一步指出，
 小樣本下 LC 模型失效的主因是奇異值分解對小樣本取對數所生的偏誤而非
-變異數，故文獻長期主張的「LC 模型預測區間過窄」在此並不成立。
+變異數，故文獻長期主張之「LC 模型預測區間過窄」論述在此並不成立。
 最後將懲罰項加於年齡參數，比較 LASSO、Ridge 與 Elastic Net，發現在 LC 的
 識別條件下收縮目標必須取非零向量，否則懲罰項退化為常數；以均勻向量為
 目標時，人數五萬的均方誤差可降低九成四。二因子模擬另顯示配適期長度
@@ -116,7 +116,7 @@ GLM）架構，Currie（2011）則專門處理高齡資料品質不佳時的推�
 三十年來的擴充大致沿三個方向前進。其一是\textbf{放寬單一時間因子的限制}，
 如 Renshaw and Haberman（2003）加入年齡別改善因子、Camarda and Basellini
 （2021）將年齡型態拆為幼年、早成年、老化三個獨立成分。其二是\textbf{跨族群
-的共同建模}，如 Li and Lee（2005）的共同 LC 模型、Pitt et al. 的雙性別
+的共同建模}，如 Li and Lee（2005）的共同 LC 模型、Pitt et al.（2018）的雙性別
 共同因子模型。其三是\textbf{改善不確定性的描述}，如 Li et al.（2009）以
 負二項處理過度離散、Lu and Zhu（2023）以貝氏因子擴充向量自我迴歸建模，
 以及近年 Zhang and Zhuang（2026）以 Kolmogorov--Arnold 網路兼顧平滑性與
@@ -132,7 +132,12 @@ GLM）架構，Currie（2011）則專門處理高齡資料品質不佳時的推�
 以死亡數計的誤差因而被放大。第三是\textbf{過度離散}（Overdispersion）：
 死亡計數普遍較卜瓦松分配更為分散，高齡尤然。
 
-既有對策大致可歸為兩類。第一類是\textbf{擴大有效樣本}：Li and Lee（2005）
+既有對策大致可歸為兩類。在描述這些對策之前，須先指出既有研究的共同取向：多數以\textbf{量化不確定性}
+為目標。Chen et al.（2017）以參數式拔靴法刻畫最大概似估計量的有限樣本分布，
+發現人口規模對參數估計與死亡率推估的不確定性有顯著影響，並會左右概似比檢定
+的檢定力。此類研究回答的是「估計有多不準」，而非「估計是否系統性偏移」。
+
+第一類對策是\textbf{擴大有效樣本}：Li and Lee（2005）
 以一組死亡改善趨勢相近的母體為參考；Wang et al.（2018）建議合併目標母體
 過去十至二十年的歷史資料；Jarner and Kryger（2011）的 SAINT 模型以大母體
 為錨定；Cairns et al.（2011）則以貝氏方法達成類似效果。此類方法的關鍵假設
@@ -145,7 +150,7 @@ LC 或 Li-Lee 模型，並以電腦模擬比較七種死亡率情境下的表現
 \textbf{該研究在結論中明確指出兩個尚未處理的方向}：其一，該研究僅設定年齡
 參數的各種情境，並未考慮時間參數；其二，參考母體的選擇或可引入變數選擇
 （Variable Selection）的概念，且若能依年齡決定將更為理想。本文的研究方向
-即由此二缺口出發。
+即由此二項缺漏出發。
 
 \subsection{懲罰式估計的發展：從 Ridge 到 Elastic Net}
 
@@ -180,8 +185,8 @@ Zou（2006）的自適應 LASSO 以權重放寬對證據較強者的懲罰、Mei
 綜合上述三條脈絡，本文提出三個依序遞進的研究問題：
 
 \begin{enumerate}[leftmargin=*]
-  \item \textbf{問題一}：Rabbi and Mazzuco（2021）在國家級資料上成立的優勢，
-        在改換資料與配適期後是否仍然成立？若不成立，界限在哪裡？
+  \item \textbf{問題一}：Rabbi and Mazzuco（2021）在台灣的人口資料上成立的優勢為何，
+        以及如果改換資料與配適期後是否仍然成立？若不成立，界限在哪裡？
   \item \textbf{問題二}：小樣本下 LC 模型失效的機制究竟是變異數增大，
         還是有方向的偏誤？兩者對應的補救方式完全不同。
   \item \textbf{問題三}：將懲罰項直接加在年齡參數上是否可行？
@@ -288,6 +293,9 @@ K(y,z)=\|y-Mz\|_{L_1}+\lambda_{xx}\|D_{xx}z\|_{L_1}
 穩健，而死亡率資料正是離群值頻繁出現的場合。實作上係將 $M$、
 $\lambda_{xx}D_{xx}$、$\lambda_{xt}D_{xt}$、$\lambda_{tt}D_{tt}$ 四個矩陣
 上下堆疊，轉為 $\tau=0.5$ 的分位數迴歸（Quantile Regression）求解。
+附帶一提，分位數迴歸在 LC 模型上另有直接的應用：Santolino（2020）以分位數
+迴歸估計 LC 模型本身的參數，使各分位數的死亡率軌跡可分別描述；
+與本文所用的「以分位數迴歸求解修勻問題」屬不同層次，不宜混淆。
 
 \subsubsection{（二）於修勻後的曲面套用標準 LC 模型}
 
@@ -338,7 +346,7 @@ $\beta_x$ 的項，Currie（2013）進一步在 GLM 架構下擴充至同時懲�
 第一是\textbf{零死亡格}。當某年齡組的期望死亡數低於 1 時，觀測值經常為 0，
 而 $\log 0$ 無定義。實務上多以固定值（如 0.5）替代，但此舉會系統性地墊高
 低死亡率年齡組的估計值。Wilmoth（1993）曾建議改以死亡數為權重、給零格
-零權重，惟本文第伍節的模擬顯示該作法在小人口反而更差。
+零權重，惟本文第陸節的模擬顯示該作法在小人口反而更差。
 
 第二是\textbf{對數轉換的加權失衡}。Basellini et al.（2023）指出，取對數
 等於給低死亡率較大權重、給高死亡率較小權重，而高死亡率出現在高齡、該處
@@ -348,7 +356,8 @@ $\beta_x$ 的項，Currie（2013）進一步在 GLM 架構下擴充至同時懲�
 第三是\textbf{過度離散（Overdispersion）}。死亡計數普遍較卜瓦松分配更為
 分散，高齡尤然。Renshaw and Haberman（2003）提出過度離散卜瓦松擬概似，
 Li et al.（2009）則以 gamma 脆弱性導出年齡別過度離散參數，並顯示預測區間
-較卜瓦松 LC 增寬 18\% 至 180\%。
+較卜瓦松 LC 增寬 18\% 至 180\%；Djeundje and Currie（2010）另在平滑架構下
+直接處理離散過度的計數資料。
 
 \subsubsection{（二）既有的修正途徑}
 
@@ -367,7 +376,9 @@ Li et al.（2009）則以 gamma 脆弱性導出年齡別過度離散參數，並
 當小區域與參考母體的死亡型態相近時，部分 SMR 的表現最佳；型態差異較大時，
 則以 Whittaker 比值較為穩健。
 
-\textbf{修勻參數的修勻}則是另一條路線。Basellini et al.（2023）將其分為
+\textbf{修勻參數的修勻}則是另一條路線，其技術基礎為 Eilers and Marx（1996）
+提出的懲罰式 B 樣條（P-spline），並經 Currie et al.（2004）推廣至年齡與時間
+的二維平滑。Basellini et al.（2023）將其分為
 估計前、估計中、估計後三類：Hyndman and Ullah（2007）與
 Rabbi and Mazzuco（2021）屬估計前修勻率；Delwarde et al.（2007）在配適
 演算法中加入懲罰 $\beta_x$ 不規則性的項、以交叉驗證（Cross-validation）選取
@@ -375,32 +386,40 @@ Rabbi and Mazzuco（2021）屬估計前修勻率；Delwarde et al.（2007）在�
 修勻參數；Renshaw and Haberman（2003）以三次 B 樣條修勻已估出的 $\beta_x$，
 屬估計後修勻參數。
 
-\subsubsection{（三）尚未處理的缺陷}
+\subsubsection{（三）有待商榷的議題}
 
-綜合上述，本文認為現有文獻仍有四項缺口。
+綜合上述，我對於過去文獻的內容，有四項議題想要暸解。
 
-\textbf{缺口一：小人口 LC 模型的系統性研究仍屬少見。}
-Basellini et al.（2023）在整份回顧中，僅能舉出 Li et al.（2004）作為「極少數
+\textbf{議題一：小樣本研究多針對變異數，對 SVD 的偏誤著墨較少。}
+須先說明的是，小樣本問題並非無人研究。Chen et al.（2017）即以參數式拔靴法
+系統地探討人口規模對最大概似估計量有限樣本分布的影響，涵蓋參數之間的相依
+結構與概似比檢定的檢定力；國內亦有 Wang et al.（2018）、
+Yue et al.（2019, 2021）等一系列研究。惟 Chen et al.（2017）的對象是
+M7 模型、估計方式自始即為\textbf{卜瓦松最大概似}，其結論聚焦於
+\textbf{參數的不確定性}；而本文第陸節將顯示，最大概似估計量的漂移項幾乎無
+偏誤，真正產生系統性偏誤的是 LC 模型\textbf{預設的奇異值分解}。
+換言之，既有研究的設計恰好看不到本文關切的現象。
+Basellini et al.（2023）在整份回顧中亦僅能舉出 Li et al.（2004）作為「極少數
 針對資料有限之族群」的應用，且該文處理的是不等間距的死亡率序列，而非小暴露
-數本身。國內雖有 Wang et al.（2018）、Yue et al.（2019, 2021）等一系列研究，
-但暴露數門檻的系統性描述仍有補充空間。
+數本身。\textbf{因此仍有補充空間的，是奇異值分解在小樣本的偏誤及其對預測
+區間的影響。}
 
-\textbf{缺口二：修勻壓低預測區間寬度的現象已被指出，卻無人量化。}
+\textbf{議題二：修勻壓低預測區間寬度的現象已被指出，卻無人量化。}
 如前所述，Basellini et al.（2023）在討論節明確提出此疑慮並點名五齡組，但未
 提供任何量化證據。
 
-\textbf{缺口三：平滑參數的選擇準則與估計目標錯置。}
+\textbf{議題三：平滑參數的選擇準則與估計目標錯置。}
 Delwarde et al.（2007）以交叉驗證選取平滑參數，Rabbi and Mazzuco（2021）
 則以對觀測值的誤差比較各種修勻法。前者衡量的是曲面的預測誤差，後者更是
-必然選到「不修勻」——因為修勻依定義必然增加對觀測值的誤差。兩者瞄準的都
+在臺灣資料上傾向選擇「不修勻」——因為修勻依定義必然增加對觀測值的誤差。兩者瞄準的都
 不是真正關心的估計量。
 
-\textbf{缺口四：時間參數 $\kappa_t$ 在小人口的行為尚未被檢驗。}
+\textbf{議題四：時間參數 $\kappa_t$ 在小人口的行為尚未被檢驗。}
 此點由 Yue et al.（2019）於結論中明白指出：該研究僅設定 $\alpha_x$ 與
 $\beta_x$ 的各種情境，未考慮 $\kappa_t$ 的差異。然而 $\kappa_t$ 的漂移項
 直接乘上預測期長度進入平均餘命，其偏誤對長期預測的影響遠大於年齡參數。
 
-本文第肆、伍節即針對缺口二至缺口四提出量化證據。
+本文第陸、柒節即針對議題二至議題四提出量化證據。
 
 \section{研究資料與方法}
 
@@ -414,7 +433,7 @@ $\beta_x$ 的各種情境，未考慮 $\kappa_t$ 的差異。然而 $\kappa_t$ �
 \subsection{比較的六種方法}
 
 本文比較六種 LC 變體，如表~\ref{tab:variants} 所示。其中 LC、LCP、LM、BMS 為對照組，
-$\LCe$ 為 Rabbi and Mazzuco（2021）的復刻對象，M$\LCe$ 則為本文額外設計
+$\LCe$ 為 Rabbi and Mazzuco（2021）的還原對象，M$\LCe$ 則為本文額外設計
 的變體——先以修勻後的期望死亡數走卜瓦松最大概似，再對齊 $\edag$，用以分離
 「修勻」與「卜瓦松架構」兩項效果。
 
@@ -445,11 +464,11 @@ $w_{x,t}$ 為各年的年齡結構（各年合計為 1），$N$ 為單一性別�
 由 $D_{x,t}\sim\text{Poisson}(E_{x,t}\,m^{\text{true}}_{x,t})$ 產生。$N$ 的
 範圍取 1 萬至 100 萬，涵蓋我國絕大多數鄉鎮市區與縣市的規模。
 
-\section{復刻結果}
+\section{論文還原結果}
 
 \subsection{成立的部分}
 
-\subsubsection{（一）LASSO 修勻的配適精確度優於樣條}
+\subsubsection{（一）LASSO 修勻的配適精確度優於樣條函數方法}
 
 表~\ref{tab:smooth} 呈現三種修勻法在女性 2001$\sim$2024 年資料上的配適誤差
 與粗糙度，用以回應\textbf{問題一的第一個環節}：原文宣稱 LASSO 型修勻優於
@@ -603,17 +622,19 @@ M$\LCe$ & 87.47 & $[85.45,\ 89.29]$ & 3.842\\
 \label{tab:e0}
 \end{table}
 
-\subsubsection{（三）涵蓋率的優勢是以寬度換來的}
+\subsubsection{（三）涵蓋率的優勢是建立在寬度的犧牲之上}
 
 $\LCe$ 的涵蓋機率偏差雖為六者最低（0.20），但平均區間寬度 1.391 是 LC 的
 0.875 的 1.6 倍。更重要的是，六種方法的實證涵蓋率都落在 0.2$\sim$0.6 之間，
-距名目的 0.8 甚遠。此一方向與 Shang et al.（2011）比較 10 種 LC 擴充、
+距名目的 0.8 甚遠。「LC 模型的預測區間過窄」此一診斷最早由 Alho（1992）在對原文的評論中提出，
+其後 Shang et al.（2011）以更大規模的比較加以確認。本文的結果與其方向一致——
+Shang et al.（2011）比較 10 種 LC 擴充、
 14 個國家後得到「全部低估死亡率變異性」的結論一致，惟本文係在單一人口、
 五齡組、且留出期涵蓋 COVID-19 的條件下取得，程度嚴重得多。
 
-\subsection{復刻過程浮現的方法論問題}
+\subsection{論文還原過程浮現的方法論問題}
 
-\textbf{（一）原文圖 8 的相關係數是結構性假象。}
+\textbf{（一）原文圖 8 的相關係數受模型結構決定，其論證不一定成立。}
 觀測值的 $e_0$ 與 $\edag$ 相關係數為 $-0.944$，配適值則高達 $-0.999$。由於
 秩 1 的 LC 模型中每年的整條死亡率曲線由單一純量 $\kappa_t$ 決定，$e_0$ 與
 $\edag$ 必然都是 $\kappa_t$ 的單調函數，因而近乎完美相關。此一數值僅說明
@@ -627,7 +648,7 @@ $\edag$ 必然都是 $\kappa_t$ 的單調函數，因而近乎完美相關。此
 離峰頂甚遠，實務上不致遭遇，但高死亡率人口或極端外推情境未必如此。原文對此
 前提並未討論，本文的實作因此改以網格掃描取最接近原值的根。
 
-\textbf{（三）原文選取修勻參數的準則必然選到「不修勻」。}
+\textbf{（三）原文選取修勻參數的準則在台灣數據上傾向選擇「不修勻」。}
 該文以對觀測值的 MAE 與 MSE 比較各種修勻法，而修勻依定義必然增加對觀測值
 的誤差。本文以留出格重算此一準則，在 $N=5$ 萬與 20 萬時，最小值均落在
 $\lambda=0$。此非方法優劣的比較，而是準則的定義使然。
@@ -785,7 +806,7 @@ $\lambda_{xx}$ & $\lambda_{xt}$ & $\lambda_{tt}$ & SSE($\beta$) & SSE($\alpha$) 
 
 \subsection{預測區間的來源分解}
 
-本小節針對缺口二進行檢驗，並回應前一小節留下的第二個環節：偏誤如何傳導至
+本小節針對議題二進行檢驗，並回應前一小節留下的第二個環節：偏誤如何傳導至
 預測區間。設定預測期 $h=10$、名目水準 80\%，目標為涵蓋真模型在觀測的
 $\kappa_t$ 路徑下的 $e_0$。
 
@@ -1270,7 +1291,7 @@ $N=2$ 萬時未懲罰版的變異數為 4.391，懲罰版僅 0.022，相差約 \
 兩者的\textbf{交叉點約在 $N=3\times10^5$}。
 
 \textbf{其三，因此 $\lambda$ 必須隨 $N$ 調整。} 表~\ref{tab:bv} 已顯示最適比例由
-$N=5$ 萬時的 0.20 降至 $N=20$ 萬時的 0.03。實務上建議以第伍節所述的
+$N=5$ 萬時的 0.20 降至 $N=20$ 萬時的 0.03。實務上建議以第陸節之二所述的
 參數式拔靴插入式選法選取，而非固定比例。
 
 \subsection{三種懲罰的比較}
@@ -1368,7 +1389,7 @@ Elastic Net & 0.10 & 0.00463 & 0.00255 & 0.00716\\
 
 \subsection{結論}
 
-本文以 Rabbi and Mazzuco（2021）為起點，在臺灣五齡組死亡資料上完成復刻並
+本文以 Rabbi and Mazzuco（2021）為起點，在臺灣五齡組死亡資料上完成還原並
 向外延伸，主要結論如下。
 
 第一，該方法的優點部分成立：LASSO 修勻的配適精確度確實優於樣條，壽命差異
@@ -1423,7 +1444,7 @@ $\sum_x\beta_x=1$ 之下，朝零收縮的懲罰項退化為常數、完全不�
         2022 年降至 83.14 歲，2024 年才回到 83.94 歲），屬真實的結構性衝擊。
   \item \textbf{模擬規模已統一}：本版所有蒙地卡羅一律重複 100 次、
         固定亂數種子（20260921），取代先前 8 至 50 次的試跑結果。
-        第伍節的數值因此與早期版本略有出入，其中 $\lambda$ 選法的相對損失
+        第陸節的數值因此與早期版本略有出入，其中 $\lambda$ 選法的相對損失
         由「約七倍」修正為 3.49 倍，三方向格點的建議組合由 $(1,2,1)$
         改為 $(1,5,5)$；結論方向不變。
 \end{enumerate}
@@ -1472,7 +1493,7 @@ $\sum_x\beta_x=1$ 之下，朝零收縮的懲罰項退化為常數、完全不�
         並以本文現行設定為對照組，\textbf{報告「在何種條件下本方法不應
         使用」}，作為實務應用的邊界說明。
   \item \textbf{懲罰強度的自動選取}：本文顯示最適 $\lambda/\lambda_{\max}$
-        隨人口規模由 0.20 降至 0.03，固定比例並不可行。擬將第伍節的參數式
+        隨人口規模由 0.20 降至 0.03，固定比例並不可行。擬將第陸節之二的參數式
         拔靴插入式選法套用於此，並與交叉驗證、BIC 比較。
   \item \textbf{自適應權重與收斂理論的補強}：現已實作 Zou（2006）式的自適應
         權重（$w_x\propto1/\sqrt{D_{x\cdot}}$）但尚未系統評估；另擬依
@@ -1598,7 +1619,7 @@ $N=5$ 萬、$\lambda/\lambda_{\max}=0.20$ 時，未懲罰版的平均絕對偏�
   \item[] 余清祥、王信忠、陳譽騰（2021）。年輪變動比用於小區域人口推估的探討。
         人口學刊，63：99-133。doi:10.6191/JPS.202112\_(63).0003
   \item[] 余清祥、王信忠、呂靖翎（2025）。平均餘命與標準化死亡率之相關分析。
-        人口學刊。（卷期頁碼待補）
+        人口學刊，85-116。
   \item[] 陳政勳、余清祥（2010）。小區域人口推估研究：臺北市、雲嘉兩縣、
         澎湖縣的實證分析。人口學刊，41：153-183。doi:10.6191/JPS.2010.9
 \end{itemize}
@@ -1606,6 +1627,9 @@ $N=5$ 萬、$\lambda/\lambda_{\max}=0.20$ 時，未懲罰版的平均絕對偏�
 \vspace{4pt}
 \noindent\textbf{二、英文部分}
 \begin{itemize}[leftmargin=2em, label={}, itemsep=3pt]
+  \item[] Alho, J. M. 1992. ``Modeling and Forecasting U.S. Mortality:
+        Comment.'' \textit{Journal of the American Statistical Association}
+        87(419): 673-674.
   \item[] Basellini, U., C. G. Camarda, and H. Booth. 2023. ``Thirty Years On:
         A Review of the Lee--Carter Method for Forecasting Mortality.''
         \textit{International Journal of Forecasting} 39(3): 1033-1049.
@@ -1615,24 +1639,45 @@ $N=5$ 萬、$\lambda/\lambda_{\max}=0.20$ 時，未懲罰版的平均絕對偏�
   \item[] Booth, H., R. J. Hyndman, L. Tickle, and P. De Jong. 2006.
         ``Lee--Carter Mortality Forecasting: A Multi-country Comparison of
         Variants and Extensions.'' \textit{Demographic Research} 15: 289-310.
+  \item[] Booth, H., L. Tickle, and L. Smith. 2005. ``Evaluation of the
+        Variants of the Lee-Carter Method of Forecasting Mortality:
+        A Multi-country Comparison.''
+        \textit{New Zealand Population Review} 31(1): 13-34.
   \item[] Brouhns, N., M. Denuit, and J. K. Vermunt. 2002. ``A Poisson
         Log-bilinear Regression Approach to the Construction of Projected
         Lifetables.'' \textit{Insurance: Mathematics and Economics}
         31(3): 373-393.
   \item[] B\"uhlmann, P., and S. van de Geer. 2011. \textit{Statistics for
         High-Dimensional Data: Methods, Theory and Applications.} Springer.
+  \item[] Cairns, A. J. G., D. Blake, K. Dowd, G. D. Coughlan, and
+        M. Khalaf-Allah. 2011. ``Bayesian Stochastic Mortality Modelling for
+        Two Populations.'' \textit{ASTIN Bulletin} 41(1): 29-59.
+  \item[] Camarda, C. G., and U. Basellini. 2021. ``Smoothing, Decomposing and
+        Forecasting Mortality Rates.'' \textit{European Journal of Population}
+        37(3): 569-602.
+  \item[] Chen, L., A. J. G. Cairns, and T. Kleinow. 2017. ``Small Population
+        Bias and Sampling Effects in Stochastic Mortality Modelling.''
+        \textit{European Actuarial Journal} 7(1): 193-230.
   \item[] Currie, I. D. 2011. ``Modelling and Forecasting the Mortality of the
         Very Old.'' \textit{ASTIN Bulletin} 41(2): 419-427.
   \item[] Currie, I. D. 2013. ``Smoothing Constrained Generalized Linear Models
         with an Application to the Lee--Carter Model.''
         \textit{Scandinavian Actuarial Journal} 2016(4): 356-383.
+  \item[] Currie, I. D., M. Durban, and P. H. C. Eilers. 2004. ``Smoothing
+        and Forecasting Mortality Rates.'' \textit{Statistical Modelling}
+        4(4): 279-298.
   \item[] Delwarde, A., M. Denuit, and P. Eilers. 2007. ``Smoothing the
         Lee--Carter and Poisson Log-bilinear Models for Mortality Forecasting:
         A Penalized Log-likelihood Approach.''
         \textit{Statistical Modelling} 7(1): 29-48.
+  \item[] Djeundje, V. A. B., and I. D. Currie. 2010. ``Smoothing Dispersed
+        Counts with Applications to Mortality Data.''
+        \textit{Annals of Actuarial Science} 5(1): 33-52.
   \item[] Dokumentov, A., R. J. Hyndman, and L. Tickle. 2018. ``Bivariate
         Smoothing of Mortality Surfaces with Zero Counts: The Lasso2d Method.''
         \textit{Stat} 7(1): e199.
+  \item[] Eilers, P. H. C., and B. D. Marx. 1996. ``Flexible Smoothing with
+        B-splines and Penalties.'' \textit{Statistical Science} 11(2): 89-102.
   \item[] Friedman, J., T. Hastie, and R. Tibshirani. 2010. ``Regularization
         Paths for Generalized Linear Models via Coordinate Descent.''
         \textit{Journal of Statistical Software} 33(1): 1-22.
@@ -1662,6 +1707,9 @@ $N=5$ 萬、$\lambda/\lambda_{\max}=0.20$ 時，未懲罰版的平均絕對偏�
   \item[] Lee, J. D., Y. Sun, and M. A. Saunders. 2014. ``Proximal Newton-type
         Methods for Minimizing Composite Functions.''
         \textit{SIAM Journal on Optimization} 24(3): 1420-1443.
+  \item[] Li, J. S.-H., M. R. Hardy, and K. S. Tan. 2009. ``Uncertainty in
+        Mortality Forecasting: An Extension to the Classical Lee-Carter
+        Approach.'' \textit{ASTIN Bulletin} 39(1): 137-164.
   \item[] Li, N., R. D. Lee, and S. Tuljapurkar. 2004. ``Using the Lee--Carter
         Method to Forecast Mortality for Populations with Limited Data.''
         \textit{International Statistical Review} 72(1): 19-36.
@@ -1673,15 +1721,20 @@ $N=5$ 萬、$\lambda/\lambda_{\max}=0.20$ 時，未懲罰版的平均絕對偏�
         \textit{ASTIN Bulletin} 53(1): 29-61.
   \item[] Meinshausen, N. 2007. ``Relaxed Lasso.''
         \textit{Computational Statistics \& Data Analysis} 52(1): 374-393.
-  \item[] Pitt, D., J. Li, and T. K. Lim. ``Smoothing Poisson Common Factor
-        Model for Projecting Mortality Jointly for Both Sexes.''
-        \textit{ASTIN Bulletin}.（卷期頁碼待補）
+  \item[] Pitt, D., J. Li, and T. K. Lim. 2018. ``Smoothing Poisson Common
+        Factor Model for Projecting Mortality Jointly for Both Sexes.''
+        \textit{ASTIN Bulletin: The Journal of the IAA} 48(2): 509-541.
   \item[] Rabbi, A. M. F., and S. Mazzuco. 2021. ``Mortality Forecasting with
         the Lee--Carter Method: Adjusting for Smoothing and Lifespan
         Disparity.'' \textit{European Journal of Population} 37(1): 97-120.
   \item[] Renshaw, A. E., and S. Haberman. 2003. ``Lee--Carter Mortality
         Forecasting with Age-specific Enhancement.''
         \textit{Insurance: Mathematics and Economics} 33(2): 255-272.
+  \item[] Santolino, M. 2020. ``The Lee-Carter Quantile Mortality Model.''
+        \textit{Scandinavian Actuarial Journal} 2020(7): 614-633.
+  \item[] Schuette, D. R. 1978. ``A Linear Programming Approach to
+        Graduation.'' \textit{Transactions of Society of Actuaries}
+        30: 407-431.
   \item[] Shang, H. L., H. Booth, and R. J. Hyndman. 2011. ``Point and Interval
         Forecasts of Mortality Rates and Life Expectancy: A Comparison of Ten
         Principal Component Methods.''
@@ -1701,6 +1754,9 @@ $N=5$ 萬、$\lambda/\lambda_{\max}=0.20$ 時，未懲罰版的平均絕對偏�
   \item[] Wilmoth, J. R. 1993. \textit{Computational Methods for Fitting and
         Extrapolating the Lee--Carter Model of Mortality Change.} Technical
         Report, Department of Demography, University of California, Berkeley.
+  \item[] Wi\'sniowski, A., P. W. F. Smith, J. Bijak, J. Raymer, and
+        J. J. Forster. 2015. ``Bayesian Population Forecasting: Extending the
+        Lee--Carter Method.'' \textit{Demography} 52(3): 1035-1059.
   \item[] Yue, J. C., H. C. Wang, and T. Y. Wang. 2019. ``Using Graduation to
         Modify the Estimation of Lee--Carter Model for Small Populations.''
         \textit{North American Actuarial Journal}.

@@ -22,7 +22,7 @@
 
 \title[小人口 LC 模型]{小人口 Lee-Carter 模型之估計與區間推論}
 \subtitle{兼論修勻與壽命差異調整的適用界限}
-\author[（學生姓名）]{（學生姓名）\\[4pt]\small 指導教授：余清祥\,教授}
+\author[林子立]{林子立\\[4pt]\small 指導教授：余清祥\,教授}
 \institute{國立政治大學統計學系}
 \date{2026 年 9 月 21 日}
 
@@ -90,6 +90,9 @@ $\Rightarrow$ \gd{模型的秩為一}。
         \textbf{Wang et al.\ (2018)、余清祥等（2021）} 發現 $\alpha_x$、$\beta_x$
         的偏誤隨人數減少而增加，\hi{尤以 $\alpha_x$ 更嚴重}，
         人數 \hi{20 萬以下}時特別明顯。
+  \item Chen et al.\ (2017) 另以參數式拔靴法顯示，人口規模對 MLE 的
+        \textbf{不確定性}有顯著影響——既有文獻多問「估計有多不準」，
+        \hi{少有人問「估計是否系統性偏移」}。
 \end{itemize}
 \vspace{4pt}
 \begin{block}{Yue et al.\ (2019) 結論中明白指出的兩個未處理方向}
@@ -98,14 +101,14 @@ $\Rightarrow$ \gd{模型的秩為一}。
 (2) 參考母體的選擇可引入\textbf{變數選擇}的概念，且\hi{依年齡決定將更理想}。
 \end{block}
 \vspace{2pt}
-\centerline{\small\textbf{本文即由此二缺口出發。}}
+\centerline{\small\textbf{本文即由此二項缺漏出發。}}
 \end{frame}
 
 \begin{frame}{三個依序遞進的研究問題}
 \begin{enumerate}\setlength{\itemsep}{12pt}
   \item \textbf{問題一}：Rabbi and Mazzuco (2021) 在國家級資料上成立的優勢，
         改換資料與配適期後是否仍成立？若不成立，界限在哪裡？
-        \\[2pt]\footnotesize\textcolor{gray}{$\rightarrow$ 第 4--9 張，以實證復刻回應}
+        \\[2pt]\footnotesize\textcolor{gray}{$\rightarrow$ 第 4--9 張，以論文還原回應}
   \item \textbf{問題二}：小樣本下 LC 模型失效的機制，是\textbf{變異數增大}
         還是\textbf{有方向的偏誤}？\\[2pt]
         \footnotesize\textcolor{gray}{兩者的補救方式完全不同：變異數可加寬區間，
@@ -118,7 +121,7 @@ $\Rightarrow$ \gd{模型的秩為一}。
 
 \begin{frame}{今天要報告的三件事}
 \begin{enumerate}\setlength{\itemsep}{10pt}
-  \item \textbf{復刻}：Rabbi and Mazzuco (2021) 的 $\LCe$ 方法在臺灣五齡組資料上
+  \item \textbf{還原}：Rabbi and Mazzuco (2021) 的 $\LCe$ 方法在臺灣五齡組資料上
         \gd{部分成立}，但優勢\hi{僅限近期短配適期}，且有三項該文未處理的問題。
   \item \textbf{模擬}：小人口下 LC 失效的主因是 \hi{SVD 對小樣本取對數的偏誤}
         而非變異，因此文獻共識「LC 區間過窄」在小人口\hi{不成立}。
@@ -172,7 +175,7 @@ LC & 對齊總死亡數\\
 LCP & 卜瓦松 MLE（無需調整）\\
 LM & 對齊 $e_0$（Lee--Miller）\\
 BMS & 卜瓦松離差 ＋ 搜尋配適起始年\\
-\hi{$\LCe$} & \hi{2D L1 修勻 $\to$ 對齊 $\edag$}（復刻對象）\\
+\hi{$\LCe$} & \hi{2D L1 修勻 $\to$ 對齊 $\edag$}（還原對象）\\
 \hi{M$\LCe$} & 修勻後走卜瓦松 $\to$ 對齊 $\edag$\\
 \bottomrule
 \end{tabular}
@@ -182,7 +185,7 @@ BMS & 卜瓦松離差 ＋ 搜尋配適起始年\\
 $\min_z \|y-z\|_1+\lambda_{xx}\|D_{xx}z\|_1+\lambda_{xt}\|D_{xt}z\|_1+\lambda_{tt}\|D_{tt}z\|_1$
 \end{frame}
 
-\section{復刻：成立的部分}
+\section{論文還原：成立的部分}
 
 \begin{frame}{\gd{成立 (1)}：LASSO 修勻確實較準}
 \begin{columns}[T]
@@ -265,7 +268,7 @@ BMS & 0.1172 & 0.0270 & 0.7466 & 0.1293\\
 \end{alertblock}
 \end{frame}
 
-\section{復刻：不成立的部分}
+\section{論文還原：不成立的部分}
 
 \begin{frame}{\hi{不成立 (1)}：優勢僅限於近期短窗口}
 擴充成「性別 $\times$ 起始年」12 格面板後，$\LCe$ 的優勢\textbf{並非普遍}：
@@ -340,8 +343,8 @@ $\LCe$ 的一階差 sd $=0.879$，
 但本研究是在\textbf{單一人口、五齡組、含 COVID 的留出期}上得到的，程度嚴重得多。
 \end{frame}
 
-\begin{frame}{復刻過程浮現的三個方法論問題}
-\begin{block}{(1) 原文 Fig.~8 的相關係數是\hi{結構性假象}}
+\begin{frame}{論文還原過程浮現的三個方法論問題}
+\begin{block}{(1) 原文 Fig.~8 的相關係數是\hi{受模型結構決定}}
 \small 秩 1 的 LC 中每年整條曲線由單一純量 $\kappa_t$ 決定
 $\Rightarrow$ $e_0$ 與 $\edag$ 必然都是 $\kappa_t$ 的單調函數、近乎完美相關
 （配適值 $r=-0.999$）。\textbf{據此比較 $r$ 值的論證站不住腳。}
@@ -351,7 +354,7 @@ $\Rightarrow$ $e_0$ 與 $\edag$ 必然都是 $\kappa_t$ 的單調函數、近乎
 $\Rightarrow$「以 $\edag$ 對齊 $\kappa$」\textbf{原則上可能有兩個解}。
 低死亡率國家碰不到，但高死亡率人口或極端外推未必。\textbf{原文完全未討論。}
 \end{block}
-\begin{block}{(3) 原文選修勻參數的準則\hi{必然選到「不修勻」}}
+\begin{block}{(3) 原文選修勻參數的準則\hi{在台灣數據上傾向選擇「不修勻」}}
 \small 以對觀測值的 MAE/MSE 為準則，而修勻\textbf{依定義}必然增加對觀測值的誤差。
 $\Rightarrow$ 這不是方法比較，是準則的定義決定的。
 \end{block}
@@ -742,23 +745,25 @@ Elastic Net & 0.10 & .00463 & .00255 & .00716\\
 
 \section{定位與下一步}
 
-\begin{frame}{四個研究缺口}
+\begin{frame}{四項議題}
 \begin{enumerate}\small\setlength{\itemsep}{7pt}
-  \item \textbf{小人口 LC 模型的系統性研究仍屬少見。}
-        Basellini et al.\ (2023) 全篇僅能舉出 Li et al.\ (2004) 作為
-        「極少數針對資料有限之族群」的應用，且處理的是不等間距序列而非小暴露數。
+  \item \textbf{小樣本研究多針對變異數，對 SVD 的偏誤著墨較少。}
+        Chen et al.\ (2017) 已系統探討人口規模對 MLE 有限樣本分布的影響，
+        但對象是 M7 模型、估計自始為\textbf{卜瓦松 MLE}，聚焦
+        \textbf{參數不確定性}；而本文顯示 MLE 的漂移項幾乎無偏誤，
+        \hi{真正有系統性偏誤的是 LC 預設的 SVD}——既有設計看不到此現象。
   \item \textbf{修勻壓低區間寬度已被指出，卻無人量化。}
         該回顧討論節明確提出並\textbf{點名五齡組}，但未提供任何量化證據。
   \item \textbf{平滑參數的選擇準則與估計目標錯置。}
         Delwarde et al.\ (2007) 用交叉驗證、Rabbi and Mazzuco 用對觀測值的誤差；
-        前者小人口修勻不足七倍、後者必然選到不修勻。
+        前者小人口修勻不足七倍、後者在台灣數據上傾向選擇不修勻。
   \item \hi{\textbf{時間參數 $\kappa_t$ 在小人口的行為尚未被檢驗。}}
         此點由 \textbf{Yue et al.\ (2019)} 於結論中明白指出。
         然而 $\kappa_t$ 的漂移項\textbf{直接乘上預測期長度}進入平均餘命，
         其偏誤對長期預測的影響遠大於年齡參數。
 \end{enumerate}
 \vspace{4pt}
-\centerline{\small 本文針對\textbf{缺口二至四}提出量化證據。}
+\centerline{\small 本文針對\textbf{議題二至議題四}提出量化證據。}
 \end{frame}
 
 \begin{frame}{必須主動說明的限制}
@@ -792,8 +797,8 @@ Elastic Net & 0.10 & .00463 & .00255 & .00716\\
 \vspace{4pt}
 \begin{block}{想請教的三個方向}
 \begin{enumerate}\setlength{\itemsep}{8pt}
-  \item 論文主軸要放在\textbf{缺口二}（修勻壓低區間寬度）
-        還是\textbf{缺口四}（$\kappa_t$ 的偏誤而非變異）？
+  \item 論文主軸要放在\textbf{議題二}（修勻壓低區間寬度）
+        還是\textbf{議題四}（$\kappa_t$ 的偏誤而非變異）？
   \item 懲罰式 LC 的收縮目標，下一步是否由均勻向量 $\mathbf{1}/A$ 改為
         \textbf{實際參考母體的 $\hat\beta^{\text{ref}}$}，以銜接
         \textbf{Yue et al.\ (2019)} 建議的「依年齡選擇參考母體」？

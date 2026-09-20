@@ -10,9 +10,9 @@
 library(readxl)
 
 ## ---------------------------------------------------------------- 0. 設定 --
-setwd("/Users/linzili/政大課堂/碩一/碩士論文/碩士論文＿20260908/data")
-path_death <- "五齡Death.xlsx"
-path_expo  <- "5-age exposure.xls"
+# 路徑相對於 repo 根目錄（工作目錄請設在 .Rproj 所在處）
+path_death <- file.path("data", "五齡Death.xlsx")
+path_expo  <- file.path("data", "5-age exposure.xls")
 
 sex        <- "Total"   # "Total" / "Male" / "Female"
 open_age   <- "100+"    # 併尾組：110+ 在 1970-2009 暴露數為 0，必須合併
@@ -168,10 +168,10 @@ params <- data.frame(Age = ages, alpha = ax, beta = bx, row.names = NULL)
 kappa  <- data.frame(Year = years, kappa_svd = kt, kappa_adj = kt_adj,
                      row.names = NULL)
 
-write.csv(params, "lc_params_ax_bx.csv", row.names = FALSE)
-write.csv(kappa,  "lc_kappa_t.csv",      row.names = FALSE)
+write.csv(params, file.path("data", "lc_params_ax_bx.csv"), row.names = FALSE)
+write.csv(kappa,  file.path("data", "lc_kappa_t.csv"),      row.names = FALSE)
 write.csv(data.frame(Year = yr_fc, kappa = kt_fc, lo = kt_lo, hi = kt_hi),
-          "lc_kappa_forecast.csv", row.names = FALSE)
+          file.path("data", "lc_kappa_forecast.csv"), row.names = FALSE)
 
 print(head(params, 24))
 

@@ -41,8 +41,9 @@ collapse_top <- function(M, cut = "100+") {
         matrix(colSums(M[top, , drop = FALSE]), 1, dimnames = list(cut, colnames(M))))
 }
 
-load_data <- function(path_death = "/Users/linzili/政大課堂/碩一/碩士論文/碩士論文＿20260908/data/五齡Death.xlsx",
-                      path_expo  = "/Users/linzili/政大課堂/碩一/碩士論文/碩士論文＿20260908/data/5-age exposure.xls",
+# 路徑相對於 repo 根目錄（工作目錄請設在 .Rproj 所在處）
+load_data <- function(path_death = file.path("data", "五齡Death.xlsx"),
+                      path_expo  = file.path("data", "5-age exposure.xls"),
                       sex = "Total", open_age = "100+") {
   d <- read_mort(path_death, age_labels)
   e <- read_mort(path_expo,  age_labels)

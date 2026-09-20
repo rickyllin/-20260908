@@ -168,10 +168,10 @@ params <- data.frame(Age = ages, alpha = ax, beta = bx, row.names = NULL)
 kappa  <- data.frame(Year = years, kappa_svd = kt, kappa_adj = kt_adj,
                      row.names = NULL)
 
-write.csv(params, file.path("data", "lc_params_ax_bx.csv"), row.names = FALSE)
-write.csv(kappa,  file.path("data", "lc_kappa_t.csv"),      row.names = FALSE)
+write.csv(params, file.path("output/tables", "lc_params_ax_bx.csv"), row.names = FALSE)
+write.csv(kappa,  file.path("output/tables", "lc_kappa_t.csv"),      row.names = FALSE)
 write.csv(data.frame(Year = yr_fc, kappa = kt_fc, lo = kt_lo, hi = kt_hi),
-          file.path("data", "lc_kappa_forecast.csv"), row.names = FALSE)
+          file.path("output/tables", "lc_kappa_forecast.csv"), row.names = FALSE)
 
 print(head(params, 24))
 

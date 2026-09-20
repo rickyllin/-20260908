@@ -7,11 +7,11 @@
 #   比較   ：純 LC（SVD）vs LASSO 修勻後的 LC，多組 lambda
 #   評估   ：alpha/beta/kappa 的偏誤、變異數、MSE；drift；崩潰率
 #
-# 需先 source("rabbi_mazzuco_replication.R") 與 source("patch_adjust_kappa.R")
+# 需先 source("R/core/rabbi_mazzuco_replication.R") 與 source("R/core/patch_adjust_kappa.R")
 ###############################################################################
 
-source("rabbi_mazzuco_replication.R")
-source("Patch adjust kappa.R")
+source("R/core/rabbi_mazzuco_replication.R")
+source("R/core/patch_adjust_kappa.R")
 
 ## ===================== 1. 真值 =============================================
 mc_truth <- function(sex = "Female", y0 = 2001, y1 = 2024) {
@@ -142,25 +142,25 @@ mc_plots <- function(res, file = NULL) {
   
   plot(Ns, pick(ms[1], "b_mse_med"), type = "n", log = "xy",
        ylim = safe_range(res$b_mse_med), xlab = "Exposure N",
-       ylab = "median SSE(beta)", main = "beta 的 MSE（中位數）")
+       ylab = "median SSE(beta)", main = "median SSE(beta)")
   for (m in ms) lines(Ns, pick(m, "b_mse_med"), type = "b", pch = 16, col = cols[m])
   legend("bottomleft", ms, col = cols, lwd = 1, pch = 16, bty = "n", cex = .7)
   
   plot(Ns, pick(ms[1], "a_bias"), type = "n", log = "x",
        ylim = safe_range(res$a_bias), xlab = "Exposure N",
-       ylab = "mean bias(alpha)", main = "alpha 的平均偏誤")
+       ylab = "mean bias(alpha)", main = "mean bias(alpha)")
   for (m in ms) lines(Ns, pick(m, "a_bias"), type = "b", pch = 16, col = cols[m])
   abline(h = 0, lty = 2)
   
   dt <- attr(res, "drift_true")
   plot(Ns, pick(ms[1], "drift_med"), type = "n", log = "x",
        ylim = safe_range(res$drift_med, dt), xlab = "Exposure N",
-       ylab = "median drift", main = sprintf("drift（真值 %.4f）", dt))
+       ylab = "median drift", main = sprintf("drift (true = %.4f)", dt))
   for (m in ms) lines(Ns, pick(m, "drift_med"), type = "b", pch = 16, col = cols[m])
   abline(h = dt, lty = 2, col = 2)
   
   plot(Ns, pick(ms[1], "breakdown"), type = "n", log = "x", ylim = c(0, 1),
-       xlab = "Exposure N", ylab = "P(cor(beta) < 0.8)", main = "崩潰率")
+       xlab = "Exposure N", ylab = "P(cor(beta) < 0.8)", main = "breakdown rate")
   for (m in ms) lines(Ns, pick(m, "breakdown"), type = "b", pch = 16, col = cols[m])
   par(op); if (!is.null(file)) dev.off()
 }
@@ -177,8 +177,8 @@ if (sys.nframe() == 0) {
   print(res[, c("N","method","zero_cells","a_bias","b_mse_med","b_cor_med",
                 "breakdown","drift_med","drift_iqr")],
         digits = 4, row.names = FALSE)
-  write.csv(res, "mc_results.csv", row.names = FALSE)
-  mc_plots(res, file = "mc_plots.png")
+  write.csv(res, "output/tables/mc_results.csv", row.names = FALSE)
+  mc_plots(res, file = "output/figures/mc_plots.png")
   
   ## 變異數估計的準確度（挑一個中等暴露數）
   cat("\n參數式 bootstrap 的 SE 與蒙地卡羅 SD 比較（N = 2e5, lambda = 5）：\n")

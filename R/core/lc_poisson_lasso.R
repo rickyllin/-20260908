@@ -229,8 +229,8 @@ if (sys.nframe() == 0) {
   write.csv(data.frame(Age = dat$ages, alpha = fitF$alpha,
                        beta_ref = b_ref, beta_unpen = fF0$beta,
                        beta_pen = fitF$beta),
-            "lc_poisson_lasso_params.csv", row.names = FALSE)
-  write.csv(pathF, "lc_poisson_lasso_path.csv", row.names = FALSE)
+            "output/tables/lc_poisson_lasso_params.csv", row.names = FALSE)
+  write.csv(pathF, "output/tables/lc_poisson_lasso_path.csv", row.names = FALSE)
 }
 
 ###############################################################################

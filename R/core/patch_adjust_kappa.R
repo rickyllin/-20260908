@@ -2,7 +2,7 @@
 # 修正 adjust_kappa：e0dagger 對 kappa 是單峰而非單調，
 # 寬區間 + extendInt 會兩端同號而失敗。改成網格掃描 + 取最近的根。
 #
-# 用法：source("rabbi_mazzuco_replication.R") 之後再 source 本檔，
+# 用法：source("R/core/rabbi_mazzuco_replication.R") 之後再 source 本檔，
 #       或直接把下面的函式覆蓋原檔中的同名函式。
 ###############################################################################
 

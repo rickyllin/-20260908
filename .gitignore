@@ -5,3 +5,17 @@
 .Rdata
 .httr-oauth
 .DS_Store
+
+# 參考文獻 PDF 與個人筆記，不入版控
+參考資料/
+
+# LaTeX 中間檔
+*.aux
+*.log
+*.nav
+*.out
+*.snm
+*.toc
+*.vrb
+*.synctex.gz
+範例論文/

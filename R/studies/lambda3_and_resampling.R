@@ -2,10 +2,10 @@
 # (1) 三個 lambda 方向分開研究
 # (2) 重抽樣模組：參數不確定性與預測不確定性
 #
-# 需先 source("mc_exposure_study.R")
+# 需先 source("R/studies/mc_exposure.R")
 ###############################################################################
 
-source("Mc exposure.R")
+source("R/studies/mc_exposure.R")
 
 ###############################################################################
 # 第一部分：三個方向分開的 lambda
@@ -34,7 +34,7 @@ smooth3 <- function(logm, lxx = 0, lxt = 0, ltt = 0) {
   y <- as.vector(t(logm))
   yext <- c(y, rep(0, nrow(R) - length(y)))
   Rc <- methods::as(methods::as(R, "dgCMatrix"), "matrix.csr")
-  z  <- quantreg::rq.fit.sfn(Rc, yext, tau = 0.5)$coef
+  z  <- rq_sfn_safe(Rc, yext, tau = 0.5)$coef
   matrix(z, A, Tn, byrow = TRUE, dimnames = dimnames(logm))
 }
 
@@ -182,7 +182,7 @@ if (sys.nframe() == 0) {
   cat("\n最差 3 名：\n"); print(tail(g, 3), digits = 4, row.names = FALSE)
   cat("\n依 SSE(alpha) 排序，前 3 名：\n")
   print(head(g[order(g$sse_a), ], 3), digits = 4, row.names = FALSE)
-  write.csv(g, "lambda_grid3.csv", row.names = FALSE)
+  write.csv(g, "output/tables/lambda_grid3.csv", row.names = FALSE)
   
   ## ---- 重抽樣：在真實資料上 ----
   dat  <- load_data(sex = "Female")

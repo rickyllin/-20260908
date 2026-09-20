@@ -17,8 +17,10 @@
 # 需要：readxl, quantreg, SparseM, Matrix
 ###############################################################################
 
-source("lc_poisson_lasso.R")     # load_data(), lc_poisson()
+source("R/core/lc_poisson_lasso.R")     # load_data(), lc_poisson()
 library(Matrix)
+# 載入命名空間以註冊 SparseM 的 S4 類別 matrix.csr（as() 轉換需要）
+invisible(lapply(c("SparseM", "quantreg"), requireNamespace, quietly = TRUE))
 
 ## ========================= 1. 年齡格點與差分算子 ===========================
 make_grid <- function(A) {
@@ -60,6 +62,27 @@ build_R <- function(A, Tn, mid, lxx, lxt, ltt) {
         lxt * kronecker(Da1, Dt1))
 }
 
+## ---- 稀疏分位數迴歸的穩健呼叫 -------------------------------------------
+# quantreg::rq.fit.sfn 的稀疏 Cholesky 工作空間由預設值推估，某些 lambda
+# 組合會不足而報 "Increase nsubmax"。此處逐次放大工作空間重試。
+rq_sfn_safe <- function(Rc, yext, tau = 0.5, tries = 5) {
+  nnz <- length(Rc@ra); n <- ncol(Rc)
+  for (k in seq_len(tries)) {
+    mult <- 4 * (2 ^ (k - 1))
+    ctrl <- quantreg::sfn.control(
+      nsubmax = as.integer(mult * nnz),
+      nnzlmax = as.integer(mult * nnz),
+      tmpmax  = as.integer(mult * n),
+      warn.mesg = FALSE)
+    out <- tryCatch(quantreg::rq.fit.sfn(Rc, yext, tau = tau, control = ctrl),
+                    error = function(e) e)
+    if (!inherits(out, "error")) return(out)
+    last <- out
+  }
+  stop("rq.fit.sfn 在放大工作空間 ", tries, " 次後仍失敗：",
+       conditionMessage(last))
+}
+
 smooth_l1_2d <- function(logm, lxx = 5, lxt = 1, ltt = 5,
                          method = c("rq", "irls"), maxit = 60, eps = 1e-4) {
   method <- match.arg(method)
@@ -75,7 +98,7 @@ smooth_l1_2d <- function(logm, lxx = 5, lxt = 1, ltt = 5,
         !requireNamespace("SparseM", quietly = TRUE))
       stop("需要 quantreg 與 SparseM；或改用 method = \"irls\"")
     Rc  <- methods::as(methods::as(R, "dgCMatrix"), "matrix.csr")
-    fit <- quantreg::rq.fit.sfn(Rc, yext, tau = 0.5)
+    fit <- rq_sfn_safe(Rc, yext, tau = 0.5)
     z <- fit$coef
   } else {
     ## IRLS 近似 L1：以 1/max(|r|,eps) 為權重反覆解加權最小平方
@@ -253,7 +276,7 @@ if (sys.nframe() == 0) {
   cat("\n樣本外評估（留最後 10 年）：\n")
   oos <- oos_evaluate(D, E, h = 10)
   print(oos, digits = 4, row.names = FALSE)
-  write.csv(oos, "rabbi_mazzuco_oos.csv", row.names = FALSE)
+  write.csv(oos, "output/tables/rabbi_mazzuco_oos.csv", row.names = FALSE)
 
   ## --- 圖 ---
   op <- par(mfrow = c(2, 2), mar = c(4, 4, 3, 1))

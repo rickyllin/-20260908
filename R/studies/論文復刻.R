@@ -2,7 +2,7 @@
 # Rabbi & Mazzuco (2021) 全部分析步驟與圖表的復刻
 #   資料：台灣 五齡組，預設 Female 2001-2024
 #
-# 需先 source("rabbi_mazzuco_replication.R") 與 source("patch_adjust_kappa.R")
+# 需先 source("R/core/rabbi_mazzuco_replication.R") 與 source("R/core/patch_adjust_kappa.R")
 #
 # 對應關係
 #   §3.1 Fig 1          -> fig1_smoothing()        三種修勻法比較 + 精確度表
@@ -16,11 +16,13 @@
 # 未復刻：HU / HUR / HUW（需 demography 套件的函數型資料分解）
 ###############################################################################
 
-source("rabbi_mazzuco_replication.R")
-source("Patch adjust kappa.R")
+source("R/core/rabbi_mazzuco_replication.R")
+source("R/core/patch_adjust_kappa.R")
 
 SEX   <- "Female"; Y0 <- 2001; Y1 <- 2024
-OUTDIR <- "rm_figs"; dir.create(OUTDIR, showWarnings = FALSE)
+FIGDIR <- "output/figures"; TABDIR <- "output/tables"
+dir.create(FIGDIR, recursive = TRUE, showWarnings = FALSE)
+dir.create(TABDIR, recursive = TRUE, showWarnings = FALSE)
 
 subset_years <- function(dat, y0, y1) {
   keep <- which(dat$years >= y0 & dat$years <= y1)
@@ -360,39 +362,39 @@ if (sys.nframe() == 0) {
               nrow(dat$D), ncol(dat$D)))
   
   cat("\n[Fig 1] 修勻法比較\n")
-  f1 <- fig1_smoothing(dat, file = file.path(OUTDIR, "fig1_smoothing.png"))
+  f1 <- fig1_smoothing(dat, file = file.path(FIGDIR, "fig1_smoothing.png"))
   print(f1$table, digits = 4, row.names = FALSE)
   
   cat("\n[Fig 2/3, Table 1] 參數與 kappa\n")
   fits <- fit_all(dat$D, dat$E)
-  fig2_params(dat, fits, file = file.path(OUTDIR, "fig2_params.png"))
-  t1 <- fig3_kappa(dat, fits, file = file.path(OUTDIR, "fig3_kappa.png"))
+  fig2_params(dat, fits, file = file.path(FIGDIR, "fig2_params.png"))
+  t1 <- fig3_kappa(dat, fits, file = file.path(FIGDIR, "fig3_kappa.png"))
   print(t1, digits = 4, row.names = FALSE)
   
   cat("\n[Fig 8] e0 與 e0† 的關係\n")
-  print(fig8_e0_edag(dat, fits, file = file.path(OUTDIR, "fig8_e0_edag.png")),
+  print(fig8_e0_edag(dat, fits, file = file.path(FIGDIR, "fig8_e0_edag.png")),
         digits = 4, row.names = FALSE)
   
   cat("\n[Fig 4-7] 樣本外準確度（性別 x 起始年 面板；需數分鐘）\n")
-  acc <- fig4to7_accuracy(h = 5, file = file.path(OUTDIR, "fig4to7_accuracy.png"))
+  acc <- fig4to7_accuracy(h = 5, file = file.path(FIGDIR, "fig4to7_accuracy.png"))
   print(aggregate(cbind(MAE, MSE, ME_e0, MAE_edag) ~ method, acc, mean),
         digits = 4, row.names = FALSE)
-  write.csv(acc, file.path(OUTDIR, "accuracy_panel.csv"), row.names = FALSE)
+  write.csv(acc, file.path(TABDIR, "accuracy_panel.csv"), row.names = FALSE)
   
   cat("\n[Table 2 / Fig 9] 2050 年 e0 預測\n")
-  t2 <- fig9_e0_forecast(dat, fits, file = file.path(OUTDIR, "fig9_e0_forecast.png"))
+  t2 <- fig9_e0_forecast(dat, fits, file = file.path(FIGDIR, "fig9_e0_forecast.png"))
   print(t2, digits = 5, row.names = FALSE)
   
   cat("\n[Fig 10/11] 區間預測涵蓋\n")
   cov <- fig10_11_coverage(dat$D, dat$E, dat$years, h = 5,
-                           file = file.path(OUTDIR, "fig10_coverage.png"))
+                           file = file.path(FIGDIR, "fig10_coverage.png"))
   print(cov, digits = 4, row.names = FALSE)
   
-  write.csv(f1$table, file.path(OUTDIR, "table_smoothing.csv"), row.names = FALSE)
-  write.csv(t1, file.path(OUTDIR, "table1_drift.csv"), row.names = FALSE)
-  write.csv(t2, file.path(OUTDIR, "table2_e0_2050.csv"), row.names = FALSE)
-  write.csv(cov, file.path(OUTDIR, "table_coverage.csv"), row.names = FALSE)
-  cat(sprintf("\n圖表已輸出到 %s/\n", OUTDIR))
+  write.csv(f1$table, file.path(TABDIR, "table_smoothing.csv"), row.names = FALSE)
+  write.csv(t1, file.path(TABDIR, "table1_drift.csv"), row.names = FALSE)
+  write.csv(t2, file.path(TABDIR, "table2_e0_2050.csv"), row.names = FALSE)
+  write.csv(cov, file.path(TABDIR, "table_coverage.csv"), row.names = FALSE)
+  cat(sprintf("\n圖已輸出到 %s/、表已輸出到 %s/\n", FIGDIR, TABDIR))
 }
 
 ###############################################################################

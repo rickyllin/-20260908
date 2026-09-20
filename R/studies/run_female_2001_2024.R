@@ -3,8 +3,8 @@
 # 先 source 主檔與修正檔，再 source 本檔。
 ###############################################################################
 
-source("rabbi_mazzuco_replication.R")
-source("Patch adjust kappa.R")
+source("R/core/rabbi_mazzuco_replication.R")
+source("R/core/patch_adjust_kappa.R")
 
 ## ---- 在 load_data() 外面加年份篩選 ---------------------------------------
 subset_years <- function(dat, y0, y1) {

@@ -7,10 +7,10 @@
 #     (C) 留出年份的下游預測誤差              -> 瞄準預測目標
 #     (D) 參數式 bootstrap 的插入式選法       -> 瞄準 beta 的 MSE（推薦）
 #
-# 需先 source("mc_exposure_study.R")（其中已 source 主檔與修正檔）
+# 需先 source("R/studies/mc_exposure.R")（其中已 source 主檔與修正檔）
 ###############################################################################
 
-source("Mc exposure.R")
+source("R/studies/mc_exposure.R")
 
 ## ===================== 0. 可加權的 L1 修勻 =================================
 # wt = 0 的格子不進入保真項，即為「留出」
@@ -31,7 +31,7 @@ smooth_l1_w <- function(logm, l, wt = NULL) {
              (l / 5) * kronecker(Da1, Dt1))
   yext <- c(yv, rep(0, nrow(R) - length(yv)))
   Rc <- methods::as(methods::as(R, "dgCMatrix"), "matrix.csr")
-  z  <- quantreg::rq.fit.sfn(Rc, yext, tau = 0.5)$coef
+  z  <- rq_sfn_safe(Rc, yext, tau = 0.5)$coef
   matrix(z, A, Tn, byrow = TRUE, dimnames = dimnames(logm))
 }
 
@@ -190,7 +190,7 @@ if (sys.nframe() == 0) {
   cat("各選法 vs oracle（reps 建議 >= 30，先用 10 試流程）：\n")
   st <- lambda_study(truth, reps = 10, B = 12)
   print(st, digits = 4, row.names = FALSE)
-  write.csv(st, "lambda_selection.csv", row.names = FALSE)
+  write.csv(st, "output/tables/lambda_selection.csv", row.names = FALSE)
   
   op <- par(mfrow = c(1, 2), mar = c(4, 4, 3, 1))
   matplot(st$N, cbind(st$oracle_lambda, st$cv_lambda_mode,

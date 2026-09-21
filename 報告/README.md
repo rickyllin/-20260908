@@ -5,13 +5,15 @@
 
 | 檔案 | 說明 |
 |---|---|
-| `進度報告.tex` → `.pdf` | **詳細版**，32 頁＋附錄（`ctexart`） |
+| `進度報告.tex` → `.pdf` | **詳細版（會議版）**，33 頁＋附錄（`ctexart`） |
+| `進度報告_v2.tex` → `.pdf` | **第二版**，36 頁。在會議版之上增補最佳化演算法的層次與可用性分析（§柒之九） |
 | `進度報告_簡版.tex` → `.pdf` | **簡版**，5 頁，摘錄問題、關鍵數據與結論 |
 | `進度報告_簡報.tex` → `.pdf` | 簡報，32 張（`ctexbeamer`，16:9） |
 | `建議文獻清單.md` | 依指導方向整理的文獻，標明已有與待下載 |
 
 簡版供快速瀏覽，各節標註了詳細版的對應節號；詳細版含完整的實驗設計、
-判讀邏輯與書目。
+判讀邏輯與書目。第二版另含 §柒之九「點估計 LASSO 與分位數 LASSO 的
+演算法差異」，該節的實測由 `R/studies/demo_algorithm_comparison.R` 產生。
 
 ## 編譯
 
@@ -19,12 +21,16 @@
 本機 TinyTeX 裝在 `~/Library/TinyTeX` 未加入 PATH，Makefile 已代為處理：
 
 ```sh
-make            # 三份都編
-make full       # 只編詳細版
-make brief      # 只編簡版
-make slides     # 只編簡報
+make            # 四份都編
+make full       # 會議版（詳細）
+make v2         # 第二版
+make brief      # 簡版
+make slides     # 簡報
 make clean      # 清掉中間檔
 ```
+
+> **版本關係**：`進度報告.tex` 是 2026-09-21 會議當天的版本，內容凍結；
+> 後續新發現寫入 `進度報告_v2.tex`，兩者在會議前的內容相同。
 
 首次編譯若缺套件（`ctex`、`xecjk`、`beamer`、`caption`、`pdflscape` 等），
 因本機 TinyTeX 是 TeX Live 2025 而 CTAN 預設已是 2026，需指向凍結的 2025 檔案庫：

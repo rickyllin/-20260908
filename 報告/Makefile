@@ -3,15 +3,16 @@
 TEXBIN  := $(HOME)/Library/TinyTeX/bin/universal-darwin
 XELATEX := PATH="$(TEXBIN):$$PATH" xelatex -interaction=nonstopmode
 
-DOCS := 進度報告 進度報告_v2 進度報告_簡版 進度報告_簡報
+DOCS := 進度報告 進度報告_v2 進度報告_0929 進度報告_簡版 進度報告_簡報
 PDFS := $(addsuffix .pdf,$(DOCS))
 
-.PHONY: all full v2 brief slides clean distclean
+.PHONY: all full v2 v3 brief slides clean distclean
 
 all: $(PDFS)
 
 full:   進度報告.pdf
 v2:     進度報告_v2.pdf
+v3:     進度報告_0929.pdf
 brief:  進度報告_簡版.pdf
 slides: 進度報告_簡報.pdf
 

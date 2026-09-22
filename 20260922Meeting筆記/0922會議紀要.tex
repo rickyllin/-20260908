@@ -1,0 +1,214 @@
+\documentclass[UTF8, fontset=macnew, a4paper, 12pt]{ctexart}
+
+\usepackage{geometry}
+\geometry{top=2.5cm, bottom=2.5cm, left=2.5cm, right=2.5cm}
+\usepackage{amsmath, amssymb}
+\usepackage{booktabs}
+\usepackage{graphicx}
+\usepackage{caption}
+\usepackage{xcolor}
+\usepackage{float}
+\usepackage{enumitem}
+\usepackage{fancyhdr}
+\usepackage{setspace}
+\usepackage[hidelinks]{hyperref}
+
+\captionsetup{font=small, labelfont=bf, labelsep=quad}
+\setlist{itemsep=2pt, parsep=0pt, topsep=4pt}
+\onehalfspacing
+
+\ctexset{
+  section/format = \raggedright\zihao{4}\bfseries,
+  section/name   = {},
+  section/number = \chinese{section}、,
+  subsection/format = \raggedright\zihao{5}\bfseries,
+  subsection/number = \chinese{subsection}、,
+  subsubsection/format = \raggedright\normalsize\bfseries,
+}
+\renewcommand{\thesection}{\chinese{section}}
+\setcounter{secnumdepth}{2}
+
+\pagestyle{fancy}
+\fancyhf{}
+\fancyhead[L]{\small 小人口 Lee-Carter 模型}
+\fancyhead[R]{\small 0922 會議紀要}
+\fancyfoot[C]{\small \thepage}
+\renewcommand{\headrulewidth}{0.4pt}
+
+\newcommand{\todo}[1]{\textcolor{red!70!black}{\textbf{[待辦] }#1}}
+
+\begin{document}
+
+\begin{center}
+{\zihao{3}\bfseries 指導會議紀要}\\[4pt]
+{\zihao{5} 2026 年 9 月 22 日\quad 林子立\quad 指導教授：余清祥\,教授}
+\end{center}
+
+\vspace{6pt}
+
+\section{會議資料}
+
+\begin{table}[H]
+\centering\small
+\begin{tabular}{llp{6.6cm}}
+\toprule
+檔案 & 性質 & 用途\\
+\midrule
+\texttt{Spatial Smoothing and Small-Sample Bias} &
+  老師簡報（2026-09-09） & 暴露數對 LC 估計的影響；Partial SMR 與 GWR 的比較\\
+\texttt{1-s2.0-S0167668717304365} &
+  Wang, Yue \& Chong (2018) \textit{IME} 78:351-359 &
+  \textbf{第 354$\sim$355 頁的 $\alpha_x$、$\beta_x$ 診斷圖為本次指定的範本}\\
+\texttt{2017IME(Small\_Population)} & 同上（手稿版） & 內容同前，可對照\\
+\texttt{2010Modeling Longevity Risk} &
+  Yang, Yue \& Huang (2010) \textit{IME} &
+  以主成分分析（PCA）搭配年齡位移建模；\textbf{老師要求說明本研究與此文的差異}\\
+\texttt{林子立論文方向\_Gemini} & 會前自行整理（2026-09-21） &
+  依 0921 進度報告生成的四個候選議題，供參考\\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\section{目前方向討論}
+
+\subsection{老師的期待與本人的偏好}
+
+老師過去研究常採「以實證比較若干方法」（empirical study for some methods）
+的策略。此類研究較不涉及方法論的推導，亦無絕對標準，方法可用即可。
+
+惟\textbf{本研究目前的進度較老師預期為快}，因此老師期待能有\textbf{更多
+方法論層面的討論}。
+
+\vspace{4pt}
+\begin{quote}\small
+\textbf{本人立場（私人備註）}：偏好不往方法論深化的方向走，
+目標是完成一套可用於臺灣生命表資料的正則化方法即可。
+\end{quote}
+\vspace{4pt}
+
+\noindent\textbf{評估}：此一分歧未必如表面上大。目前的進度報告
+（第二版）已包含相當份量的方法論內容——收縮目標非零的必要性、
+Tseng (2001) 的收斂條件、點估計與分位數 LASSO 的演算法差異等。
+問題不在缺少方法論，而在\textbf{這些內容都放在文件後段，且全文並非
+從資料出發}。依老師本節與下節的要求重新編排，可同時滿足兩項期待，
+而不需額外開展新的方法論工作（詳見第肆節）。
+
+\subsection{與老師既有研究的區隔}
+
+老師希望釐清本研究與其 PCA 估計 Lee-Carter 之研究
+（Yang, Yue \& Huang, 2010）的差異。
+
+\noindent\textbf{初步回應（待確認）}：PCA 與奇異值分解（SVD）在此脈絡下
+是同一件事——LC 的原始估計即為對 $\log m_{x,t}$ 取中心化後的第一主成分。
+而本研究第陸節的核心發現正是：\textbf{小樣本下的系統性偏誤來自
+SVD／PCA 對小樣本取對數的最小平方運算}，卜瓦松最大概似則無此偏誤
+（$N=5$ 萬時漂移項偏誤由 $+0.336$ 降至 $-0.010$）。
+
+\noindent 亦即：Yang et al.\ (2010) 的 PCA 路線與 LC 共享同一個估計基礎，
+因此也共享同一個小樣本弱點；本研究的貢獻在於\textbf{指認該弱點的來源
+並提出校正}。此一對照可直接寫入文獻回顧，成本極低而定位清楚。
+
+\subsection{本人擬探索的方向}
+
+擬由\textbf{穩健估計}切入，例如 M-估計量（M-Estimator）或分位數迴歸
+（Quantile Regression），並據以建立合適的預測區間。
+
+\noindent\textbf{評估}：此方向與現有成果高度相容。本研究所用的 2D $L_1$
+修勻本身即為 $\tau=0.5$ 的分位數迴歸；第二版報告第柒節之九已完成
+點估計與分位數兩種 LASSO 的演算法比較。M-估計量（如 Huber 損失）
+恰好位於平方損失與 $L_1$ 損失之間，可作為兩者的橋接，
+且能同時回應老師關於「方法論討論」的期待。
+
+\section{老師指定的修改事項}
+
+\subsection{寫作：須自資料探索出發}
+
+老師要求在 Introduction 補上\textbf{資料介紹與探索性資料分析}，
+並以 Wang, Yue \& Chong (2018) \textbf{第 354$\sim$355 頁}的圖為範本。
+該處的圖示規格如下：
+
+\begin{itemize}
+  \item \textbf{Fig.~2}：$\hat\beta_x$ 的\textbf{偏誤}與\textbf{標準誤}，
+        兩張並列，橫軸為年齡，按人口規模分層繪製多條曲線
+        （10,000／20,000／50,000／100,000／200,000／500,000／
+        1,000,000／2,000,000／5,000,000）。
+  \item \textbf{Fig.~3}：$\hat\alpha_x$ 與 $\hat\beta_x$ 的
+        \textbf{T-ratio}（偏誤／標準誤），同樣按人口規模分層，
+        並加上 $\pm2$ 的參考線以判讀偏誤是否顯著。
+\end{itemize}
+
+\noindent\textbf{核心原則}：\textbf{先從資料探索出發，才能測試方法}。
+
+\subsection{內容：必要增加的項目}
+
+\begin{enumerate}[leftmargin=*]
+  \item \textbf{在跑所有模型與模擬之前}，須先實際說明本筆資料的
+        \textbf{分布特性}與\textbf{偏誤特性}，藉此說明為何需要所提出的方法。
+  \item 暴露數對 LC 模型估計的影響，可參考老師簡報中的結果。
+  \item 研究動機須\textbf{自資料特性出發}，據以增補文獻回顧的探討。
+  \item 資料介紹須註明來源為 \textbf{Human Mortality Database (HMD)}。
+\end{enumerate}
+
+\subsection{內容：可選擇增加的項目}
+
+\begin{itemize}
+  \item 穩健估計（M-估計量／分位數迴歸）與區間建構——本人擬探索之方向。
+  \item 與 Yang et al.\ (2010) PCA 路線的對照。
+  \item 老師簡報中 Partial SMR 與 GWR 的結果，可作為「變異數縮減不等於
+        偏誤校正」的佐證（見第肆節之二）。
+\end{itemize}
+
+\section{評估與下一步}
+
+\subsection{一個有利的對照：老師的簡報與本研究結論一致}
+
+老師簡報中對 GWR 表現不佳的診斷為：
+
+\begin{quote}\small
+「Does not increase the actual number of deaths；May oversmooth real mortality
+patterns；Sensitive to bandwidth selection；\textbf{Reduces variance more than
+bias}.」
+\end{quote}
+
+\noindent 同一份簡報並指出 Partial SMR「對 $\alpha_x$ 的偏誤有顯著改善，
+對 $\beta_x$ 的偏誤則改善有限」。
+
+\noindent\textbf{此與本研究的核心結論完全一致}：本研究第陸節指出小樣本下
+LC 的問題是\textbf{偏誤而非變異數}，且懲罰項縮小的是變異數的常數項
+而非偏誤；第柒節亦顯示各種懲罰對 $\beta_x$ 的偏誤改善有限。
+兩條路徑由不同方法獨立得到同一結論，這是很強的佐證，
+應在報告中明確點出。
+
+\subsection{工作順序建議}
+
+\begin{enumerate}[leftmargin=*]
+  \item \textbf{（必要，優先）重繪診斷圖並前移}。
+        以現有的模擬程式擴充人口規模至 $10^4\sim5\times10^6$ 九個水準，
+        產生 $\alpha_x$、$\beta_x$ 的逐年齡偏誤、標準誤與 T-ratio 六張圖，
+        格式比照 WYC (2018) pp.~354--355。
+        \textbf{T-ratio 尤其關鍵}——它直接以統計顯著性呈現「偏誤存在」，
+        正是本研究論點的最強證據，且是老師指定的圖。
+  \item \textbf{（必要）改寫 Introduction 與資料節}。
+        將上述診斷圖前移至資料探索，使研究動機自資料特性長出；
+        註明資料來源為 HMD。
+  \item \textbf{（必要，成本低）補寫與 PCA 路線的對照}，如第貳節之二。
+  \item \textbf{（選擇）穩健估計的延伸}。
+        以 Huber M-估計量銜接平方損失與 $L_1$ 損失，
+        比較三者在小樣本下的偏誤與區間表現。
+  \item \textbf{（暫緩）空間方法}。老師的簡報已顯示 GWR 效果有限，
+        若要往空間方向走，宜建立在卜瓦松基礎而非 SVD 之上，
+        否則恐重複既有的負面結果。
+\end{enumerate}
+
+\subsection{待確認事項}
+
+\begin{itemize}
+  \item \todo{本紀要第貳節之二的 PCA 對照為本人初步推論，
+        須確認是否符合老師詢問的本意。}
+  \item \todo{資料涵蓋 1970$\sim$2024 年，須確認 HMD 臺灣序列的實際
+        涵蓋年度，以及五齡組 Excel 是否確由 HMD 單齡組資料聚合而得。}
+  \item \todo{第參節之三「可選擇增加的項目」原為空白，
+        此處為本人依討論內容補擬，須經確認。}
+\end{itemize}
+
+\end{document}

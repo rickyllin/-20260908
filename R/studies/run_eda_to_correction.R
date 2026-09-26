@@ -17,6 +17,7 @@
 ###############################################################################
 
 source("R/core/lc_poisson_lasso.R")
+source("R/core/fig_axis_utils.R")
 source("R/core/rabbi_mazzuco_replication.R")
 source("R/core/heteropca_lc.R")
 source("R/core/fh_firth_kalman.R")
@@ -135,7 +136,7 @@ for (N in NS) {
 }
 
 ## ---- 圖：零格比例（EDA）與各法 alpha 偏誤並排 ----
-png("output/figures/figH_eda_vs_alpha_bias.png", width = 1900, height = 700, res = 150)
+png_cjk("output/figures/figH_eda_vs_alpha_bias.png", width = 1900, height = 700, res = 150)
 op <- par(mfrow = c(1, 3), mar = c(4.4, 4.6, 3.4, 1.2), bg = "#fcfcfb",
           col.axis = "#52514e", col.lab = "#52514e", fg = "#d6d5d0",
           cex.main = 1.05, font.main = 1)

@@ -10,6 +10,7 @@
 ###############################################################################
 
 source("R/core/lc_poisson_lasso.R")
+source("R/core/fig_axis_utils.R")
 source("R/core/eda_diagnostics.R")
 source("R/core/fh_firth_kalman.R")
 
@@ -63,7 +64,7 @@ tab <- do.call(rbind, lapply(seq_along(labs), function(i) {
 }))
 write.csv(tab, "output/tables/tableEDA_diagnostics.csv", row.names = FALSE)
 
-png("output/figures/figEDA_panel.png", width = 2000, height = 560, res = 150)
+png_cjk("output/figures/figEDA_panel.png", width = 2000, height = 560, res = 150)
 plot_lc_eda(dg_all, dg_20, dg_05, labels = labs)
 dev.off()
 

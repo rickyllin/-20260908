@@ -152,10 +152,12 @@ plot_lc_eda <- function(..., labels = NULL) {
   for (i in seq_along(dgs)) {
     lines(1:K, dgs[[i]]$sv[1:K], col = pal[i], lwd = 2, type = "b", pch = 16, cex = .6)
     abline(h = dgs[[i]]$bulk, col = pal[i], lwd = 1.3, lty = 2)
-    text(K + 0.15, dgs[[i]]$bulk, paste(labels[i], "上緣"), col = pal[i], cex = .72, adj = 0)
-    text(0.85, dgs[[i]]$sv[1], labels[i], col = pal[i], cex = .72, adj = 1, font = 2)
   }
-  mtext("實線 = 觀測奇異值；虛線 = 純噪音能產生的上緣", side = 1, line = 2.9,
+  ## 判讀靠的是 s1 與上緣的「比值」，故把比值直接寫進圖例，不在圖面標註
+  legend("bottomleft",
+         sprintf("%s：s1/上緣 = %.2f", labels, vapply(dgs, `[[`, 0, "ratio")),
+         col = pal, lwd = 2, pch = 16, bty = "n", cex = .78)
+  mtext("實線 = 觀測奇異值；虛線 = 同尺度純噪音能產生的上緣", side = 1, line = 2.9,
         adj = 0, cex = .62, col = "#52514e")
   invisible(NULL)
 }

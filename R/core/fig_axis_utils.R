@@ -26,3 +26,31 @@ pow_ticks <- function(v, n = 5) {
   if (length(e) > n) e <- e[seq(1, length(e), length.out = n)]
   10^round(e)
 }
+
+## ===================== 中文圖檔輸出 ========================================
+#' 開啟可正確顯示中文的 png 裝置
+#'
+#' macOS 上 R 的 quartz 裝置未必可用（capabilities("quartz") 為 FALSE），
+#' 預設的 png 裝置找不到 CJK 字型時會把中文畫成方框（tofu）。
+#' 本函式改用 cairo 後端並指定字型家族，找不到時退回預設。
+#'
+#' @param prefer 字型家族的優先序；第一個能由 fontconfig 解析者勝出
+png_cjk <- function(file, width = 1900, height = 700, res = 150,
+                    prefer = c("Heiti TC", "PingFang TC", "Hiragino Sans GB",
+                               "Arial Unicode MS")) {
+  fam <- NULL
+  if (capabilities("cairo")) {
+    avail <- tryCatch(system("fc-list :lang=zh-tw family", intern = TRUE),
+                      error = function(e) character(0), warning = function(w) character(0))
+    avail <- unique(trimws(unlist(strsplit(avail, ","))))
+    hit <- prefer[prefer %in% avail]
+    fam <- if (length(hit)) hit[1] else NULL
+  }
+  if (!is.null(fam)) {
+    png(file, width = width, height = height, res = res, type = "cairo", family = fam)
+  } else {
+    warning("找不到中文字型，圖中的中文可能顯示為方框")
+    png(file, width = width, height = height, res = res)
+  }
+  invisible(fam)
+}

@@ -23,6 +23,11 @@ R/
     patch_adjust_kappa.R        修正 adjust_kappa（e0† 對 κ 為單峰）
     penalized_lc.R              Elastic Net 族：LASSO/Ridge/EN/MCP/鬆弛/自適應
     fig_axis_utils.R            座標軸格式（1e-03 → 10^-3）
+    eda_diagnostics.R           四張 EDA 診斷圖（死亡數量級／零格位置／
+                                噪音變異／s1 對噪音上緣）
+    heteropca_lc.R              加權 SVD（w=μ̂）、HeteroPCA、BBP 相變門檻
+    fh_firth_kalman.R           Fay–Herriot 收縮、Firth 偏誤減少、Kalman 初始值
+    reml_kappa.R                狀態空間 ML／REML 估 σ；截尾變體（對照用）
   studies/   實驗腳本（各自可獨立 Rscript 執行）
     論文復刻.R                   復刻 R&M 全部圖表
     run_female_2001_2024.R      女性 2001–2024 單次分析
@@ -32,6 +37,9 @@ R/
     run_unified_mc.R            統一模擬規模（reps=100、固定種子）
     run_penalized_study.R       懲罰式 LC：收斂、偏誤—變異數、變異數速率
     run_appendix_TN.R           附錄的逐年齡比較、T×N 二因子、EN 變體
+    run_data_diagnostics.R      逐年齡偏誤／標準誤／T-ratio（九個人口規模）
+    run_bias_decomposition.R    偏誤來源的階梯分解、拔靴偏誤校正
+    demo_algorithm_comparison.R 座標下降在 L1 損失上的卡滯（對照線性規劃）
     make_figures.R              由 output/tables/ 重繪出版用圖
   legacy/
     lee_carter_basic.R          早期的獨立腳本，保留作對照
@@ -39,7 +47,9 @@ data/        原始資料
 output/
   figures/   所有 .png
   tables/    所有 .csv
-報告/         LaTeX 報告（詳細版／簡版／簡報），見該目錄的 README
+報告/         LaTeX 報告（詳細版／v2／0929 版／簡版／簡報），見該目錄的 README
+研究筆記/     各批探索性研究的筆記與裁決，見各子目錄的 README
+20260922Meeting筆記/  會議紀要（文獻 PDF 不入版控）
 ```
 
 ---
@@ -90,11 +100,19 @@ Rscript R/studies/make_figures.R      # 重繪出版用圖
 「性別 × 起始年」12 格面板後，優勢僅在 5 格成立，其餘 7 格由 Lee-Miller 奪冠，
 長配適期**無一例外**；且其預測區間是六種方法中**最寬**者。
 
-**問題二：失效的機制是偏誤，不是變異數。** $\alpha_x$ 的偏誤在 $N=10^4$ 時達
-$+0.439$、方向一致；漂移項在所有 $N$ 下一律偏向零。因此文獻共識
-「LC 區間過窄」在小樣本**不成立**——區間其實過寬，涵蓋失敗來自位置偏誤。
-以卜瓦松最大概似取代 SVD 可消除漂移項衰減，配合拔靴法去除 $\hat\sigma$ 的
-估計雜訊，$N\ge10^6$ 時區間寬度幾乎追平理論下限。
+**問題二：偏誤與變異數的主導地位因參數而異。** T-ratio 診斷顯示
+$\alpha_x$ 與漂移項是**偏誤**主導（$N=10^4$ 時 5–9 歲組 $|T|$ 達 56.4），
+而 $\beta_x$ 在 $N\le2\times10^5$ 時是**變異數**主導（$|T|<0.25$），
+須至 $N\ge5\times10^5$ 變異數收斂後偏誤才顯現。兩者的補救方式相反——
+變異數可藉收縮處理，偏誤必須找出來源校正。
+
+因此文獻共識「LC 區間過窄」在小樣本**不成立**——區間其實過寬，涵蓋失敗
+來自位置偏誤。以卜瓦松最大概似取代 SVD 可消除漂移項衰減，配合拔靴法
+去除 $\hat\sigma$ 的估計雜訊，$N\ge10^6$ 時區間寬度幾乎追平理論下限。
+
+**偏誤來源不只有對數轉換。** 階梯分解中的高斯對照（對真值加對稱噪音後做
+SVD，不涉對數、無零格）使 $\alpha$ 偏誤歸零（0.0008），但漂移項偏誤仍達
+0.347——漂移項的偏誤來自主奇異向量對異質變異噪音的敏感性。
 
 **另一項發現：配適期長度比人口規模更關鍵。** $T=10$ 年時即使 $N=10^6$，
 $\hat\beta$ 與真值的相關僅 0.120；$T=55$ 年時 $N$ 僅兩萬也達 0.746。
@@ -132,3 +150,5 @@ $\sum_x|\beta_x| \equiv 1$ 是常數，**朝零收縮的懲罰項完全失效**�
   建議組合由 (1,2,1) 改為 (1,5,5)；結論方向不變。
 - `output/` 下的檔案皆可由 `R/studies/` 重新產生。
 - `參考資料/`（論文 PDF 與個人筆記）與 `範例論文/` 不納入版控。
+  **此 repo 為公開 repo**，故所有文獻 PDF 一律只放 `參考資料/`；
+  `20260922Meeting筆記/` 下的文獻與投影片亦已排除，僅保留會議紀要。

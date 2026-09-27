@@ -49,8 +49,8 @@
 
 \pagestyle{fancy}
 \fancyhf{}
-\fancyhead[L]{\small 對數轉換偏誤的解析刻畫}
-\fancyhead[R]{\small 理論推導（1006）}
+\fancyhead[L]{}
+\fancyhead[R]{\small 進度報告（0928）}
 \fancyfoot[C]{\small \thepage}
 \renewcommand{\headrulewidth}{0.4pt}
 
@@ -67,8 +67,12 @@
 \begin{document}
 
 \begin{center}
-{\zihao{3}\bfseries 從 $M$-估計的性質推導小人口 Lee-Carter 模型的偏誤}\\[4pt]
-{\zihao{5} —— 估計方程的 Fisher 不一致、混合表示，與解析偏誤校正}\\[12pt]
+{\zihao{3}\bfseries 小人口 Lee-Carter 參數偏誤的閉式校正}\\[4pt]
+{\zihao{5} —— 以估計方程的一致性同時改善 $\alpha_x$ 與 $\beta_x$}\\[6pt]
+{\zihao{5} Closed-Form Bias Correction for Lee--Carter Parameters in Small
+Populations:}\\[2pt]
+{\zihao{5} Improving $\alpha_x$ and $\beta_x$ Simultaneously via
+Estimating-Equation Consistency}\\[12pt]
 {\zihao{5} （林子立）\quad 指導教授：余清祥\,教授}\\[4pt]
 {\zihao{5} 國立政治大學統計學系}\\[4pt]
 {\zihao{5} 中華民國 115 年 9 月 27 日}
@@ -79,8 +83,10 @@
 \begin{minipage}{0.92\textwidth}
 \small
 \textbf{摘要}\par\vspace{4pt}
-Lee-Carter 模型的年齡水準參數在小人口下有方向明確的偏誤，既有研究以模擬
-量化此一現象並以修勻或參考人口加以緩解。本文改由 $M$-估計的一般性質推導之。
+Lee-Carter 模型的年齡參數在小人口下有方向明確的偏誤，既有研究以模擬量化
+此一現象並以修勻或參考人口加以緩解。本文改由 $M$-估計的一般性質推導之，
+並據以回答一個既有文獻未處理的問題：年齡水準參數 $\alpha_x$ 與年齡敏感度
+參數 $\beta_x$ 的偏誤能否\textbf{同時}降低。
 標準 Lee-Carter 是取平方損失的 $M$-估計量，而 $M$-估計的 Fisher 一致性要求
 估計方程的期望為零；本文指出該條件在小人口下不成立，且不成立的量有閉式
 $b(\mu;c_0)=\Ex[\log\max(D,c_0)]-\log\mu$。據此，$\hat\alpha_x$ 的偏誤恰為
@@ -91,9 +97,14 @@ $b(\mu;c_0)=\Ex[\log\max(D,c_0)]-\log\mu$。據此，$\hat\alpha_x$ 的偏誤恰
 $\mu<\ln 2$。以 M-分位數 LASSO 的一般目標函數看，其三項設定（損失形狀、
 權重、懲罰）皆不改變估計方程的期望，故偏誤校正與三者正交。
 臺灣女性 2001--2024 年資料的模擬顯示，該閉式預測逐年齡偏誤的相關係數為
-$1.000$、$1.000$、$0.988$；據此修改估計使 $\alpha$ 偏誤中位數下降 $2.3$ 至
-$7.2$ 倍，並在配合資訊加權後於三個人口規模的每一項指標上優於標準
-Lee-Carter。
+$1.000$、$1.000$、$0.988$；據此修改估計使 $\alpha$ 偏誤中位數下降 $2.3$ 至 $7.2$ 倍。
+至於兩參數能否同時改善，本文的分解給出明確的答案：$\alpha_x$ 的偏誤幾乎
+全為確定性、$\beta_x$ 的則九成以上為隨機，故校正若逐格施加會把估計 $\mu$
+的噪音注入每一格而使 $\beta_x$ 變差；改為僅校正 $\alpha_x$ 則完全不動
+中心化矩陣，兩項改善因而可以疊加。人數五萬時該作法使 $\alpha$ 最大偏誤
+由 $0.866$ 降至 $0.044$（優於 Firth 的 $0.068$），配合資訊加權後
+$\beta$ 的平方誤差和由 $4.449$ 降至 $1.150$，而零歲平均餘命的偏誤
+由 $-1.480$ 歲降至 $+0.007$ 歲。
 \par\vspace{6pt}
 \textbf{關鍵詞}：Lee-Carter 模型、小人口、$M$-估計、Fisher 一致性、
 混合模型、對數轉換偏誤

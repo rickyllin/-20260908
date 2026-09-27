@@ -5,6 +5,7 @@
 \usepackage{amsmath, amssymb}
 \usepackage{booktabs}
 \usepackage{multirow}
+\usepackage{tabularx}
 \usepackage{graphicx}
 \usepackage{caption}
 \usepackage{xcolor}
@@ -100,6 +101,31 @@ Wang et al.（2018）與余清祥等（2021）指出，Lee-Carter（以下簡稱
 所有樣本上朝同一方向偏移，單看估計結果無從發現，也無法靠加寬區間補救。
 換言之，若小人口的問題確實含有偏誤成分，則補救的第一步不是讓估計更穩定，
 而是找出偏誤來自模型的哪一個環節。
+
+既有文獻對小人口的對策大致可歸為三類，而三類各自預設了一件本文的資料
+未必具備的事。第一類是向外借資訊。Li and Lee（2005）的一致性 LC 模型
+以一組相似人口的共同趨勢為基準，各人口只估計其相對偏離；
+Wang et al.（2018）與 Chen et al.（2017）循此把縣市資料連結到全國，
+Jarner and Kryger（2011）的 SAINT 模型則以一個大型參考人口的死亡率
+作為貝氏架構的先驗。這一類作法的前提是存在一個死亡率改善型態可比的
+參考人口，而鄉鎮市區之間的社會經濟差異甚大，此一前提在本文的層級上
+是否成立本身即需檢驗。第二類是修勻。Eilers and Marx（1996）的
+$P$-樣條經 Currie et al.（2004）、Delwarde et al.（2007）與
+Camarda and Basellini（2021）引入死亡率模型後已成常規工具，其前提是
+死亡率在年齡與年份方向上足夠平滑，使鄰近格的資訊可以互相支援；
+但修勻處理的是變異數而非偏誤，本文第肆節將以實測說明此一界限。
+第三類是改換估計架構。Brouhns et al.（2002）以卜瓦松概似取代 SVD，
+Renshaw and Haberman（2003）與 Currie（2011）把 LC 納入廣義線性模型，
+其前提是概似函數的最大值存在——而零格所導致的完全分離
+（Albert and Anderson 1984）恰使此一前提失效。本文的取徑屬第三類，
+但關注的正是這個前提失效之處。
+
+須補充的是，這三類作法的評估幾乎都以「估計是否穩定」或「樣本外預測誤差
+是否較小」為標準。Lee and Miller（2001）與 Booth et al.（2005）對 LC
+各變體的系統性比較即屬此類。以預測誤差為標準的比較有其道理，卻無法分辨
+誤差來自偏誤或變異數，也無法指出偏誤落在哪一個參數的哪一個年齡；
+而如前所述，這個區分決定了補救的方向。本文因而不以預測誤差為主要標準，
+改以「偏誤／變異數的分解」與「可事前計算的診斷」為主軸。
 
 要追究這個環節，須先問 LC 模型做了什麼假設。Lee and Carter（1992）以一組
 簡潔的雙線性結構描述死亡率的時間變化，三十年來成為死亡率推估的標準工具；
@@ -217,9 +243,16 @@ $\alpha_x$ 的偏誤會落在哪些年齡，第一與第三項診斷指出加權
 與所欲暸解的四項議題；第參節說明研究資料的來源與分析邏輯、四項事前診斷的
 計算方式、偏誤診斷與二因子模擬設計，回應問題一；第肆節以 Rabbi and
 Mazzuco（2021）的還原與懲罰式估計為例，論證在高斯架構內修補的限度；
-第伍節以階梯式分解辨識偏誤的來源，並比較各估計量的改善幅度與適用條件，
+第伍節以階梯式分解辨識偏誤的來源，比較各估計量的改善幅度與適用條件，
+並以 M-分位數的連續掃描與逐年穩健化兩項檢驗界定穩健損失的作用範圍，
 回應問題二與問題三；第陸節處理區間推論，回應問題四；第柒節逐一回應上述
 四個問題，並討論本文與既有文獻的關係、研究限制與後續工作。
+
+各節的鋪陳採同一個順序：先指出該節要處理的問題，再說明所採方法及其所依
+的假設，接著給出實證結果，然後檢驗該方法的假設在本文資料上是否成立並
+回應節首的問題，最後以小結收束並指出下一節所要處理的缺口。
+第\ref{sec:gap}的表~\ref{tab:gap} 把各方法的原始應用場景與本文情境的
+前提落差並列，該表右欄的每一項落差，在後續各節都有一個對應的檢驗。
 
 \section{文獻回顧}
 
@@ -280,7 +313,7 @@ $\edag=\int_0^{\infty} d(a)\,e(a)\,\mathrm{d}a$，其中 $d(a)$ 為死亡年齡
 描述其變異，兩者互補。本文採用簡略生命表（Chiang）的離散近似計算。
 
 
-\subsection{兩條估計路線：高斯與卜瓦松}
+\subsection{兩條估計路線：高斯與卜瓦松}\label{sec:routes}
 
 LC 模型的估計自始即與 SVD 綁在一起，而此一選擇有其歷史脈絡。雙線性的
 對數乘積結構在 LC 之前即已存在於列聯表分析，Goodman（1979）的
@@ -323,6 +356,10 @@ SVD 是無加權最小平方，而卜瓦松概似的權重內建於資訊矩陣�
 本身，常態對卜瓦松。三者同時更換，就無從判斷改善由何者貢獻，也無從判斷在
 什麼情況下不必更換——例如在國家級人口上，第二項差異是否仍然重要。本文
 第\ref{sec:decomp}的階梯式分解即為拆開這三項而設計。
+
+兩條路線各自的代價其實都出自同一件事——對誤差分布所作的假設。
+這也意味著存在第三種可能，即不指定誤差分布而以非參數方法估計之；
+第\ref{sec:notapply}將說明此一取徑為何在本文的資料量下不可行。
 
 \subsection{小人口的失效機制與既有對策}
 
@@ -517,18 +554,63 @@ Müller and Neykov（2003）把截尾概似的崩潰點理論推廣至廣義線�
 
 與 $M$-估計平行發展的是分位數迴歸。Koenker and Bassett（1978）以檢查函數
 $\rho_\tau$ 取代平方損失，使迴歸得以刻畫條件分位數而非條件平均；
-Koenker and Park（1996）提供非線性情形的內點法，Koenker（2005）為該領域的
-標準參考。此後的擴充包括 Zou and Yuan（2008）的複合分位數迴歸——讓不同
-分位共用斜率而只讓截距平移，以降低單一分位估計的變異——以及
+Koenker（2005）為該領域的標準參考，Koenker（2017）回顧其四十年的發展。
+此後的擴充包括 Zou and Yuan（2008）的複合分位數迴歸——讓不同分位共用
+斜率而只讓截距平移，以降低單一分位估計的變異——以及
 Machado and Santos Silva（2005）針對計數資料的抖動處理。
 Newey and Powell（1987）的 expectile 則以非對稱平方損失取代檢查函數，
 保留可微性因而可用迭代加權最小平方求解。
+
+以上兩條脈絡看似平行，實則可併為一族，而這一點對本文的設計具決定性。
+Breckling and Chambers（1988）指出，若把 Huber 的損失乘上一個依殘差正負
+而異的非對稱權重，即得一個由兩個參數索引的損失函數
+\begin{equation}\label{eq:mq}
+\rho_{\tau,c}(u)=2\,w_\tau(u)\,\psi_c(u),\qquad
+w_\tau(u)=\begin{cases}\tau & u>0\\ 1-\tau & u\le 0\end{cases},\qquad
+\psi_c(u)=\begin{cases}u^2/2 & |u|\le c\\ c|u|-c^2/2 & |u|>c,\end{cases}
+\end{equation}
+其中 $\tau$ 控制非對稱、$c$ 控制穩健程度。此即 M-分位數（M-quantile）。
+其兩個極限恰好是前述兩條脈絡的端點：$c\to0$ 時
+$\rho_{\tau,c}$ 正比於 $w_\tau(u)|u|$，即 Koenker and Bassett（1978）的
+檢查函數；$c\to\infty$ 時 $\rho_{\tau,c}=2w_\tau(u)u^2/2$，即
+Newey and Powell（1987）的非對稱最小平方，而 $\tau=0.5$ 時更退化為
+一般最小平方。換言之，\textbf{「要不要穩健」這個二選一的問題，在
+式~\eqref{eq:mq} 中變成「要多穩健」這個連續刻度上的定位問題}。
+Catania and Luati（2020）以積分 Hogg 函數構造另一個從中位數連續過渡到
+平均數的單參數族，並指出把調參設在穩健尺度估計的一個低比例上即可兼顧
+穩健與效率，說明這種以刻度取代開關的想法具有一般性。
+
+M-分位數之所以值得注意，還因為它的主要應用場域正是本小節第（三）目
+所述的小區域估計。Chambers and Tzavidis（2006）以 M-分位數取代
+Fay--Herriot 的隨機效果架構，理由是 M-分位數可直接給出各區域自己的迴歸
+係數而不必假設區域效果的分布；Bianchi et al.（2018）補上了估計與檢定的
+理論。因此收縮與穩健損失這兩條脈絡在小區域估計文獻中已經交會過一次，
+只是尚未被帶進死亡率模型。
+
+損失函數的對稱性則是另一個需要檢查的前提。Huber 的 $\psi_c$ 對兩側施加
+相同的截點，其隱含的假設是污染來自兩側。Xu and Chen（2018）因而在
+Huber 損失中引入一個非對稱度量，使兩側可以帶不同的權重，並給出該度量的
+估計方式。此一修改與本文直接相關：如後文第\ref{sec:mq}所示，小人口的
+扭曲並非兩側對稱，而是在不同年齡朝相反方向偏移。
+
+計算面則決定了哪些損失函數在雙線性模型中實際可用。檢查函數不可微，
+Koenker and Bassett（1978）以線性規劃求解，Koenker and Park（1996）進一步
+處理「對參數為非線性」的情形並提出內點法——這正是 LC 模型所屬的情形，
+因為 $\alpha_x+\beta_x\kappa_t$ 對 $(\beta,\kappa)$ 是雙線性而非線性。
+另一條路是 Hunter and Lange（2000）的 MM 演算法：以 $|u|+\epsilon$ 取代
+$|u|$ 建立一個處處可微的二次優化函數，每一步化為加權最小平方，目標函數
+單調不增，$\epsilon$ 隨迭代縮小即收斂至原問題。本文採後者，理由有二：
+雙線性結構使兩個區塊各自都有加權最小平方的封閉解，無須呼叫線性規劃求解器；
+而同一段程式碼在 $c$ 取不同值時即涵蓋式~\eqref{eq:mq} 的整個族，
+包含高斯極限，使各變體之間的比較不受演算法差異污染。
 
 死亡率模型上的援用並不多。Hyndman and Ullah（2007）在函數型主成分架構下
 提出穩健版本，Santolino（2020）則直接以分位數迴歸估計 LC 模型的參數，
 逐一估計各分位的 $\beta^\tau$ 與 $\kappa^\tau$。須指出 Santolino（2020）
 自承參數隨 $\tau$ 並無明顯規律，此點與每個年齡--年份格僅有一個觀測、
-識別完全依賴雙線性結構跨格借力有關，本文第伍節之五將回到這個問題。
+識別完全依賴雙線性結構跨格借力有關，本文第伍節之五將回到這個問題；
+而本文第\ref{sec:mq}將指出另一層原因——$\tau$ 的最適值在不同年齡朝
+相反方向移動，故單一 $\tau$ 的參數本就不應呈現規律。
 
 此處須預先點出一項與本文情境直接相關的區分。古典穩健統計所設想的是
 「污染」，即少數觀測來自模型之外；但零死亡格的性質並非如此——一格觀測到
@@ -547,6 +629,155 @@ Newey and Powell（1987）的 expectile 則以非對稱平方損失取代檢查�
 對應加權的需求，最大奇異值與純噪音上緣的比值對應可估性的界限，而零格
 比例是否超過 50\% 則對應穩健損失的作用範圍。四者皆不需要真值，前三者
 甚至不需要配適模型。
+
+\subsubsection{（六）前提不符的三條取徑}\label{sec:notapply}
+
+上述四條脈絡是本文選用方法的依據，但文獻中還有三條看來更直接的取徑，
+本文未予採用。三者被排除的理由並非效果不佳，而是其成立所需的前提在小
+人口的資料結構下不成立。把理由寫清楚有兩個用處：一是說明本文的方法選擇
+不是任意的，二是這三條取徑之所以不成立，恰好各自標示出小人口問題的一項
+特徵，因而本身即是值得深入的起點。
+
+第一條是對「離群年份」穩健化。Hyndman and Ullah（2007）是死亡率文獻中
+最直接的穩健化嘗試，其作法分兩步：先以懲罰式樣條把每一年的
+$\log m_{x,t}$ 在年齡方向修勻，再以穩健主成分分析取代一般的 SVD，
+依每一年整條曲線的積分平方誤差判斷該年是否離群並降低其權重。此一設計
+所設想的離群值是戰爭、流感大流行或地震等使\textbf{整個年度}偏離趨勢的
+事件，該文所舉的例子即法國的 1914 至 1918 年與 1943 至 1945 年。
+其隱含前提因此是「少數異常年份對多數正常年份」。但小人口的噪音來自
+每一格各自獨立的卜瓦松抽樣，每一年同樣嘈雜，並不存在可供對比的多數，
+故逐年降權無從發揮。須強調這與本文第伍節之五所檢驗的逐格截尾並不相同：
+截尾的單位是格，此處的單位是年，若小人口的噪音恰在某些年份同向累積，
+逐年穩健化仍可能有效，因此值得單獨檢驗而非由前者類推。本文第\ref{sec:hu}
+即以實測給出結論。同一取徑的更進一步版本是 Hörmann et al.（2015）的
+動態函數型主成分，它不只用同期的共變異數，還用各階落後的共變異數以構造
+最適濾波器；就 LC 而言這是有吸引力的，因為 SVD 把各年份視為可交換，
+而 $\kappa_t$ 實則為隨機漫步。但動態主成分需要長期共變異數算子可估，
+本文 $T=24$ 且噪音變異與訊號同一量級，落後共變異數的估計量本身即不可靠。
+
+第二條是繞過高斯與卜瓦松、改走半參數的第三條路線。死亡率在本質上是
+乘性的——$m_{x,t}=\exp(\alpha_x+\beta_x\kappa_t)\cdot\varepsilon_{x,t}$
+——而第\ref{sec:routes}已說明，高斯路線的代價來自取對數、
+卜瓦松路線的代價來自等離散假設。Zhang, Lin, and Yang（2022）針對乘性線性迴歸
+提出以核密度估計誤差分布的最大非參數概似估計，其模擬顯示在誤差分布為
+多峰、非對稱或重尾時優於最小平方與最小乘積相對誤差估計。就前提而言
+這正對應本文的困難，因為取對數後的誤差分布恰是非對稱的。但該方法要求
+誤差密度可估，而本文每個年齡只有 24 個觀測；更根本的是，在零格集中的
+幼年組，誤差分布在零處有一個原子而非連續密度，核密度估計並非為此設計。
+此一取徑真正的價值因而在於提醒：兩條路線的差異可以歸結為對誤差分布的
+假設，而該假設本身是可以放鬆的——只是放鬆的代價需要資料量來支付，
+而資料量正是本問題所缺的。
+
+第三條是改由世代而非年期的角度建模。Basellini and Camarda（2025）指出
+以年期為軸的模型難以刻畫真實出生世代的經驗，因而提出把人口學的約束嵌入
+修勻架構的世代約束 P-樣條，其樣本外驗證優於世代版的 LC 變體與由
+age--period 預測反推 Lexis 對角線的慣行作法。就死亡率預測的一般問題而言
+這是重要的推進，但移到小人口時方向相反：Lexis 圖上的一條世代對角線所
+涵蓋的死亡數比一個年齡--年份格更少，稀疏問題因而加重而非減輕。
+不過該文「把人口學的約束寫進估計而非事後檢查」這一想法與本文第肆節的
+結論一致，值得保留為後續的方向。
+
+\subsection{既有應用場景與本文前提的對照}\label{sec:gap}
+
+前一小節按「能不能估、偏誤怎麼處理、變異數怎麼處理、損失函數要不要換、
+如何判斷」的順序回顧了五條脈絡。但把方法列出來並不等於說明它們為何可用，
+因為每一條脈絡的方法都是在特定的資料結構上發展出來的，其效果的保證也
+只在那個結構的前提下成立。本小節因此把各方法的\textbf{原始應用場景}與
+\textbf{本文情境的前提落差}並列，作為本文方法選擇的依據，也作為後續各節
+「假設檢驗」的檢驗清單——表~\ref{tab:gap} 右欄的每一項落差，在第伍節與
+第陸節都有一個對應的實證檢驗。
+
+\begin{table}[H]
+\centering
+\caption{各方法的原始應用場景與本文情境的前提落差}
+\footnotesize
+\renewcommand{\arraystretch}{1.25}
+\begin{tabular}{p{2.5cm}p{3.6cm}p{3.7cm}p{4.3cm}}
+\toprule
+方法（文獻） & 原始應用場景 & 該場景成立的關鍵前提 & 本文情境的落差\\
+\midrule
+\multicolumn{4}{l}{\textit{（一）可估性}}\\
+尖峰隨機矩陣、BBP 相變（Johnstone 2001；Baik et al. 2005） &
+陣列訊號處理的訊源個數、財務的因子個數、基因體學的主成分保留數 &
+維度與樣本數同時趨於無窮且比值收斂，噪音同變異數 &
+本文 $A=22$、$T=24$ 皆為固定小維度，門檻只能當作量級的參考而非臨界值\\
+HeteroPCA（Zhang et al. 2022） &
+單細胞定序等各列噪音變異數差異極大的高維矩陣去噪 &
+行列維度皆大，噪音跨列異質但格內獨立 &
+維度小，且噪音變異數與死亡數成反比、跨年齡跨越三個數量級，異質程度遠大於原設定\\
+\midrule
+\multicolumn{4}{l}{\textit{（二）偏誤減少}}\\
+Cox and Snell（1968）事後修正 &
+指數族模型的 $O(n^{-1})$ 偏誤修正 &
+最大概似估計值有限且存在 &
+零格導致完全分離，$\hat\theta$ 可為 $-\infty$，修正無從施加\\
+Firth（1993）預先修正 &
+二元邏吉斯迴歸的完全分離（Albert and Anderson 1984；Clogg et al. 1991）、罕見事件研究（Heinze and Schemper 2002） &
+線性預測子，每個參數有足夠的有效觀測數 &
+$\alpha_x+\beta_x\kappa_t$ 對參數為雙線性，訊息矩陣隨 $\beta,\kappa$ 而變；每個 $\alpha_x$ 只有 $T=24$ 個觀測\\
+\midrule
+\multicolumn{4}{l}{\textit{（三）變異數與收縮}}\\
+Fay and Herriot（1979） &
+美國普查小地方（人口數千以下）的人均所得估計，用於歲收分配 &
+直接估計量不偏、其抽樣變異數已知，區域效果為常態 &
+本文的直接估計量 $\hat\beta_x$ 本身\textbf{有偏}而非僅有噪音，收縮所交換的不是偏誤換變異數\\
+Ridge 與 LASSO（Hoerl and Kennard 1970；Tibshirani 1996） &
+共線性與高維變數選擇 &
+懲罰強度可由交叉驗證選出，且設計矩陣固定 &
+懲罰對象為 $\beta_x$ 而設計矩陣含待估的 $\kappa_t$，交叉驗證需切分格而破壞雙線性結構\\
+\midrule
+\multicolumn{4}{l}{\textit{（四）穩健損失}}\\
+Huber（1964）$M$-估計 &
+位置參數的 $\varepsilon$-污染估計；訊號處理與電力系統的離群值抑制（Zoubir et al. 2018） &
+污染為少數、對稱、與觀測的資訊量無關 &
+零格集中於幼年組且比例可達 95\%，非少數；扭曲為單邊；被扭曲者恰為 $\beta_x$ 最大者\\
+LTS 與 LMS（Rousseeuw 1984）；截尾概似（Müller and Neykov 2003） &
+迴歸診斷的離群值偵測；廣義線性模型的污染資料 &
+崩潰點理論要求逐觀測損失具次緊緻性；被丟棄者為壞資料 &
+卜瓦松對數概似在 $z=0$ 時不具次緊緻性；被丟棄者為攜帶趨勢訊號的格\\
+分位數迴歸（Koenker and Bassett 1978；Koenker 2005） &
+薪資分布、兒童生長參考曲線（Wei et al. 2006）、風險值 &
+每個共變數水準上有大量觀測，條件分位數可由資料識別 &
+每個年齡--年份格僅一個觀測，識別完全依賴雙線性結構跨格借力\\
+M-分位數（Breckling and Chambers 1988；Chambers and Tzavidis 2006；Bianchi et al. 2018） &
+英國與義大利的家戶調查，估計地方層級的所得與剝奪指標 &
+單位層級的調查資料，每個小區域有多個受訪單位 &
+本文僅有聚合後的死亡計數，每格一個觀測；$c=1.345$ 的效率依據為連續對稱誤差\\
+\midrule
+\multicolumn{4}{l}{\textit{（五）死亡率文獻中的穩健化}}\\
+穩健函數型主成分（Hyndman and Ullah 2007） &
+法國全國死亡率與澳洲生育率；辨識出的離群年為 1914--1919、1940--1945、1960 &
+少數年份因戰爭或疫病而結構斷裂，多數年份乾淨 &
+各年同分布、同樣嘈雜，不存在可對比的多數，門檻不被觸發（第\ref{sec:hu}）\\
+動態函數型主成分（Hörmann et al. 2015） &
+函數型時間序列的最適濾波，利用各階落後共變異數 &
+長期共變異數算子可估，序列長度足夠 &
+$T=24$ 且噪音與訊號同量級，落後共變異數的估計量本身不可靠\\
+LC 分位數模型（Santolino 2020） &
+西班牙全國死亡率，以內點法解非線性分位數迴歸 &
+全國層級資料，計數大、無零格 &
+小人口有零格，且本文發現最適 $\tau$ 隨年齡變號（第\ref{sec:mq}）\\
+\bottomrule
+\end{tabular}
+\label{tab:gap}
+\end{table}
+
+表~\ref{tab:gap} 的排列方式本身即說明了本文的策略。落差可分為兩類。
+第一類是\textbf{量的落差}，即前提的方向正確而程度不足，例如 BBP 相變的
+漸近性與本文的小維度、或 Firth 的觀測數要求與本文 $T=24$ 的落差。
+這一類方法仍可使用，但其理論保證退化為量級的參考，必須以模擬確認，
+本文第\ref{sec:est}即為此而設。第二類是\textbf{質的落差}，即前提的方向
+本身相反，例如 Fay--Herriot 假設直接估計量不偏而本文的直接估計量有偏、
+或古典穩健統計假設污染為少數而本文的零格為多數。這一類方法不能以
+「加大樣本」或「調整參數」補救，必須改換問題的設定，這也是本文
+第\ref{sec:decomp}先做偏誤來源分解、再依來源選方法的理由。
+
+值得注意的是，第二類落差有一個共同的形式：既有方法都假設\textbf{有一個
+可信的多數}——多數觀測不偏、多數觀測乾淨、多數年份正常——而小人口所
+缺的恰恰是這個多數。這個觀察串起了本文所有的負面結果（第\ref{sec:hu}與
+第伍節之五），也解釋了為何有效的三種作法（卜瓦松概似、Firth 懲罰、
+資訊加權）都不依賴多數／少數的對比，而是直接改寫每一格的貢獻方式。
+本文第\ref{sec:theory}將回到這一點作系統的整理。
 
 \section{研究資料與診斷}
 
@@ -1489,6 +1720,362 @@ $\alpha$ 的同時損害了 $\beta$，這是穩健損失的效率代價在本問
 資料裡；Firth 則根本不取對數、不需替代零格，從源頭避免了該筆錯誤資訊。
 \textbf{就本文的問題而言，換分配假設仍優於換損失函數。}
 
+\subsection{穩健程度與非對稱：M-分位數的連續掃描}\label{sec:mq}
+
+\subsubsection{（一）問題：兩個點還是一條線}
+
+前一小節以變體 A（標準 LC）與變體 F（中位數 LC）兩個點劃出穩健損失的
+作用範圍，結論是中位數的崩潰點即其上界。但這兩點並非兩種方法，而是
+式~\eqref{eq:mq} 同一個損失函數族的兩個極限：$\tau=0.5$ 且
+$c\to\infty$ 時 $\rho_{\tau,c}$ 退化為對數尺度的最小平方，即變體 A；
+$\tau=0.5$ 且 $c\to0$ 時退化為檢查函數，即變體 F。因此「要不要穩健」
+這個二選一的問題可以改寫成「$(\tau,c)$ 該取在哪裡」這個連續定位的問題，
+而前一小節的崩潰點論證則相應地變成一項關於最適位置的可檢驗預測。
+
+就既有文獻而言，這個連續刻度上的兩端各有其成熟的應用場域，而兩端的
+應用前提都與本文不同，這正是必須自行掃描而不能沿用既有建議的理由。
+檢查函數一端，Koenker and Bassett（1978）以降的分位數迴歸主要用於
+勞動經濟學的薪資分布、Wei et al.（2006）的兒童生長參考曲線、以及
+金融的風險值估計，這些場景的共同特徵是每一個共變數的水準上都有大量
+觀測，條件分位數因而可由資料直接識別。死亡率模型則相反：每個
+年齡--年份格只有一個觀測，條件分位數完全依賴雙線性結構跨格借力，
+這是 Santolino（2020）以西班牙資料估計 LC 分位數模型時所面對的同一個
+限制。最小平方一端的前提則是誤差對稱且變異數同質，而第\ref{sec:eda}的
+診斷\cn{3}已顯示本文的噪音變異數隨死亡數跨越三個數量級。
+兩端的前提都不成立，故最適位置只能由本文的資料結構自行決定。
+至於 $\tau$ 與 $c$ 的常用建議值同樣不可直接移植：$c=1.345$ 之所以成為
+慣例，是因為它在標準常態下保有 95\% 的效率
+（Huber and Ronchetti 2009），而該計算假設的是連續、對稱、同變異數的
+誤差，與本文的離散計數相去甚遠。
+
+本小節即在此連續刻度上掃描，並以三項事先寫下的預測為檢驗的依據。
+其一，零格比例低於崩潰點時，最適的 $c$ 應偏小（偏向中位數）；遠高於
+崩潰點時，中位數本身已被扭曲，最適的 $c$ 應偏大（偏向最小平方）。
+其二，若扭曲確實是單邊的，則非對稱參數 $\tau$ 偏離 0.5 應有改善，
+且偏離的方向應與扭曲的方向相反；以只對一側設截點（$c^-\ne c^+$，
+Xu and Chen 2018）亦應得到方向一致的結論。其三，$\tau$ 與 $c$ 分別
+處理損失的非對稱與穩健程度，二者皆不觸及加權，故與資訊加權應可疊加。
+
+\subsubsection{（二）方法：以 MM 演算法統一求解}
+
+求解採 Hunter and Lange（2000）的 MM 演算法。$\rho_{\tau,c}$ 的一階導數
+可寫成 $W(u)\,u$，其中 $W(u)=2w_\tau(u)\min\{1,c/(|u|+\epsilon)\}$，
+故每一步化為加權最小平方：固定 $\boldsymbol{\kappa}$ 時逐年齡解一條
+加權簡單迴歸，固定 $\boldsymbol{\alpha}$ 與 $\boldsymbol{\beta}$ 時逐年份
+解一個無截距的加權迴歸，兩者皆有封閉解。擾動項 $\epsilon$ 隨迭代縮小，
+以避免 $c\to0$ 時 $1/|u|$ 在 $u=0$ 附近發散。此一實作的正確性有一項
+嚴格的內部對照：取 $\tau=0.5$、$c=\infty$ 時，本演算法所得的
+$\boldsymbol{\alpha},\boldsymbol{\beta},\boldsymbol{\kappa}$ 與直接對
+$\log m_{x,t}$ 作 SVD 所得者的最大差異為 $10^{-15}$ 量級，亦即機器精度，
+確認式~\eqref{eq:mq} 確實把變體 A 納為特例。亂數種子與
+表~\ref{tab:est}、表~\ref{tab:qlc} 完全相同。
+
+\subsubsection{（三）實證結果}
+
+\begin{table}[H]
+\centering
+\caption{穩健程度 $c$ 的掃描（$\tau=0.5$，等權重，重複 100 次，取中位數）}
+\small
+\begin{tabular}{llrrrrr}
+\toprule
+$N$ & 估計量 & $\alpha$ 中位 & $\alpha$ 最大 & SSE($\beta$) & cor($\beta$) & 漂移偏誤\\
+\midrule
+\multirow{5}{*}{\shortstack[l]{$10^4$\\ 零格 206/528}}
+ & A\quad $c=\infty$（標準 LC）  & 0.1612 & 2.3309 & \textbf{7.916} & $-0.074$ & \textbf{0.3436}\\
+ & $c=3.0$                      & 0.1509 & 2.3309 & 8.638 & $-0.073$ & 0.3450\\
+ & $c=1.345$（Huber 標準）      & 0.1427 & 2.3156 & 8.233 & $-0.079$ & 0.3592\\
+ & $c=0.7$                      & \textbf{0.0995} & 2.3053 & 10.563 & $-0.079$ & 0.3604\\
+ & F\quad $c=0$（中位數）        & 0.1015 & \textbf{2.3020} & 9.562 & $-0.063$ & 0.3494\\
+\midrule
+\multirow{5}{*}{\shortstack[l]{$5\times10^4$\\ 零格 100/528}}
+ & A\quad $c=\infty$            & 0.0611 & 0.8658 & \textbf{4.449} & 0.037 & 0.3339\\
+ & $c=3.0$                      & 0.0630 & 0.8652 & 5.363 & 0.052 & 0.3353\\
+ & $c=1.345$                    & 0.0412 & 0.8006 & 5.302 & 0.042 & 0.3026\\
+ & $c=0.7$                      & \textbf{0.0319} & 0.7351 & 4.920 & 0.023 & \textbf{0.2886}\\
+ & F\quad $c=0$                 & 0.0393 & \textbf{0.6925} & 5.447 & 0.007 & 0.3150\\
+\midrule
+\multirow{5}{*}{\shortstack[l]{$2\times10^5$\\ 零格 29/528}}
+ & A\quad $c=\infty$            & 0.0231 & 0.1846 & 1.400 & 0.379 & 0.2117\\
+ & $c=3.0$                      & 0.0197 & 0.1656 & 1.449 & 0.418 & 0.1784\\
+ & $c=1.345$                    & 0.0108 & \textbf{0.1231} & 1.010 & 0.468 & 0.1109\\
+ & $c=0.7$                      & 0.0109 & 0.1289 & \textbf{0.900} & \textbf{0.478} & \textbf{0.0670}\\
+ & F\quad $c=0$                 & \textbf{0.0050} & 0.1435 & 1.110 & 0.411 & 0.1111\\
+\bottomrule
+\end{tabular}
+\label{tab:mqc}
+\end{table}
+
+第一項預測成立，但形式比原先設想的溫和。$\alpha$ 偏誤中位數的最適 $c$
+隨人口規模單調下移：人數一萬與五萬時落在 $c=0.7$（0.0995 與 0.0319），
+人數二十萬時落在 $c=0$（0.0050），亦即零格比例愈低、愈該把穩健程度
+推到底。更值得注意的是\textbf{內部最適的存在}：在三個規模下都有一個
+介於兩端之間的 $c$ 同時勝過兩端。人數二十萬時 $c=0.7$ 的漂移項偏誤為
+0.0670，而兩個端點分別為 0.1111（中位數）與 0.2117（最小平方），
+亦即中位數只走到一半；人數五萬時 $c=0.7$ 的漂移項偏誤 0.2886 亦優於
+兩端的 0.3150 與 0.3339。前一小節以兩點作出的判斷因而漏掉了中間這一段，
+而漏掉的原因正是把穩健當成開關而非刻度。
+
+\begin{table}[H]
+\centering
+\caption{非對稱參數 $\tau$ 與單側截點的掃描（$c=1.345$，等權重）}
+\small
+\begin{tabular}{llrrrrr}
+\toprule
+$N$ & 估計量 & $\alpha$ 中位 & $\alpha$ 最大 & SSE($\beta$) & cor($\beta$) & 漂移偏誤\\
+\midrule
+\multirow{7}{*}{$10^4$}
+ & $\tau=0.3$              & 0.3692 & 2.3070 & 9.369 & $-0.040$ & 0.3344\\
+ & $\tau=0.4$              & 0.2521 & 2.3105 & 8.551 & $-0.066$ & 0.3487\\
+ & $\tau=0.5$              & 0.1427 & \textbf{2.3156} & \textbf{8.233} & $-0.079$ & 0.3592\\
+ & $\tau=0.6$              & \textbf{0.0542} & 2.3249 & 9.365 & $-0.075$ & 0.3549\\
+ & $\tau=0.7$              & 0.1500 & 2.3461 & 9.463 & $-0.093$ & 0.3589\\
+ & 只壓右尾 $c^+\!=\!1.345$ & 0.2361 & 2.3188 & \textbf{7.318} & $-0.053$ & \textbf{0.3310}\\
+ & 只壓左尾 $c^-\!=\!1.345$ & \textbf{0.0566} & 2.3309 & 13.065 & $-0.067$ & 0.3636\\
+\midrule
+\multirow{7}{*}{$5\times10^4$}
+ & $\tau=0.3$              & 0.1903 & \textbf{0.7363} & 5.512 & 0.008 & \textbf{0.2857}\\
+ & $\tau=0.4$              & 0.1309 & 0.7616 & 5.657 & 0.017 & 0.2880\\
+ & $\tau=0.5$              & 0.0412 & 0.8006 & 5.302 & 0.042 & 0.3026\\
+ & $\tau=0.6$              & \textbf{0.0219} & 0.8564 & \textbf{4.736} & 0.070 & 0.2878\\
+ & $\tau=0.7$              & 0.0972 & 0.9504 & 5.426 & \textbf{0.084} & 0.2954\\
+ & 只壓右尾                & 0.1027 & 0.8036 & 4.935 & $-0.009$ & 0.2980\\
+ & 只壓左尾                & \textbf{0.0226} & 0.8658 & 5.194 & 0.059 & 0.3308\\
+\midrule
+\multirow{7}{*}{$2\times10^5$}
+ & $\tau=0.3$              & 0.0923 & 0.4145 & 1.502 & 0.322 & 0.1385\\
+ & $\tau=0.4$              & 0.0495 & 0.2795 & 1.167 & 0.401 & 0.1238\\
+ & $\tau=0.5$              & 0.0108 & 0.1231 & \textbf{1.010} & 0.468 & 0.1109\\
+ & $\tau=0.6$              & 0.0232 & \textbf{0.0589} & 1.021 & \textbf{0.502} & \textbf{0.0989}\\
+ & $\tau=0.7$              & 0.0587 & 0.2390 & 1.158 & 0.492 & 0.1136\\
+ & 只壓右尾                & 0.0292 & 0.3604 & 1.674 & 0.234 & 0.1903\\
+ & 只壓左尾                & \textbf{0.0047} & 0.1489 & 1.323 & 0.455 & 0.1601\\
+\bottomrule
+\end{tabular}
+\label{tab:mqtau}
+\end{table}
+
+第二項預測也成立，而且兩種實作給出一致的方向。$\tau=0.6$ 在三個規模下
+都使 $\alpha$ 偏誤中位數大幅下降，人數一萬時由 0.1427 降至 0.0542、
+人數五萬時由 0.0412 降至 0.0219，改善約一半至三分之二；$\tau=0.3$ 與
+$\tau=0.4$ 則一律使情況惡化，人數一萬時 $\tau=0.3$ 的 0.3692 是
+$\tau=0.5$ 的 2.6 倍。以單側截點實作亦然：只對負殘差設截點（壓左尾）
+所得的 $\alpha$ 偏誤中位數為 0.0566、0.0226、0.0047，是三張表中最低的
+一組；只對正殘差設截點則一律較差。兩種做法都指向同一個結論，即\textbf{受
+損的是殘差的左側}，而這也證實了第\ref{sec:theory}前所推測的方向。
+
+但第二項預測只在「$\alpha$ 偏誤中位數」這個指標上成立。$\tau=0.6$ 的
+$\alpha$ 最大偏誤並未改善，人數一萬時為 2.3249、略大於 $\tau=0.5$ 的
+2.3156；人數五萬時 0.8564 對 0.8006，同樣略差。改了大多數年齡卻沒改到
+最壞的那個年齡，這個型態本身就是線索，而表~\ref{tab:mqage} 給出解釋。
+
+\begin{table}[H]
+\centering
+\caption{$\alpha_x$ 偏誤隨 $\tau$ 的變化（$c=1.345$，$N=10^4$，各年齡取重複的中位數）}
+\small
+\begin{tabular}{lrrrrrrr}
+\toprule
+年齡組 & 單年期望死亡 & $\tau=0.3$ & $\tau=0.4$ & $\tau=0.5$ & $\tau=0.6$ & $\tau=0.7$ & 最適 $\tau$\\
+\midrule
+5--9   & \phantom{00}0.1 & \textbf{2.3070} & 2.3105 & 2.3156 & 2.3249 & 2.3461 & \textbf{0.3}\\
+20--24 & \phantom{00}0.2 & \textbf{1.1032} & 1.1184 & 1.1424 & 1.1790 & 1.2638 & \textbf{0.3}\\
+30--34 & \phantom{00}0.4 & \textbf{0.3981} & 0.4252 & 0.4745 & 0.5831 & 0.6865 & \textbf{0.3}\\
+35--39 & \phantom{00}0.5 & \textbf{0.0317} & 0.0852 & 0.1866 & 0.3208 & 0.4504 & \textbf{0.3}\\
+\midrule
+40--44 & \phantom{00}1.0 & $-0.3402$ & $-0.2245$ & $-0.0762$ & \textbf{0.0311} & 0.1558 & \textbf{0.6}\\
+50--54 & \phantom{00}2.0 & $-0.4894$ & $-0.3473$ & $-0.2042$ & \textbf{$-0.0644$} & 0.0724 & \textbf{0.6}\\
+65--69 & \phantom{00}6.9 & $-0.2261$ & $-0.1350$ & $-0.0423$ & \textbf{0.0394} & 0.1119 & \textbf{0.6}\\
+85--89 & \phantom{0}14.8 & $-0.1303$ & $-0.0711$ & $-0.0271$ & \textbf{0.0223} & 0.0755 & \textbf{0.6}\\
+\bottomrule
+\end{tabular}
+\label{tab:mqage}
+\end{table}
+
+\subsubsection{（四）模型假設的檢驗：扭曲是否為單邊}
+
+表~\ref{tab:mqage} 顯示，$\alpha_x$ 的偏誤在不同年齡\textbf{符號相反}，
+因而最適的 $\tau$ 朝相反方向移動。單年期望死亡數在 1 人以下的年齡，
+偏誤為正（5 至 9 歲組 $+2.32$、35 至 39 歲組 $+0.19$），最適 $\tau$ 為
+掃描範圍的下限 0.3；期望死亡數 1 人以上的年齡，偏誤為負
+（40 至 44 歲組 $-0.08$、50 至 54 歲組 $-0.20$），最適 $\tau$ 為 0.6。
+分界落在每年約一人死亡處，而這正是診斷\cn{1}所量的死亡數量級。
+
+兩個相反的機制解釋了這個符號差異，而兩者都源於取對數。期望死亡數
+遠小於 1 時，多數年份觀測到零，以 0.5 替代必然使該格的死亡率被
+\textbf{高估}——因為 $0.5/E_{x,t}>\mu_{x,t}/E_{x,t}$ ——故偏誤為正，
+此即前一小節的零格替代機制。期望死亡數大於 1 時不再有零格，但
+$\mathbb{E}[\log D]<\log\mathbb{E}[D]$ 這個 Jensen 不等式使對數尺度上的
+觀測被系統性\textbf{低估}，其量級約為 $-1/(2\mu_{x,t})$。後者可以定量
+核對：人數二十萬時 85 至 89 歲組的單年期望死亡數為 295.7，理論值
+$-1/(2\times295.7)=-0.0017$，實測 $\tau=0.5$ 的偏誤為 $-0.0010$；
+1 至 4 歲組期望死亡數 1.3，理論的 Jensen 修正項不再是良好的近似，
+實測為 $-0.1136$，與直接計算 $\mathbb{E}[\log\max(D,0.5)]-\log\mu$
+所得的 $-0.137$ 同一量級。
+
+由此可得一項本文認為值得強調的結論：\textbf{單一的 $\tau$ 無法同時服務
+兩個機制}。它會改善占多數的稠密年齡（因而 $\alpha$ 偏誤中位數大幅下降），
+卻無法改善零格集中的幼年組（因而 $\alpha$ 最大偏誤不動），
+而後者正是第\ref{sec:e0}所示對平均餘命影響雖小、但在對數尺度上偏誤最大的
+一組。這同時為 Santolino（2020）「參數隨 $\tau$ 並無明顯規律」的觀察
+提供了一個具體的解釋：若最適的 $\tau$ 本身隨年齡變號，則以單一 $\tau$
+估出的 $\beta^\tau$ 與 $\kappa^\tau$ 本就不應隨 $\tau$ 呈現規律。
+順帶可知，若允許 $\tau$ 隨年齡變動並以診斷\cn{1}的死亡數量級決定其方向，
+應可同時改善兩組，此點列入後續工作。
+
+第三項預測亦成立，且結果超出前一小節所達到的水準。表~\ref{tab:mqK}
+把 Huber 損失與資訊加權疊加，並以前一小節表現最佳的變體 G（加權中位數）
+為比較基準。
+
+\begin{table}[H]
+\centering
+\caption{穩健損失與資訊加權的疊加（$\tau=0.5$，重複 100 次）}
+\small
+\begin{tabular}{llrrrr}
+\toprule
+$N$ & 估計量 & $\alpha$ 中位 & $\alpha$ 最大 & SSE($\beta$) & 漂移偏誤\\
+\midrule
+\multirow{3}{*}{$10^4$}
+ & G\quad 加權中位數（前節）        & 0.0733 & 2.3020 & 4.950 & 0.2986\\
+ & $c=0$ $+$ 加權（本節重算）       & 0.0901 & 2.3020 & 7.696 & 0.3188\\
+ & $c=1.345$ $+$ 加權              & 0.1431 & 2.3151 & \textbf{3.759} & \textbf{0.2579}\\
+\midrule
+\multirow{3}{*}{$5\times10^4$}
+ & G\quad 加權中位數（前節）        & 0.0187 & \textbf{0.6925} & 1.548 & 0.1591\\
+ & $c=0$ $+$ 加權（本節重算）       & 0.0353 & \textbf{0.6925} & 1.640 & \textbf{0.1339}\\
+ & $c=1.345$ $+$ 加權              & 0.0351 & 0.7853 & \textbf{1.091} & 0.1404\\
+\midrule
+\multirow{3}{*}{$2\times10^5$}
+ & G\quad 加權中位數（前節）        & 0.0032 & 0.1818 & 0.536 & 0.0428\\
+ & $c=0$ $+$ 加權（本節重算）       & 0.0054 & 0.1708 & 0.560 & \textbf{0.0204}\\
+ & $c=1.345$ $+$ 加權              & 0.0106 & \textbf{0.1267} & \textbf{0.411} & 0.0336\\
+\bottomrule
+\end{tabular}
+\label{tab:mqK}
+\end{table}
+
+以 Huber 損失取代中位數並保留資訊加權後，$\beta$ 的平方誤差和在三個
+規模下分別由 4.950、1.548、0.536 降至 3.759、1.091、0.411，
+改善兩成至三成；漂移項偏誤在人數一萬時由 0.2986 降至 0.2579，
+在另兩個規模則與中位數版相當。機制是效率：中位數只用到排序資訊，
+Huber 損失在殘差小於截點的範圍內仍使用平方損失，因而保留了那些格的
+完整資訊，而 $\beta$ 的估計恰恰依賴跨格的相對大小。$\alpha$ 偏誤中位數
+則以中位數版較佳，這與穩健程度的取捨一致：$c$ 放大換到效率、犧牲了
+一部分對零格扭曲的抵抗力。
+
+\subsubsection{（五）小結}
+
+本小節把損失函數這條路推到了它能到的地方，但上界並未改變。
+即使是表現最佳的組合，其 $\alpha$ 最大偏誤在人數五萬時仍為 0.7853，
+而 Firth 為 0.0680（表~\ref{tab:est}），相差十倍以上。理由與前一小節
+相同：$(\tau,c)$ 所調整的是損失函數對已產生的錯誤資訊有多敏感，
+而 Firth 在計數尺度上估計、根本不產生那筆錯誤資訊。
+\textbf{把穩健由開關改成刻度確實推進了一段距離，但「換分配假設優於換
+損失函數」這個判斷不因此改變。}
+
+把三項預測的檢驗結果合起來看，本小節所檢驗的其實是同一個假設的三個面向：
+損失函數的形狀能否補救資料本身所缺的資訊。答案是部分可以——非對稱參數
+補回了 Jensen 項，穩健程度補回了一部分零格扭曲，資訊加權補回了變異數的
+不均——但三者都停在同一道牆前，即零格所代表的資訊缺失。這也讓下一個
+問題變得明確：既然「改變損失的形狀」已到極限，那麼「不改變形狀而只
+判斷哪些觀測該被降權」的作法，處境應該更差。下一小節即檢驗死亡率文獻中
+最具代表性的這類作法。
+
+\subsection{對離群年份穩健化為何無效}\label{sec:hu}
+
+\subsubsection{（一）問題與既有文獻的前提}
+
+第\ref{sec:notapply}已說明，Hyndman and Ullah（2007）的穩健化以「年」
+為單位。此處須把該文的應用情境寫清楚，因為前提的落差正在其中。
+該文的兩個實例是法國 1899 年以後的死亡率與澳洲的生育率，皆為全國層級
+的資料，每個年齡--年份格的死亡數以千計乃至萬計，抽樣噪音相對於訊號
+可以忽略。在那樣的資料上，偏離秩一結構的年份確實是少數而且有實質原因：
+該文所辨識出的離群年為 1914 至 1919 年、1940 至 1945 年與 1960 年，
+前兩段是兩次世界大戰與 1918 年西班牙流感所致，第三段則是青少年死亡率的
+異常。換言之，其穩健化所針對的是\textbf{真實的結構斷裂}，且斷裂的年份
+不到樣本期的十分之一——這正是 Huber（1964）$\varepsilon$-污染模型
+「少數對多數」前提的一個乾淨實例。
+
+本文的情境與此相反。噪音來自每一格各自獨立的卜瓦松抽樣，各年的年齡結構
+相同、期望死亡數也相同，故各年偏離秩一結構的程度在統計上同分布；
+既無戰爭亦無疫病，也沒有任何年份有理由特別異常。依此前提，逐年降權
+應當毫無作用。這是一項方向明確的預測，而非事後的解釋。
+
+之所以仍須單獨檢驗，是因為第五小節的截尾以「格」為單位，兩者並不能
+互相類推：若小人口的噪音恰在某些年份同向累積——例如某年多數年齡同時
+出現偏低的死亡數——則即使沒有戰爭，逐年穩健化仍可能有效。
+由格的結論推到年的結論需要一個獨立的前提，即格間噪音的獨立性，
+而該前提本身就是本小節要檢驗的對象。
+
+\subsubsection{（二）方法與實證}
+
+實作上依每一年整條曲線的積分平方誤差
+$v_t=\sum_x(\log m_{x,t}-\alpha_x-\beta_x\kappa_t)^2$ 判斷該年是否離群，
+以 $v_t$ 的中位數與 MAD 作穩健定位與尺度，再以逐年權重重解秩一結構，
+反覆至收斂。降權規則有兩種：平滑降權
+$w_t=\min\{1,\lambda\,\mathrm{MAD}/(v_t-\mathrm{med})_+\}$，以及硬性剔除
+$v_t$ 最大的若干年。
+
+\begin{table}[H]
+\centering
+\caption{對離群年份穩健化的效果（重複 100 次，取中位數）}
+\small
+\begin{tabular}{llrrrrr}
+\toprule
+$N$ & 估計量 & 降權年數 & $\alpha$ 中位 & $\alpha$ 最大 & SSE($\beta$) & 漂移偏誤\\
+\midrule
+\multirow{4}{*}{$10^4$}
+ & A\quad 標準 LC        & ---  & 0.1612 & 2.3309 & 7.916 & 0.3436\\
+ & 平滑降權 $\lambda=3$  & 0.67 & 0.1609 & 2.3310 & 7.904 & 0.3436\\
+ & 剔除 2 年             & 2    & 0.1597 & 2.3335 & 8.065 & 0.3544\\
+ & 剔除 4 年             & 4    & 0.1588 & 2.3366 & 8.523 & 0.3449\\
+\midrule
+\multirow{4}{*}{$5\times10^4$}
+ & A\quad 標準 LC        & ---  & 0.0611 & 0.8658 & 4.449 & 0.3339\\
+ & 平滑降權 $\lambda=3$  & 0.59 & 0.0638 & 0.8658 & 4.835 & 0.3366\\
+ & 剔除 2 年             & 2    & 0.0588 & 0.8501 & 4.977 & 0.3307\\
+ & 剔除 4 年             & 4    & 0.0554 & 0.8658 & 5.671 & 0.3343\\
+\midrule
+\multirow{4}{*}{$2\times10^5$}
+ & A\quad 標準 LC        & ---  & 0.0231 & 0.1846 & 1.400 & 0.2117\\
+ & 平滑降權 $\lambda=3$  & 0.66 & 0.0242 & 0.1854 & 1.465 & 0.2160\\
+ & 剔除 2 年             & 2    & 0.0242 & 0.1738 & 1.490 & 0.2155\\
+ & 剔除 4 年             & 4    & 0.0218 & 0.1661 & 1.622 & 0.2301\\
+\bottomrule
+\end{tabular}
+\label{tab:hu}
+\end{table}
+
+\subsubsection{（三）假設的檢驗與問題回應}
+
+結果與預期一致，而且一致的程度本身值得注意。平滑降權規則在 24 年之中
+平均只降權 0.59 至 0.67 年，亦即三次模擬有兩次一年都不降；其所得的
+估計值與標準 LC 在小數第三位才開始有差異，漂移項偏誤在人數一萬時
+兩者皆為 0.3436。原因是 $v_t$ 的跨年分布本身就很集中——噪音來自每一格
+獨立的卜瓦松抽樣，各年的格數相同、期望死亡數也相同，故各年的積分平方
+誤差在統計上同分布，MAD 為基準的門檻自然幾乎不被觸發。\textbf{不存在
+離群年，因此沒有東西可以降權。}
+
+硬性剔除則顯示，強迫它動手只會變差。剔除 4 年之後 $\beta$ 的平方誤差和
+在三個規模下分別由 7.916、4.449、1.400 升至 8.523、5.671、1.622，
+一致惡化一成至兩成；$\alpha$ 偏誤中位數雖略降（0.1588、0.0554、0.0218），
+但那只是樣本數減少後中位數本身的波動，$\alpha$ 最大偏誤並未改善。
+機制與第五小節的逐格截尾相同——被剔除的年份並非壞資料，而是資料——
+只是單位由格換成年。
+
+\subsubsection{（四）小結}
+
+把本小節與第五小節並列，可以看出「穩健」一詞在本問題上有兩種不同的
+失效方式。逐格截尾是\textbf{做錯事}：它確實丟掉了格，而丟掉的恰好是
+$\beta_x$ 最大、攜帶最多趨勢訊號的幼年組（表~\ref{tab:retain}）。
+逐年降權則是\textbf{什麼都沒做}：它的門檻從未被觸發，因為判斷離群所需的
+「多數／少數」對比並不存在。兩者都不是實作上的失誤，而是各自的設計
+前提在小人口的資料結構下不成立。這也說明第\ref{sec:mq}的 M-分位數為何
+是可行的一條：它不判斷任何觀測是否離群，也不丟棄任何觀測，只改變損失
+函數的形狀，因而不需要「多數對少數」這個前提。
+
+至此，估計當下所能做的三類調整——換分配假設、換損失函數、換權重——
+都已檢驗完畢，其共同的上界也已清楚。若在估計當下無法再進一步，
+剩下的可能就只有在估計之後動手。下一小節即檢驗這條路。
+
 \subsection{估計後的校正}\label{sec:postcorr}
 
 前述作法都在估計當下處理偏誤，另一條路是先估再修。最直接的作法是參數式
@@ -1641,6 +2228,41 @@ $\alpha_x$ 本身仍是有意義的估計標的，且幼年組的偏誤在人數
 最後須指出，逐年齡貢獻的合計（標準 LC 為 $-1.3043$ 歲）略小於基準誤差
 （$-1.480$ 歲），差額來自生命表對死亡率的非線性轉換——各年齡的效應並非
 可加。本表因此應讀為各年齡相對重要性的排序，而非嚴格的誤差分解。
+
+\subsection{小結：可估者已估，未估者為何}
+
+本節自偏誤的來源出發，依序檢驗了五類作法，此處把假設與結果並列收束。
+階梯式分解確認了第\ref{sec:gap}表~\ref{tab:gap} 所列的兩項落差確實存在：
+取對數使 $\alpha_x$ 產生偏誤，而等權重使漂移項對異質變異敏感，且後者
+與損失函數的形狀無關——變體 E 在無零格、無重尾、噪音對稱的條件下仍留下
+0.347 的漂移項偏誤，這直接否證了「以更穩健的損失即可補救」這一假設。
+依此分解選出的三種作法各自對應一項來源：卜瓦松概似與 Firth 懲罰處理
+對數與零格所產生的錯誤資訊，資訊加權處理變異數的不均，Fay--Herriot
+處理變異數主導的 $\beta_x$。三者皆無調校參數。
+
+反面的結果同樣明確，而且其失效方式恰好驗證了表~\ref{tab:gap} 的前提落差。
+逐格截尾（第五小節）丟掉的是 $\beta_x$ 最大、攜帶最多趨勢訊號的幼年組，
+因為在雙線性模型中「最不合模型」與「最具資訊」高度重疊，這違反了
+古典穩健統計「離群值與資訊量無關」的前提。逐年降權（第\ref{sec:hu}）
+則從未被觸發，因為 Hyndman and Ullah（2007）所依的「少數異常年對多數
+正常年」在小人口並不存在。M-分位數的連續掃描（第\ref{sec:mq}）雖確實
+把損失函數這條路推進了一段——非對稱參數補回 Jensen 項、有限截點兼顧
+效率與穩健——但仍停在同一道牆前：$\alpha$ 最大偏誤 0.785 對 Firth 的
+0.068。三項負面結果指向同一個結論，即損失函數所能處理的是「對已產生的
+錯誤資訊有多敏感」，而非「錯誤資訊要不要產生」。
+
+至於不可估者，本節亦已界定。$\beta_x$ 在人數二十萬以下受訊噪比限制，
+落在 BBP 門檻以下，任何估計量都無法還原其形狀，能做的只是以收縮避免
+把噪音當訊號。第\ref{sec:e0}進一步顯示，參數層面的改善確實可以轉為
+平均餘命的改善（配適期偏誤由 $-1.480$ 降至 $-0.202$ 歲），但改善的
+年齡位置與平均餘命所重的年齡並不重合。
+
+至此，點估計的部分已交代完畢：哪些參數可估、以什麼方法估、改善多少、
+以及為何有些方法無效。但「能否編製鄉鎮市區生命表」這個問題並未因此
+回答完整，因為使用者最終需要的不只是一個數字，而是一個附帶不確定性的
+數字。而點估計的偏誤一旦存在，區間的中心就是偏的；區間的寬度又另有
+其估計問題。下一節因此轉向區間推論，並沿用同一套作法——先分解誤差的
+來源，再依來源選方法。
 
 \section{區間推論}\label{sec:interval}
 
@@ -1874,6 +2496,30 @@ Kalman 濾波的初始值變異數。三者皆無調校參數，計算成本亦�
 的估計是 23 維三對角矩陣上的一維最佳化，較動差法所需的多次完整配適快上
 兩到三個數量級。
 
+\subsection{小結：位置與寬度是兩件事}
+
+本節所處理的問題與前一節同構，但標的由點估計換成區間。作法亦同：
+先以層層疊加的變體分解區間誤差的來源，再依來源選方法。
+結果顯示區間的失準來自兩個可分離的部分。位置的偏誤直接繼承點估計——
+漂移項估錯，區間的中心就錯——因而以卜瓦松最大概似取代 SVD 即可校正，
+這是第伍節的結論在區間上的直接後果。寬度的偏誤則另有來源：
+樸素的 $\mathrm{sd}(\Delta\hat\kappa)$ 把測量噪音誤認為過程變異，
+故系統性高估 $\sigma$，人數五萬時中位數 1.495 對真值 0.679。
+狀態空間的 REML 把兩者分離後降至 0.575，偏誤由 $+0.816$ 縮為 $-0.104$。
+
+此處也檢驗了一項文獻上的常見主張。LC 區間過窄的說法（Lee and Miller 2001；
+Booth et al. 2006）建立在「$\sigma$ 被正確估計、僅漏計了參數不確定性」
+這個前提上，而本文的實測顯示小人口的情形相反：$\sigma$ 本身被高估，
+故現行作法的區間是\textbf{過寬}而非過窄——人數五萬時寬度 8.949 而涵蓋率
+僅 0.27，寬度是不可約下限 2.093 的四倍餘，涵蓋率卻遠低於名目的 80\%。
+過寬與涵蓋不足並存，是位置偏誤與寬度高估同時存在的特徵，兩者不可混為
+一談。這也再次印證第\ref{sec:gap}的判斷：既有結論的前提須逐一核對，
+不可直接移植。
+
+至此四個研究問題所需的實證材料皆已齊備。下一節逐一回應，並把本文的結果
+放回小樣本偏誤與資料污染兩套方法論之中，說明何處吻合、何處不符，
+以界定本研究的方法論歸屬。
+
 \section{結論與討論}
 
 \subsection{對四個研究問題的回應}
@@ -1967,6 +2613,33 @@ $\beta_x$ 以 Fay-Herriot 經驗貝氏收縮處理，人數五萬時相關係數
 36\%，低於崩潰點，5 至 9 歲組的 $\alpha$ 偏誤由 $-0.0330$ 降至 $-0.0006$，
 連帶使漂移項偏誤降為三分之一；人數五萬時比例升至 74\% 至 77\%，改善僅
 兩成；人數一萬時比例達 93\% 至 95\%，改善僅 1\%，漂移項甚至變差。
+
+第四類失效條件在第\ref{sec:mq}得到進一步的細分。把變體 A 與變體 F 視為
+M-分位數族 $\rho_{\tau,c}$ 的兩個極限並掃描 $(\tau,c)$ 之後，可知
+中位數並未走完這條路：三個規模下都存在一個介於兩端之間的截點同時優於
+兩端，人數二十萬時 $c=0.7$ 的漂移項偏誤為 0.0670，而中位數為 0.1111、
+最小平方為 0.2117。非對稱參數的效果更大，$\tau=0.6$ 使 $\alpha$ 偏誤
+中位數在人數一萬時由 0.1427 降至 0.0542；以只對負殘差設截點實作亦得
+一致的方向，三個規模的 $\alpha$ 偏誤中位數分別為 0.0566、0.0226、0.0047。
+把 Huber 損失與資訊加權疊加後，$\beta$ 的平方誤差和較前節最佳的加權
+中位數再降兩成至三成（4.950、1.548、0.536 對 3.759、1.091、0.411）。
+
+但這些改善都止於同一道界線，而界線的位置說明了問題的性質。即使最佳的
+損失函數組合，其 $\alpha$ 最大偏誤在人數五萬時仍為 0.7853，而 Firth 為
+0.0680。更關鍵的是第\ref{sec:mq}所發現的結構性限制：$\alpha_x$ 的偏誤
+在不同年齡\textbf{符號相反}——單年期望死亡數不足一人的年齡因零格替代
+而偏高（5 至 9 歲組 $+2.32$），一人以上的年齡因 Jensen 不等式而偏低
+（50 至 54 歲組 $-0.20$）——故最適的 $\tau$ 朝相反方向移動，單一 $\tau$
+只能改善占多數的稠密年齡，無法改善零格集中的幼年組。分界落在每年約一人
+死亡處，恰是診斷\cn{1}所量的死亡數量級。\textbf{換損失函數的上界因此不是
+調參不足，而是同一個損失函數必須同時服務兩個方向相反的機制。}
+
+第五類失效條件為逐年穩健化。Hyndman and Ullah（2007）以「年」為單位的
+穩健化在本文的資料上完全無作用：平滑降權規則在 24 年中平均只降權 0.59
+至 0.67 年，所得估計與標準 LC 在小數第三位才有差異；強迫剔除 4 年則使
+$\beta$ 的平方誤差和一致惡化一成至兩成。其前提是少數異常年對多數正常年，
+而該文所辨識的離群年為法國的 1914 至 1919、1940 至 1945 與 1960 年，
+皆有戰爭或疫病的實質原因；本文的各年在統計上同分布，不存在可對比的多數。
 
 \subsubsection{（四）問題四：區間誤差的來源與「區間過窄」的適用性}
 
@@ -2176,8 +2849,7 @@ Albert and Anderson（1984）把 logistic 迴歸的資料型態分為完全分�
 \textbf{其二，被扭曲的觀測與其資訊量正相關，而非獨立。} 古典穩健統計
 隱含離群值隨機散布、與該觀測所攜帶的資訊無關。但在雙線性秩一模型中，
 $|\beta_x\kappa_t|$ 最大的年齡同時也是偏離秩一結構時殘差最大的年齡，
-因此「最不合模型」與「最具資訊」高度重疊。本文第\ref{sec:qlc}前一小節
-的實測即為直接證據：在模型正確、無零格亦無離群值的條件下，最小截尾
+因此「最不合模型」與「最具資訊」高度重疊。本文表~\ref{tab:retain} 的實測即為直接證據：在模型正確、無零格亦無離群值的條件下，最小截尾
 平方仍丟掉了 64\% 的 1 至 4 歲組與 48\% 的 5 至 9 歲組，而這兩組的
 $\beta_x$ 分別為 0.1066 與 0.0697，是全表最大的兩個。截尾規則因而系統性
 地移除最有價值的格，此一情形在古典迴歸的崩潰點理論中並未涵蓋。
@@ -2215,8 +2887,12 @@ $\gamma_0(\theta)=\exp(\theta)$ 在 $\theta\to-\infty$ 時趨近於零，不具
 \textbf{扭曲的方向是已知且單邊的。} 零格以正值替代必然使該格的死亡率被
 高估，因而 $\alpha_x$ 被系統性推高，本文實測人數一萬時 5 至 9 歲組為
 $+2.33$，方向一致而非隨機。古典穩健統計對污染的分布不作假設，此處則
-可利用方向的資訊——這也是後續工作提議掃描 $\tau$ 的理由：若扭曲偏向
-左尾，最適的分位數應略高於 0.5。
+可利用方向的資訊。此一推測已在第\ref{sec:mq}獲得檢驗，
+結果是方向正確而機制比原先設想的複雜：$\tau=0.6$ 確實優於 $\tau=0.5$，
+但其所補回的主要是稠密年齡因 Jensen 不等式而產生的向下偏誤，而非零格
+替代所造成的向上偏誤；後者集中於單年期望死亡數不足一人的幼年組，
+其最適 $\tau$ 反而低於 0.5。亦即扭曲確實是單邊的，但\textbf{單邊的方向
+隨年齡而變}，故「已知方向」這項便利只能逐年齡使用，不能整體套用。
 
 \subsubsection{（四）穩健須指定對什麼穩健}
 
@@ -2232,6 +2908,19 @@ Arriaga（1984）提出以年齡分解解釋平均餘命的變化，本文第\re
 偏誤減少；就 $\alpha_x$ 本身而言，則相反。
 
 \subsubsection{（五）本研究的方法論歸屬}
+
+把前述各項差異再壓縮一次，可以得到一個更簡短的說法。表~\ref{tab:gap}
+右欄的質性落差有一個共同的形式：既有方法都假設\textbf{存在一個可信的
+多數}——Fay and Herriot（1979）假設多數區域的直接估計量不偏，
+Huber（1964）假設多數觀測來自模型，Rousseeuw（1984）假設多數觀測可保留，
+Hyndman and Ullah（2007）假設多數年份正常——而小人口所缺的恰恰是這個
+多數。本文三項負面結果因此可以一併解釋：逐格截尾失敗是因為它必須指認
+少數並丟棄之，而被指認者實為攜帶訊號的格；逐年降權失敗是因為它找不到
+少數，門檻從未觸發；穩健損失止步是因為在零格比例逾九成的年齡，
+被扭曲者就是多數。反過來說，本文三項有效的作法——卜瓦松概似、Firth
+懲罰、資訊加權——沒有一項需要區分多數與少數，它們改寫的是每一格的貢獻
+方式本身。\textbf{這或許是本文對方法選擇最可操作的一條啟示：在資訊不足
+的資料上，應優先考慮不依賴多數／少數對比的方法。}
 
 綜合上述，本研究的問題宜歸類為\textbf{資訊不足與異質變異下的低秩估計}，
 而非資料污染。古典穩健統計在此提供的是兩件可借用的東西——崩潰點作為
@@ -2276,14 +2965,26 @@ $-0.3678$），估計量的比較、分位數變體與狀態空間的結果則�
 
 \subsection{後續工作}
 
-最直接的延伸是把分位數的階層再推廣一層。中位數只是 $\tau=0.5$ 的特例，
-若掃描 $\tau\in(0,1)$，則最適的 $\tau$ 應略高於 0.5——因為零格替代造成
-的扭曲是單邊的、偏向左尾——且該偏移量應隨零格比例上升而增大。此一預測
-與崩潰點的論證同源，若成立即可把「$\tau$ 該取多少」也接回診斷\cn{2}。
-另一條可微的路徑是 expectile（Newey and Powell 1987 的非對稱最小平方）
-與 Huber $M$-估計量，兩者皆可微，因而能直接套進本文既有的區塊座標下降
-架構而不必另寫線性規劃，使檢查函數與平方損失之間的連續內插可在同一張圖
-上掃描。
+最直接的延伸來自第\ref{sec:mq}所留下的缺口。該小節已完成 $(\tau,c)$ 的
+掃描，並發現最適的 $\tau$ 在不同年齡朝相反方向移動，分界落在單年期望
+死亡數約一人處。順此可推知一個具體的作法：\textbf{令 $\tau$ 隨年齡變動}，
+在期望死亡數不足一人的年齡取 $\tau<0.5$ 以抵銷零格替代的向上偏誤，
+在其餘年齡取 $\tau>0.5$ 以抵銷 Jensen 的向下偏誤，而分界與方向皆由
+診斷\cn{1}的死亡數量級決定，不需真值。此一設計的代價是自由度增加，
+須以逐年齡的 $\tau$ 是否可由死亡數量級穩定預測來驗證，否則即為過度配適。
+若成立，則「$\tau$ 該取多少」也可接回事前診斷，與本文其餘三項診斷的
+定位一致。
+
+另一條尚未嘗試且性質不同的路徑是向上對齊到可靠的總量。
+Di Fonzo and Marini（2015）為國民所得統計發展的調節（Reconciliation）
+方法，處理的是「低頻的年資料可靠、高頻的季資料含噪音」這類問題，
+其成長率保持原則在調整時不破壞序列的成長型態。移到本問題上，
+鄉鎮市區的死亡數必須加總為縣市與全國的死亡數，而後者的抽樣誤差可以
+忽略；成長率保持所要保持的正是死亡率改善的型態，亦即本文最難估好的
+漂移項。此一取徑與第\ref{sec:gap}所列的第一類作法（向參考人口借資訊）
+不同：它借的不是另一個人口的趨勢，而是自身聚合後的總量，因而不需要
+「參考人口的改善型態可比」這個前提。就鄉鎮市區生命表而言，這可能是
+比穩健損失更有效的一條，值得列為優先。
 
 其次是統一真值的定義並提高重複次數，使各表可以跨表比較，特別是涵蓋率
 那一組。第三是以真實的縣市與鄉鎮市區資料驗證四項診斷；本文的門檻皆由
@@ -2672,9 +3373,15 @@ $N=5$ 萬、$\lambda/\lambda_{\max}=0.20$ 時，未懲罰版的平均絕對偏�
   \item[] Basellini, U., C. G. Camarda, and H. Booth. 2023. ``Thirty Years On:
         A Review of the Lee--Carter Method for Forecasting Mortality.''
         \textit{International Journal of Forecasting} 39(3): 1033-1049.
+  \item[] Basellini, U., and C. G. Camarda. 2025. ``Forecasting Cohort Mortality:
+        Lee-Carter Methods and CCP-Splines.'' SocArXiv preprint, October 9.
   \item[] Benaych-Georges, F., and Nadakuditi, R. R. 2012. ``The Singular Values and
         Vectors of Low Rank Perturbations of Large Rectangular Random Matrices.''
         \textit{Journal of Multivariate Analysis} 111: 120-135.
+  \item[] Bianchi, A., E. Fabrizi, N. Salvati, and N. Tzavidis. 2018.
+        ``Estimation and Testing in M-quantile Regression with Applications to
+        Small Area Estimation.'' \textit{International Statistical Review}
+        86(3): 541-570.
   \item[] Booth, H., J. Maindonald, and L. Smith. 2002. ``Applying Lee--Carter
         under Conditions of Variable Mortality Decline.''
         \textit{Population Studies} 56(3): 325-336.
@@ -2685,6 +3392,8 @@ $N=5$ 萬、$\lambda/\lambda_{\max}=0.20$ 時，未懲罰版的平均絕對偏�
   \item[] Booth, H., R. J. Hyndman, L. Tickle, and P. De Jong. 2006.
         ``Lee--Carter Mortality Forecasting: A Multi-country Comparison of
         Variants and Extensions.'' \textit{Demographic Research} 15: 289-310.
+  \item[] Breckling, J., and R. Chambers. 1988. ``M-quantiles.''
+        \textit{Biometrika} 75(4): 761-771.
   \item[] Brouhns, N., M. Denuit, and J. K. Vermunt. 2002. ``A Poisson
         Log-bilinear Regression Approach to the Construction of Projected
         Lifetables.'' \textit{Insurance: Mathematics and Economics}
@@ -2697,23 +3406,35 @@ $N=5$ 萬、$\lambda/\lambda_{\max}=0.20$ 時，未懲罰版的平均絕對偏�
   \item[] Camarda, C. G., and U. Basellini. 2021. ``Smoothing, Decomposing and
         Forecasting Mortality Rates.'' \textit{European Journal of Population}
         37(3): 569-602.
+  \item[] Catania, L., and A. Luati. 2020. ``Robust Estimation of a Location
+        Parameter with the Integrated Hogg Function.''
+        \textit{Statistics \& Probability Letters} 164: 108812.
+  \item[] Chambers, R., and N. Tzavidis. 2006. ``M-quantile Models for Small
+        Area Estimation.'' \textit{Biometrika} 93(2): 255-268.
   \item[] Chen, L., A. J. G. Cairns, and T. Kleinow. 2017. ``Small Population
         Bias and Sampling Effects in Stochastic Mortality Modelling.''
         \textit{European Actuarial Journal} 7(1): 193-230.
+  \item[] Clogg, C. C., D. B. Rubin, N. Schenker, B. Schultz, and L. Weidman.
+        1991. ``Multiple Imputation of Industry and Occupation Codes in Census
+        Public-use Samples Using Bayesian Logistic Regression.''
+        \textit{Journal of the American Statistical Association} 86(413): 68-78.
   \item[] Cox, D. R., and Snell, E. J. 1968. ``A General Definition of Residuals.''
         \textit{Journal of the Royal Statistical Society, Series B} 30(2): 248-265.
+  \item[] Currie, I. D., M. Durban, and P. H. C. Eilers. 2004. ``Smoothing
+        and Forecasting Mortality Rates.'' \textit{Statistical Modelling}
+        4(4): 279-298.
   \item[] Currie, I. D. 2011. ``Modelling and Forecasting the Mortality of the
         Very Old.'' \textit{ASTIN Bulletin} 41(2): 419-427.
   \item[] Currie, I. D. 2013. ``Smoothing Constrained Generalized Linear Models
         with an Application to the Lee--Carter Model.''
         \textit{Scandinavian Actuarial Journal} 2016(4): 356-383.
-  \item[] Currie, I. D., M. Durban, and P. H. C. Eilers. 2004. ``Smoothing
-        and Forecasting Mortality Rates.'' \textit{Statistical Modelling}
-        4(4): 279-298.
   \item[] Delwarde, A., M. Denuit, and P. Eilers. 2007. ``Smoothing the
         Lee--Carter and Poisson Log-bilinear Models for Mortality Forecasting:
         A Penalized Log-likelihood Approach.''
         \textit{Statistical Modelling} 7(1): 29-48.
+  \item[] Di Fonzo, T., and M. Marini. 2015. ``Reconciliation of Systems of
+        Time Series according to a Growth Rates Preservation Principle.''
+        \textit{Statistical Methods \& Applications} 24(4): 651-669.
   \item[] Djeundje, V. A. B., and I. D. Currie. 2010. ``Smoothing Dispersed
         Counts with Applications to Mortality Data.''
         \textit{Annals of Actuarial Science} 5(1): 33-52.
@@ -2752,6 +3473,9 @@ $N=5$ 萬、$\lambda/\lambda_{\max}=0.20$ 時，未懲罰版的平均絕對偏�
   \item[] Hoerl, A. E., and R. W. Kennard. 1970. ``Ridge Regression: Biased
         Estimation for Nonorthogonal Problems.''
         \textit{Technometrics} 12(1): 55-67.
+  \item[] H\"ormann, S., \L. Kidzi\'nski, and M. Hallin. 2015. ``Dynamic
+        Functional Principal Components.'' \textit{Journal of the Royal
+        Statistical Society, Series B} 77(2): 319-348.
   \item[] Huber, P. J. 1964. ``Robust Estimation of a Location Parameter.''
         \textit{Annals of Mathematical Statistics} 35(1): 73-101.
   \item[] Huber, P. J., and Ronchetti, E. M. 2009. \textit{Robust Statistics},
@@ -2761,6 +3485,9 @@ $N=5$ 萬、$\lambda/\lambda_{\max}=0.20$ 時，未懲罰版的平均絕對偏�
   \item[] Hunt, A., and D. Blake. 2021. ``On the Structure and Classification of
         Mortality Models.'' \textit{North American Actuarial Journal}
         25(sup1): S215-S234.
+  \item[] Hunter, D. R., and K. Lange. 2000. ``Quantile Regression via an MM
+        Algorithm.'' \textit{Journal of Computational and Graphical Statistics}
+        9(1): 60-77.
   \item[] Hyndman, R. J., and M. S. Ullah. 2007. ``Robust Forecasting of
         Mortality and Fertility Rates: A Functional Data Approach.''
         \textit{Computational Statistics \& Data Analysis} 51(10): 4942-4956.
@@ -2772,33 +3499,35 @@ $N=5$ 萬、$\lambda/\lambda_{\max}=0.20$ 時，未懲罰版的平均絕對偏�
         \textit{ASTIN Bulletin} 41(2): 377-418.
   \item[] Johnstone, I. M. 2001. ``On the Distribution of the Largest Eigenvalue in
         Principal Components Analysis.'' \textit{Annals of Statistics} 29(2): 295-327.
-  \item[] Koenker, R. 2005. \textit{Quantile Regression}. Cambridge: Cambridge
-        University Press.
   \item[] Koenker, R., and Bassett, G. 1978. ``Regression Quantiles.''
         \textit{Econometrica} 46(1): 33-50.
   \item[] Koenker, R., and Park, B. J. 1996. ``An Interior Point Algorithm for Nonlinear
         Quantile Regression.'' \textit{Journal of Econometrics} 71(1-2): 265-283.
+  \item[] Koenker, R. 2005. \textit{Quantile Regression}. Cambridge: Cambridge
+        University Press.
+  \item[] Koenker, R. 2017. ``Quantile Regression: 40 Years On.''
+        \textit{Annual Review of Economics} 9: 155-176.
   \item[] Kosmidis, I., and Firth, D. 2021. ``Jeffreys-prior Penalty, Finiteness and
         Shrinkage in Binomial-response Generalized Linear Models.''
         \textit{Biometrika} 108(1): 71-82.
-  \item[] Lee, J. D., Y. Sun, and M. A. Saunders. 2014. ``Proximal Newton-type
-        Methods for Minimizing Composite Functions.''
-        \textit{SIAM Journal on Optimization} 24(3): 1420-1443.
   \item[] Lee, R. D., and L. R. Carter. 1992. ``Modeling and Forecasting U.S.
         Mortality.'' \textit{Journal of the American Statistical Association}
         87(419): 659-671.
   \item[] Lee, R., and T. Miller. 2001. ``Evaluating the Performance of the
         Lee--Carter Method for Forecasting Mortality.''
         \textit{Demography} 38(4): 537-549.
-  \item[] Li, J. S.-H., M. R. Hardy, and K. S. Tan. 2009. ``Uncertainty in
-        Mortality Forecasting: An Extension to the Classical Lee-Carter
-        Approach.'' \textit{ASTIN Bulletin} 39(1): 137-164.
-  \item[] Li, N., and R. Lee. 2005. ``Coherent Mortality Forecasts for a Group
-        of Populations: An Extension of the Lee--Carter Method.''
-        \textit{Demography} 42(3): 575-594.
+  \item[] Lee, J. D., Y. Sun, and M. A. Saunders. 2014. ``Proximal Newton-type
+        Methods for Minimizing Composite Functions.''
+        \textit{SIAM Journal on Optimization} 24(3): 1420-1443.
   \item[] Li, N., R. D. Lee, and S. Tuljapurkar. 2004. ``Using the Lee--Carter
         Method to Forecast Mortality for Populations with Limited Data.''
         \textit{International Statistical Review} 72(1): 19-36.
+  \item[] Li, N., and R. Lee. 2005. ``Coherent Mortality Forecasts for a Group
+        of Populations: An Extension of the Lee--Carter Method.''
+        \textit{Demography} 42(3): 575-594.
+  \item[] Li, J. S.-H., M. R. Hardy, and K. S. Tan. 2009. ``Uncertainty in
+        Mortality Forecasting: An Extension to the Classical Lee-Carter
+        Approach.'' \textit{ASTIN Bulletin} 39(1): 137-164.
   \item[] Lu, Y., and D. Zhu. 2023. ``Modelling Mortality: A Bayesian
         Factor-augmented VAR (FAVAR) Approach.''
         \textit{ASTIN Bulletin} 53(1): 29-61.
@@ -2852,12 +3581,18 @@ $N=5$ 萬、$\lambda/\lambda_{\max}=0.20$ 時，未懲罰版的平均絕對偏�
   \item[] Wang, H. C., C. J. Yue, and C. T. Chong. 2018. ``Mortality Models and
         Longevity Risk for Small Populations.''
         \textit{Insurance: Mathematics and Economics} 78: 351-359.
-  \item[] Wi\'sniowski, A., P. W. F. Smith, J. Bijak, J. Raymer, and
-        J. J. Forster. 2015. ``Bayesian Population Forecasting: Extending the
-        Lee--Carter Method.'' \textit{Demography} 52(3): 1035-1059.
+  \item[] Wei, Y., A. Pere, R. Koenker, and X. He. 2006. ``Quantile Regression
+        Methods for Reference Growth Charts.'' \textit{Statistics in Medicine}
+        25(8): 1369-1382.
   \item[] Wilmoth, J. R. 1993. \textit{Computational Methods for Fitting and
         Extrapolating the Lee--Carter Model of Mortality Change.} Technical
         Report, Department of Demography, University of California, Berkeley.
+  \item[] Wi\'sniowski, A., P. W. F. Smith, J. Bijak, J. Raymer, and
+        J. J. Forster. 2015. ``Bayesian Population Forecasting: Extending the
+        Lee--Carter Method.'' \textit{Demography} 52(3): 1035-1059.
+  \item[] Xu, X., and X. Chen. 2018. ``A Practical Method of Robust Estimation
+        in Case of Asymmetry.'' \textit{Journal of Statistical Theory and
+        Practice} 12(2): 370-396.
   \item[] Yang, S. S., J. C. Yue, and H. C. Huang. 2010. ``Modeling Longevity
         Risks Using a Principal Component Approach: A Comparison with Existing
         Stochastic Mortality Models.''
@@ -2866,23 +3601,29 @@ $N=5$ 萬、$\lambda/\lambda_{\max}=0.20$ 時，未懲罰版的平均絕對偏�
         Modify the Estimation of Lee--Carter Model for Small Populations.''
         \textit{North American Actuarial Journal}.
         doi:10.1080/10920277.2019.1650288
-  \item[] Zhang, A. R., Cai, T. T., and Wu, Y. 2022. ``Heteroskedastic PCA: Algorithm,
-        Optimality, and Applications.'' \textit{Annals of Statistics} 50(1): 53-80.
+  \item[] Zhang, J., B. Lin, and Y. Yang. 2022. ``Maximum Nonparametric Kernel
+        Likelihood Estimation for Multiplicative Linear Regression Models.''
+        \textit{Statistical Papers} 63(3): 885-918.
   \item[] Zhang, C.-H. 2010. ``Nearly Unbiased Variable Selection under
         Minimax Concave Penalty.'' \textit{The Annals of Statistics}
         38(2): 894-942.
+  \item[] Zhang, A. R., Cai, T. T., and Wu, Y. 2022. ``Heteroskedastic PCA: Algorithm,
+        Optimality, and Applications.'' \textit{Annals of Statistics} 50(1): 53-80.
   \item[] Zhang, L., and Y. Zhuang. 2026. ``What KAN Mortality Say: Smooth and
         Interpretable Mortality Modeling Using Kolmogorov--Arnold Networks.''
         \textit{ASTIN Bulletin} 56(1): 32-59.
-  \item[] Zou, H. 2006. ``The Adaptive Lasso and Its Oracle Properties.''
-        \textit{Journal of the American Statistical Association}
-        101(476): 1418-1429.
   \item[] Zou, H., and T. Hastie. 2005. ``Regularization and Variable Selection
         via the Elastic Net.'' \textit{Journal of the Royal Statistical
         Society, Series B} 67(2): 301-320.
 
+  \item[] Zou, H. 2006. ``The Adaptive Lasso and Its Oracle Properties.''
+        \textit{Journal of the American Statistical Association}
+        101(476): 1418-1429.
   \item[] Zou, H., and Yuan, M. 2008. ``Composite Quantile Regression and the Oracle
         Model Selection Theory.'' \textit{Annals of Statistics} 36(3): 1108-1126.
+  \item[] Zoubir, A. M., V. Koivunen, E. Ollila, and M. Muma. 2018.
+        \textit{Robust Statistics for Signal Processing}. Cambridge: Cambridge
+        University Press.
 \end{itemize}
 
 \end{document}

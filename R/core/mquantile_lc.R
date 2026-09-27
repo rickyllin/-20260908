@@ -38,6 +38,50 @@
 #   IRLS 的優點是雙線性結構下兩個區塊都有封閉解，無須呼叫線性規劃求解器。
 ###############################################################################
 
+#' Huber 尺度的一致性常數 beta_c = E[psi_c(Z)^2]，Z ~ N(0,1)
+#'
+#'   psi_c(z) = z 若 |z| <= c，否則 c*sign(z)，故
+#'     beta_c = E[Z^2 1{|Z|<=c}] + c^2 P(|Z|>c)
+#'            = 2(Phi(c) - 1/2) - 2 c phi(c) + 2 c^2 (1 - Phi(c))
+huber_beta <- function(c) {
+  if (is.infinite(c)) return(1)
+  2 * (pnorm(c) - 0.5) - 2 * c * dnorm(c) + 2 * c^2 * (1 - pnorm(c))
+}
+
+#' 由一致性方程解尺度（Huber 的 Proposal 2）
+#'
+#'   Zoubir et al. (2018, sec. 3.5) 依 Ollila (2016) 的 M-Lasso 估計方程，
+#'   把迴歸與尺度定義為同一組零次梯度方程的解，其尺度方程為
+#'     (1 / (N * 2 alpha)) sum_i chi( r_i / sigma ) = 1 / gamma,
+#'   對 Huber 損失而言即等價於熟知的
+#'     (1 / N) sum_i psi_c( r_i / sigma )^2 = beta_c.
+#'   此式對 sigma 單調，故以不動點迭代求解：
+#'     sigma^2 <- sigma^2 * (1 / (N beta_c)) sum_i psi_c(r_i/sigma)^2
+#'
+#'   與原先每次迭代以 MAD 重估尺度的差別：MAD 在常態下的效率僅約 37%，
+#'   且與損失函數的截點無關；一致性方程所解出的尺度則與 c 相容，
+#'   使 (beta, sigma) 成為同一個目標函數的聯合 M-估計量。
+#'
+#' @param W 各格的資料權重（資訊加權）；NULL 表示等權重
+huber_scale <- function(r, c, W = NULL, s0 = NULL, maxit = 50, tol = 1e-8) {
+  r <- as.vector(r); ok <- is.finite(r)
+  if (!is.null(W)) { w <- as.vector(W)[ok] } else { w <- rep(1, sum(ok)) }
+  r <- r[ok]
+  if (!length(r)) return(1e-8)
+  if (is.infinite(c)) return(max(sqrt(sum(w * r^2) / sum(w)), 1e-8))
+  bc <- huber_beta(c)
+  s  <- if (is.null(s0)) max(mad(r), 1e-8) else max(s0, 1e-8)
+  for (i in seq_len(maxit)) {
+    u   <- r / s
+    psi <- pmin(pmax(u, -c), c)
+    s2  <- s^2 * sum(w * psi^2) / (sum(w) * bc)
+    sn  <- max(sqrt(s2), 1e-10)
+    if (abs(sn - s) < tol * max(1, s)) { s <- sn; break }
+    s <- sn
+  }
+  s
+}
+
 #' M-分位數的 IRLS 權重
 #'
 #' @param u   殘差矩陣
@@ -74,13 +118,32 @@ mq_obj <- function(u, W, tau = 0.5, cn = Inf, cp = Inf) {
 #'                s 取 MAD。k_c = 0 為分位數迴歸（變體 F 的極限），
 #'                k_c = Inf 為非對稱最小平方（tau=0.5 時即變體 A）
 #' @param k_cn,k_cp 若給定則覆寫 k_c，允許兩側不同截點（Xu and Chen 2018）
-#' @param wmode   "none" 等權重；"mu" 以配適期望死亡數加權（資訊加權）
+#' @param wmode   "none" 等權重；"mu" 以配適期望死亡數加權（資訊加權）；
+#'                "pow" 以 mu^wpow 加權
+#' @param wpow    wmode = "pow" 時的冪次。
+#'
+#'   為何需要冪次。最小平方的最適權重是觀測變異數的倒數，卜瓦松下
+#'   Var(log m_hat) ~ 1/mu，故 w = mu（即 wpow = 1）。但 Koenker (2005)
+#'   第 5 章定理 5.1 指出，檢查函數的最適權重不是 1/sigma 而是
+#'   「該分位處的局部密度」f_i(xi_i)：
+#'
+#'     Rather than weighting by the reciprocals of the standard deviations
+#'     of the observations, quantile regression weights should be
+#'     proportional to the local density evaluated at the quantile of
+#'     interest.  (Koenker 2005, sec. 5.3)
+#'
+#'   log(D/E) 在 mu 不太小時近似 N(log m, 1/mu)，其中位數處的密度為
+#'   sqrt(mu / 2pi)，故檢查函數的最適權重應為 w = sqrt(mu)，即 wpow = 0.5。
+#'
+#'   可檢驗的預測：最適的 wpow 應隨 c 由 0.5（c -> 0，檢查函數）移動到
+#'   1.0（c -> Inf，最小平方），中間的 c 則有中間的冪次。
 #' @param zero_sub 零格替代值
 lc_mquantile <- function(D, E, tau = 0.5, k_c = 1.345,
                          k_cn = NULL, k_cp = NULL,
-                         wmode = c("none", "mu"), zero_sub = 0.5,
+                         wmode = c("none", "mu", "pow"), wpow = 1,
+                         scale_mode = c("mad", "joint"), zero_sub = 0.5,
                          maxit = 60, tol = 1e-9, init = NULL) {
-  wmode <- match.arg(wmode)
+  wmode <- match.arg(wmode); scale_mode <- match.arg(scale_mode)
   A <- nrow(D); Tn <- ncol(D)
   lm_ <- log(pmax(D, zero_sub) / E)
   if (is.null(k_cn)) k_cn <- k_c
@@ -97,16 +160,23 @@ lc_mquantile <- function(D, E, tau = 0.5, k_c = 1.345,
 
   Wd <- matrix(1, A, Tn)                      # 資料權重（資訊加權）
   u  <- lm_ - outer(a, rep(1, Tn)) - outer(b, k)
-  s  <- max(mad(as.vector(u)), 1e-8)
+  ## 尺度：MAD（原作法）或由一致性方程聯合求解（Zoubir et al. 2018, sec. 3.5）
+  sc_fun <- function(u, Wd, s0 = NULL) {
+    if (scale_mode == "mad") max(mad(as.vector(u)), 1e-8)
+    else huber_scale(u, 0.5 * (k_cn + k_cp), W = Wd, s0 = s0)
+  }
+  s  <- sc_fun(u, Wd)
   obj <- mq_obj(u, Wd, tau, k_cn * s, k_cp * s)
 
   for (it in seq_len(maxit)) {
-    if (wmode == "mu") {
-      Wd <- E * exp(outer(a, rep(1, Tn)) + outer(b, k))
+    if (wmode != "none") {
+      mu_hat <- E * exp(outer(a, rep(1, Tn)) + outer(b, k))
+      pw <- if (wmode == "mu") 1 else wpow
+      Wd <- if (pw == 1) mu_hat else mu_hat^pw
       Wd <- Wd / mean(Wd)
     }
     u  <- lm_ - outer(a, rep(1, Tn)) - outer(b, k)
-    s  <- max(mad(as.vector(u)), 1e-8)        # 尺度以穩健估計固定住
+    s  <- sc_fun(u, Wd, s)                    # 尺度
     cn <- k_cn * s; cp <- k_cp * s
     pert <- 1e-4 * s / it                     # Hunter-Lange 擾動，隨迭代縮小
       Wr <- Wd * mq_weight(u, tau, cn, cp, pert)  # 總權重 = 資料權重 x 穩健權重
@@ -126,7 +196,7 @@ lc_mquantile <- function(D, E, tau = 0.5, k_c = 1.345,
 
     ## --- 步驟二：固定 alpha、beta，逐年份加權最小平方（無截距）---
     u  <- lm_ - outer(a, rep(1, Tn)) - outer(b, k)
-    s  <- max(mad(as.vector(u)), 1e-8)
+    s  <- sc_fun(u, Wd, s)
     Wr <- Wd * mq_weight(u, tau, k_cn * s, k_cp * s, 1e-4 * s / it)
     Zc <- lm_ - a
     for (t in seq_len(Tn)) {
@@ -139,7 +209,7 @@ lc_mquantile <- function(D, E, tau = 0.5, k_c = 1.345,
     sb <- sum(b); b <- b / sb; k <- k * sb
 
     u <- lm_ - outer(a, rep(1, Tn)) - outer(b, k)
-    s <- max(mad(as.vector(u)), 1e-8)
+    s <- sc_fun(u, Wd, s)
     obj_new <- mq_obj(u, Wd, tau, k_cn * s, k_cp * s)
     if (is.finite(obj) && abs(obj - obj_new) < tol * max(1, abs(obj))) {
       obj <- obj_new; break
@@ -148,5 +218,7 @@ lc_mquantile <- function(D, E, tau = 0.5, k_c = 1.345,
   }
   names(a) <- names(b) <- rownames(D); names(k) <- colnames(D)
   list(a = a, b = b, k = k, obj = obj, iter = it, scale = s,
-       tau = tau, k_cn = k_cn, k_cp = k_cp, wmode = wmode)
+       tau = tau, k_cn = k_cn, k_cp = k_cp, wmode = wmode,
+       scale_mode = scale_mode,
+       wpow = if (wmode == "pow") wpow else if (wmode == "mu") 1 else 0)
 }

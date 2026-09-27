@@ -113,40 +113,86 @@ Basellini et al.（2023）在其三十週年回顧中，將此一地位歸因於
 Value Decomposition，以下簡稱 SVD）求解。SVD 之所以方便，在於它是封閉解
 且必然存在，但代價是它等價於無加權的最小平方，因而隱含了同質變異
 （Homoscedasticity）與常態誤差的高斯架構——每一個年齡與年份構成的格子，
-在目標函數裡被賦予相同的權重。這個代價在國家級人口上幾乎不必付：本文表
-\ref{tab:datadesc} 顯示，全國女性 2001 至 2024 年的 528 個格子中單格死亡數
-最少亦有 37 人、中位數 1{,}201 人，零死亡格為 0，各格所攜帶的資訊量雖有
-差異但同屬可用。但在單一性別不足兩萬的鄉鎮市區，同樣的 528 個格子中平均
-有 206 格為零，同質變異假設在此不是略有偏差，而是完全失效。
+在目標函數裡被賦予相同的權重。
 
-前述主張若僅靠引文支持，只能證明別人也這麼認為，尚不足以說明在本文的資料上
-確實如此。本文因此設計四項不需要真值、拿到資料即可計算的診斷，直接在資料上
-檢驗該假設，其內容詳見第參節之二。第一項診斷觀察各年齡單年死亡數的量級，
-全國女性最低為 5 至 9 歲組的 69 人、最高為 80 至 84 歲組的 10{,}321 人，
-相差約 150 倍；落差超過一個數量級，即意味著各格的變異數落差也是同一量級，
-等權重最小平方因而被誤設。第二項診斷觀察零死亡格落在哪些年齡，模擬五萬人時
-1 至 4 歲、5 至 9 歲、10 至 14 歲三組分別有 74\%、77\%、78\% 的年份死亡數
-為零，而 50 歲以上各組皆為零，可見零格並非散布於全表，而是集中於特定年齡。
-第三項診斷以對數死亡率沿時間的二階差分估計噪音變異，三個人口規模的點都貼合
-理論參考線 $1/D$ 且橫跨四個數量級，是異質變異的直接證據，也量化了它的嚴重
-程度。第四項診斷在奇異值的碎石圖上加一條純噪音所能產生的上緣，最大奇異值
-穿出這條線，年齡參數才可能還原，實測全國女性的比值為 6.53，模擬二十萬為
-1.19，模擬五萬僅 0.43。此處另有一個反直覺之處值得指出：最大奇異值的絕對值
-完全不能判讀，全國女性的最大奇異值為 3.44，而模擬五萬人的最大奇異值反而是
-4.23，小人口的奇異值被噪音灌水，必須與上緣相比才有意義。
+\subsection{資料所呈現的問題}\label{sec:intro-data}
+
+前述代價在國家級人口上幾乎不必付。表~\ref{tab:datadesc} 為本文主分析資料
+（全國女性 2001 至 2024 年）的基本統計，528 個格子中單格死亡數最少亦有
+37 人、中位數 1{,}201 人，零死亡格為 0，各格所攜帶的資訊量雖有差異但同屬
+可用。
+
+\begin{table}[H]
+\centering
+\caption{主分析資料的分布特性（女性 2001$\sim$2024 年）}
+\small
+\begin{tabular}{lr}
+\toprule
+項目 & 數值\\
+\midrule
+資料維度 & 22 齡組 $\times$ 24 年 $=$ 528 格\\
+單格死亡數：最小／中位數／最大 & 37／1,201／16,184\\
+零死亡格數 & \textbf{0}\\
+2024 年暴露數：最小／中位數／合計 & 2,883／552,075／11,871,065\\
+死亡數最少者（全期合計） & 5--9 歲組 1,812 人\\
+死亡數最多者（單年中位數） & 80--84 歲組 10,321 人\\
+\bottomrule
+\end{tabular}
+\label{tab:datadesc}
+\end{table}
+
+但同一張表也顯示了一項在全國資料上即已存在、而在小人口會被放大的性質：
+死亡數在年齡上的分布極不均勻，5 至 9 歲組的單年死亡數中位數為 69 人，
+而 80 至 84 歲組達 10{,}321 人，相差約 150 倍。同一筆資料之中，不同年齡的
+有效樣本數相差兩個數量級，估計精度自不可同日而語，等權重的目標函數因而
+已被誤設。至於鄉鎮市區層級則完全不同：以單一性別兩萬人的規模推算，528 格
+中平均有 206 格無死亡發生，約四成的格子不含任何資訊，同質變異假設在此
+不是略有偏差，而是完全失效。
+
+前述主張若僅靠引文與單一張描述統計表支持，尚不足以說明失效的形式與位置。
+本文因此設計四項不需要真值、拿到資料即可計算的診斷，直接在資料上檢驗
+該假設；其計算方式與判讀門檻詳見第\ref{sec:eda}，此處先呈現結果
+（圖~\ref{fig:eda}），以說明本文問題意識的由來。
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=\textwidth]{figEDA_panel.png}
+  \caption{四項事前診斷。橫向比較全國女性實際資料與兩組模擬小人口
+  （以全國配適為真值，$D_{x,t}\sim\mathrm{Poisson}(N w_x m^{\mathrm{true}}_{x,t})$）。
+  \cn{1}\cn{2}\cn{3} 為純粹的探索性分析；\cn{4} 的噪音上緣需一次預備配適以估計 $\sigma$。}
+  \label{fig:eda}
+\end{figure}
+
+第一項診斷觀察各年齡單年死亡數的量級，用以判斷等權重是否被誤設；如前所述
+全國女性的落差已達 150 倍，而模擬五萬人時最低的年齡組降至 0。第二項診斷
+觀察零死亡格落在哪些年齡，模擬五萬人時 1 至 4 歲、5 至 9 歲、10 至 14 歲
+三組分別有 74\%、77\%、78\% 的年份死亡數為零，而 50 歲以上各組皆為零，
+可見零格並非散布於全表，而是集中於特定年齡——這一點後文將顯示具有決定性，
+因為它使偏誤的位置可以事前指認。第三項診斷以對數死亡率沿時間的二階差分
+估計噪音變異，三個人口規模的點都貼合理論參考線 $1/D$ 且橫跨四個數量級，
+是異質變異的直接證據，也量化了它的嚴重程度。第四項診斷在奇異值的碎石圖上
+加一條純噪音所能產生的上緣，最大奇異值穿出這條線，年齡參數才可能還原，
+實測全國女性的比值為 6.53，模擬二十萬為 1.19，模擬五萬僅 0.43。
+
+此處另有一個反直覺之處值得先行指出：最大奇異值的絕對值完全不能判讀。
+全國女性的最大奇異值為 3.44，而模擬五萬人的最大奇異值反而是 4.23——
+小人口的奇異值被噪音灌水，必須與上緣相比才有意義。直覺上會以為奇異值大
+即訊號強，實則不然。
+
+\subsection{失效的代價因參數而異}
 
 假設不成立本身仍不足以支持更換方法，畢竟許多假設都不完全成立而方法照常
 好用；必須進一步證明失效有代價，而且代價的類型決定了補救的方式。本文的
-T-ratio 診斷（第參節之三）顯示，三個參數的病因並不相同。年齡水準參數
-$\alpha_x$ 是偏誤主導，人數一萬時 5 至 9 歲組的 $|T|$ 高達 56.4，隨人口增大
-而系統性下降，人數二十萬以上後全面落入 $\pm2$ 之內。年齡敏感度參數
-$\beta_x$ 在小樣本下則是變異數主導，人數二十萬以下時 $|T|$ 不及 0.25，須至
-五十萬以上變異數收斂後偏誤才顯現，人數一百萬時 70 至 74 歲組的 $|T|$ 為
-1.87；小樣本時 $T$ 接近零並非估得好，而是變異數大到把偏誤掩蓋。時間參數的
-漂移項性質與 $\alpha_x$ 同為偏誤主導，但來源並不相同：本文第伍節的階梯式
-分解中，對真值加入對稱高斯噪音後再做 SVD 的變體完全不涉及對數轉換、亦不
-存在零格，卻使 $\alpha_x$ 的最大偏誤由 0.743 降至 0.021，而漂移項的偏誤仍達
-0.347，甚至略大於標準 LC 的 0.305。
+T-ratio 診斷（第\ref{sec:diag}）顯示，三個參數的病因並不相同。年齡水準
+參數 $\alpha_x$ 是偏誤主導，人數一萬時 5 至 9 歲組的 $|T|$ 高達 56.4，
+隨人口增大而系統性下降，人數二十萬以上後全面落入 $\pm2$ 之內。年齡敏感度
+參數 $\beta_x$ 在小樣本下則是變異數主導，人數二十萬以下時 $|T|$ 不及 0.25，
+須至五十萬以上變異數收斂後偏誤才顯現，人數一百萬時 70 至 74 歲組的 $|T|$
+為 1.87；小樣本時 $T$ 接近零並非估得好，而是變異數大到把偏誤掩蓋。時間
+參數的漂移項性質與 $\alpha_x$ 同為偏誤主導，但來源並不相同：本文第伍節的
+階梯式分解中，對真值加入對稱高斯噪音後再做 SVD 的變體完全不涉及對數轉換、
+亦不存在零格，卻使 $\alpha_x$ 的最大偏誤由 0.743 降至 0.021，而漂移項的
+偏誤仍達 0.347，甚至略大於標準 LC 的 0.305。
 
 三項診斷合起來給出本文的核心判斷：$\alpha_x$ 的偏誤來自對數轉換與零格替代，
 漂移項的偏誤來自等權重分解對異質變異的敏感，$\beta_x$ 在小樣本下則受訊噪比
@@ -159,26 +205,29 @@ $\alpha_x$ 的偏誤會落在哪些年齡，第一與第三項診斷指出加權
 真值亦無從進行模擬，可事前計算的指標因而比一個固定的人口數門檻實用得多，
 也才能解釋為何同為五萬人，有的地區可估而有的不可。
 
+\subsection{研究問題與本文架構}
+
 依上述主張，本文提出四個依序遞進的研究問題。其一，四項事前診斷能否在配適
 模型之前，正確指出哪些參數可估、偏誤會落在哪些年齡。其二，三個參數的失效
 機制是否確實不同，對數轉換是否為偏誤的唯一來源。其三，依機制選用的估計量
 各能改善多少，改善的位置是否與診斷所指一致，以及在什麼條件下失效。其四，
-小人口的預測區間誤差來自何處，文獻長期主張的「LC 模型預測區間過窄」在此
-是否成立。
+小人口的預測區間誤差來自何處，文獻長期主張的「LC 區間過窄」在此是否成立。
 
 本文編排如下。第貳節定義記號與模型、回顧文獻，並於其中說明本研究的目的
-與所欲暸解的四項議題；第參節說明研究資料、四項事前診斷、偏誤診斷與二因子
-模擬設計，回應問題一；第肆節以 Rabbi and Mazzuco（2021）的還原與懲罰式
-估計為例，論證在高斯架構內修補的限度；第伍節以階梯式分解辨識偏誤的來源，
-並比較各估計量的改善幅度與適用條件，回應問題二與問題三；第陸節處理區間
-推論，回應問題四；第柒節逐一回應上述四個問題，並討論本文與既有文獻的
-關係、研究限制與後續工作。
+與所欲暸解的四項議題；第參節說明研究資料的來源與分析邏輯、四項事前診斷的
+計算方式、偏誤診斷與二因子模擬設計，回應問題一；第肆節以 Rabbi and
+Mazzuco（2021）的還原與懲罰式估計為例，論證在高斯架構內修補的限度；
+第伍節以階梯式分解辨識偏誤的來源，並比較各估計量的改善幅度與適用條件，
+回應問題二與問題三；第陸節處理區間推論，回應問題四；第柒節逐一回應上述
+四個問題，並討論本文與既有文獻的關係、研究限制與後續工作。
 
 \section{文獻回顧}
 
 本節先定義全文使用的記號與模型（第一小節），回顧其兩條估計路線與小人口
 情境的既有對策（第二、三小節），據以說明本研究的目的（第四小節），
-最後回顧與該目的直接相關的文獻（第五小節）。
+最後回顧與該目的直接相關的方法論脈絡（第五小節）。第五小節的編排依
+「能不能估、偏誤怎麼處理、變異數怎麼處理、損失函數要不要換、如何判斷
+適用哪一種」的順序，與本文第伍節的實驗設計一一對應。
 
 \subsection{記號與 Lee-Carter 模型}\label{sec:notation}
 
@@ -230,14 +279,22 @@ $\edag=\int_0^{\infty} d(a)\,e(a)\,\mathrm{d}a$，其中 $d(a)$ 為死亡年齡
 的餘命年數」。相對於零歲平均餘命 $e_0$ 描述死亡年齡分布的平均，$\edag$
 描述其變異，兩者互補。本文採用簡略生命表（Chiang）的離散近似計算。
 
+
 \subsection{兩條估計路線：高斯與卜瓦松}
 
-LC 模型的估計自始即與奇異值分解綁在一起。Lee and Carter（1992）並未主張
-對數死亡率的誤差同質，卻選擇了一個隱含此假設的解法，並在估計之後以第二
-階段調整補救，即重新求解時間參數使配適的總死亡數等於觀測值。
-Basellini et al.（2023）指出，此後三十年間高斯路線的主要進展，幾乎都是在
-改變第二階段「對齊什麼」。Lee and Miller（2001）發現對齊總死亡數不足以
-修正零歲平均餘命的偏誤，改為直接對齊該量；然而以單一總量為約束仍嫌寬鬆，
+LC 模型的估計自始即與 SVD 綁在一起，而此一選擇有其歷史脈絡。雙線性的
+對數乘積結構在 LC 之前即已存在於列聯表分析，Goodman（1979）的
+對數乘積模型（Log-multiplicative Model）以交替迭代求解行列效應的乘積項，
+與 LC 的結構相同；Lee and Carter（1992）的貢獻在於把它用於死亡率的時間
+外推，並以 SVD 取得封閉解。SVD 的吸引力在於解必定存在、計算瞬間完成、
+且第一主成分所解釋的變異比例可直接作為模型適切性的指標，這在 1990 年代的
+計算環境下具決定性。代價則是它等價於無加權最小平方，因而隱含同質變異。
+
+Lee and Carter（1992）本身並未主張誤差同質，而是在估計之後以第二階段調整
+補救：重新求解時間參數，使配適的總死亡數等於觀測值。Basellini et al.
+（2023）指出，此後三十年間高斯路線的主要進展，幾乎都是在改變第二階段
+「對齊什麼」。Lee and Miller（2001）發現對齊總死亡數不足以修正零歲平均
+餘命的偏誤，改為直接對齊該量；然而以單一總量為約束仍嫌寬鬆，
 Booth et al.（2002）因而改以卜瓦松離差逐年齡對齊死亡數；循此思路，
 Rabbi and Mazzuco（2021）進一步主張平均餘命只描述死亡年齡分布的位置，
 改為對齊描述其離散程度的壽命差異。這是一條逐步精緻化的線，每一步都在
@@ -250,13 +307,22 @@ Rabbi and Mazzuco（2021）進一步主張平均餘命只描述死亡年齡分�
 單一的時間參數並無法移除它。
 
 卜瓦松路線因此從源頭更換架構。Brouhns et al.（2002）將死亡數視為卜瓦松
-分配的觀測值、以暴露數為抵補項（Offset），以最大概似法估計參數；由於誤差
-直接作用於計數上，且配適總死亡數依照模型假設即等於觀測值，第二階段調整
-不再必要。Currie（2013）進一步將其納入廣義線性模型（Generalized Linear
-Model）架構，Currie（2011）則專門處理高齡資料品質不佳時的推估。惟文獻在
-比較兩條路線時多半止於「卜瓦松較佳」，未說明較佳之處何在。這是因為兩條
-路線的差異其實綁了三件事：是否對資料取對數、是否加權、以及分配假設本身。
-三者同時更換，就無從判斷改善由何者貢獻，也無從判斷在什麼情況下不必更換。
+分配的觀測值、以暴露數為抵補項（Offset），以最大概似法估計參數。此一
+改寫有三項後果：誤差直接作用於計數上，不需先取對數；各格的權重由
+$\mu_{x,t}$ 內建於資訊矩陣，不必另行指定；且配適總死亡數依照模型假設即
+等於觀測值，第二階段調整不再必要。Currie（2013）進一步將其納入廣義線性
+模型（Generalized Linear Model）架構，使懲罰項與平滑得以在同一套語言下
+處理；Currie（2011）則專門處理高齡資料品質不佳時的推估。就應用而言，
+卜瓦松路線已成為精算界的主流，Human Mortality Database 與多數國家的官方
+推估亦採此架構。
+
+惟文獻在比較兩條路線時多半止於「卜瓦松較佳」，未說明較佳之處何在。這是
+因為兩條路線的差異其實綁了三件事：是否對資料取對數，高斯路線取對數因而須
+處理 $\log 0$ 與 Jensen 不等式造成的二階偏誤，卜瓦松路線則不取；是否加權，
+SVD 是無加權最小平方，而卜瓦松概似的權重內建於資訊矩陣之中；以及分配假設
+本身，常態對卜瓦松。三者同時更換，就無從判斷改善由何者貢獻，也無從判斷在
+什麼情況下不必更換——例如在國家級人口上，第二項差異是否仍然重要。本文
+第\ref{sec:decomp}的階梯式分解即為拆開這三項而設計。
 
 \subsection{小人口的失效機制與既有對策}
 
@@ -275,13 +341,15 @@ Li et al.（2009）以 gamma 脆弱性導出年齡別過度離散參數並顯示
 卜瓦松 LC 增寬 18\% 至 180\%，Djeundje and Currie（2010）另在平滑架構下
 直接處理離散過度的計數資料。
 
-面對這些機制，最直觀的對策是增加樣本數。Li and Lee（2005）的共同 LC 模型
-以一組死亡改善趨勢相近的母體為參考，Wang et al.（2018）建議合併目標母體
-過去 10 至 20 年的歷史資料，Jarner and Kryger（2011）的 SAINT 模型以大母體
-為錨定，Wiśniowski et al.（2015）與 Cairns et al.（2011）則以貝氏方法達成
-類似效果。這些作法形式各異，卻共用同一個關鍵假設，即參考母體與目標母體的
-死亡型態相近。該假設在臺灣並不安全，縣市間平均餘命的最大差距即超過 10 歲
-（Yue et al. 2019），鄰近地區的社經與人口組成差異甚大。
+面對這些機制，最直觀的對策是增加樣本數。此一取向在應用上已累積相當經驗：
+Li and Lee（2005）的共同 LC 模型以一組死亡改善趨勢相近的母體為參考，原為
+處理國家層級的聯合推估；Wang et al.（2018）建議合併目標母體過去 10 至
+20 年的歷史資料，對象即為臺灣縣市；Jarner and Kryger（2011）的 SAINT 模型
+以大母體為錨定，應用於丹麥的年金評價；Wiśniowski et al.（2015）與
+Cairns et al.（2011）則以貝氏方法達成類似效果。這些作法形式各異，卻共用
+同一個關鍵假設，即參考母體與目標母體的死亡型態相近。該假設在臺灣並不安全，
+縣市間平均餘命的最大差距即超過 10 歲（Yue et al. 2019），鄰近地區的社經與
+人口組成差異甚大；本文因此不採此一路線，亦不以參考母體為研究方向。
 
 假設不可靠時，另一條路是不借外部資訊而直接平滑目標母體自身的資料。
 Yue et al.（2019）將修勻（Graduation）與死亡率模型結合，先以部分標準化
@@ -335,127 +403,207 @@ Basellini et al.（2023）在討論節明確提出並點名五齡組，卻未提
 
 \subsection{參數的可估性與補救}
 
-承上，若要依誤差的來源選用估計量，須先回答三個層次的問題：在給定的資料量
-下參數能否估計、偏誤該如何處理、變異數該如何處理。本小節依此順序回顧。
+承上，若要依誤差的來源選用估計量，須依序回答五個問題：在給定的資料量下
+參數能否估計、偏誤該如何處理、變異數該如何處理、損失函數是否也該更換、
+以及如何判斷手上的資料適用哪一種。本小節依此順序回顧各條脈絡的理論發展
+與應用場景。
 
-\subsubsection{（一）可估性的界限}\label{sec:bbp}
+\subsubsection{（一）可估性的界限：尖峰隨機矩陣}\label{sec:bbp}
 
-前述文獻處理的都是如何估得更好，但更前置的問題是能不能估。尖峰隨機矩陣
-（Spiked Random Matrix）理論對此有明確的答案。Baik et al.（2005）首先在
-樣本共變異矩陣上證明了相變的存在，Benaych-Georges and Nadakuditi（2012）
-則給出矩形矩陣的對應結果：設 $n\times m$ 的噪音矩陣加上秩一訊號
-$\theta uv^\top$、$c=n/m$，該文第 3.1 節式 (9) 與式 (10) 指出，當
-$\theta>c^{1/4}$ 時估計出的奇異向量與真值有正的漸近內積且該內積有閉式，
-當 $\theta\le c^{1/4}$ 時內積漸近為零。這個結果的性質與前述文獻截然不同：
-門檻以下不是估得比較差，而是估出來的方向與隨機向量無法區分，此時任何
-估計量的改良都無從發揮，正確的作法是不予估計。
+前述文獻處理的都是如何估得更好，但更前置的問題是能不能估。此一問題的
+理論工具來自高維統計，其發展可追溯至 Johnstone（2001）提出的尖峰共變異
+模型（Spiked Covariance Model）：在變數個數與樣本數同階成長的漸近架構下，
+純噪音樣本共變異矩陣的最大特徵值收斂至 Tracy--Widom 分布，因而可據以判斷
+觀測到的最大特徵值是否確實含有訊號。Baik et al.（2005）隨後證明此一判斷
+存在相變：當訊號強度超過某個門檻時最大特徵值脫離噪音的塊體、否則被吸收其中。
+Paul（2007）補上特徵向量的漸近角度，Benaych-Georges and Nadakuditi（2012）
+則把結果推廣至矩形矩陣，這正是 LC 模型所需的形式——設 $n\times m$ 的噪音
+矩陣加上秩一訊號 $\theta uv^\top$、$c=n/m$，該文第 3.1 節式 (9) 與式 (10)
+指出，當 $\theta>c^{1/4}$ 時估計出的奇異向量與真值有正的漸近內積且該內積
+有閉式，當 $\theta\le c^{1/4}$ 時內積漸近為零。
+
+這個結果的性質與前述文獻截然不同：門檻以下不是估得比較差，而是估出來的
+方向與隨機向量無法區分，此時任何估計量的改良都無從發揮，正確的作法是
+不予估計。就應用而言，此一架構已廣泛用於訊號處理中判斷陣列訊號的個數、
+基因體學中決定主成分的保留數目，以及財務計量中的因子個數檢定；死亡率
+模型則尚未見到援用，本文為其一。
 
 相變之所以發生，可由 Zhang et al.（2022）的 HeteroPCA 看得更清楚。該文
 指出當各列的噪音變異數不同時，樣本 Gram 矩陣的期望為
 $\Sigma_0+\mathrm{diag}(\sigma_1^2,\dots,\sigma_p^2)$，亦即對角線被噪音
 變異數系統性灌水而非對角線不受影響，故異質變異越嚴重、主特徵向量偏得
 越多，補救因而須作用於奇異向量。Gavish and Donoho（2017）給出的最適
-奇異值收縮則提供了一個反例：它在矩陣重建的意義下最適，卻對 $\beta_x$
-完全無作用，因為它作用在奇異值上而非奇異向量。
+奇異值收縮則提供了一個有用的反例：它在矩陣重建的意義下最適，卻對
+$\beta_x$ 完全無作用，因為它作用在奇異值上而非奇異向量——最適化矩陣重建
+與最適化參數還原並非同一件事。
 
-\subsubsection{（二）偏誤減少}
+須註明本文援用此一架構的限制。上述理論皆為漸近結果，成立於維度與樣本數
+同時趨於無窮之下，而本文的設定為 $A=22$、$T=24$，屬相當小的維度；本文
+第肆節與第伍節的實測顯示門檻的落點與門檻以上的還原程度都與理論吻合，
+但這是經驗上的驗證，而非理論保證。
+
+\subsubsection{（二）偏誤減少：在估計當下無偏}
 
 偏誤主導的參數無法靠加寬區間或增加重複處理，必須在估計的環節上動手。
-Firth（1993）的懲罰概似是小樣本偏誤減少的標準方法，其設計目標正是移除
-最大概似估計量的 $O(1/n)$ 偏誤，做法是在得分方程中加入修正項，等價於對
-概似乘上 Jeffreys 事前分配 $|I(\theta)|^{1/2}$。該方法在 logistic 迴歸中
-最著名的效果，是解決完全分離（Separation）造成的估計值發散，因為 Jeffreys
-懲罰使概似在參數空間的邊界上不再遞增，解必定存在且有限。這一點恰好對上
-前一小節的第一個機制：卜瓦松模型在零計數時有完全分離的對應物，概似在
-$\alpha_x\to-\infty$ 時仍遞增，最大概似估計量根本不存在。
+此一脈絡的起點是最大概似估計量偏誤的漸近展開：Cox and Snell（1968）給出
+$O(1/n)$ 偏誤項的一般形式，使得「先求最大概似解、再減去估計出的偏誤」
+成為可能，此即事後修正（Corrective）作法。Firth（1993）指出另一種作法
+更為根本——與其估完再修，不如直接修改得分方程，使其解自始即無 $O(1/n)$
+偏誤，此即預先修正（Preventive）作法；對正則連結的廣義線性模型，該修正
+等價於對概似乘上 Jeffreys 事前分配 $|I(\theta)|^{1/2}$。
 
-與之相對的是事後校正，即先估再修，如參數式拔靴法的
-$\tilde\theta=2\hat\theta-\bar\theta^{*}$。兩者的差別在於 Firth 在估計
-當下就無偏而非估完再修，因而不會放大變異數；本文第伍節將以模擬比較兩者。
+兩種作法的差別在本文的情境下具決定性。事後修正需要最大概似解先行存在，
+而本文所面對的正是它不存在的情形：Albert and Anderson（1984）把 logistic
+迴歸的資料型態分為完全分離、準完全分離與重疊三類，並證明前兩者下最大
+概似估計量不存在；卜瓦松對數線性模型在零計數時有同構的問題，概似在
+$\alpha_x\to-\infty$ 時仍遞增。Firth 的預先修正則使概似在參數空間邊界
+不再遞增，Kosmidis and Firth（2021）進一步證明其解在二項反應的廣義線性
+模型中必定有限。
 
-\subsubsection{（三）收縮估計}
+就應用而言，此一方法在罕見事件的 logistic 迴歸上已成標準：Heinze and
+Schemper（2002）把它引入流行病學與臨床研究，處理某一組別全無事件時的
+估計；生態學的物種分布模型、以及樣本數少而事件更少的臨床試驗次群組分析，
+亦屬常見場景。這些場景的共同特徵是「某些格子的資訊量趨近於零」，與本文
+小人口幼年組的情形結構相同。惟死亡率模型上尚未見到系統性的應用，原因
+可能在於國家級資料不會出現零格，而小區域資料的研究者多採取增加樣本數的
+路線。
+
+\subsubsection{（三）收縮估計：以偏誤換變異數}
 
 變異數主導的參數則適用收縮，其核心思想是接受少量偏誤以換取變異數大幅
-下降，使總均方誤差下降。James and Stein（1961）證明當待估參數的維度足夠
-高時，朝某一目標收縮的有偏估計量在總均方誤差上可優於不偏估計量，此為
-整條脈絡的理論根據。Hoerl and Kennard（1970）的 Ridge 迴歸是第一個具體
-實作，以 $L_2$ 懲罰縮減係數；Tibshirani（1996）的 LASSO 改用 $L_1$ 懲罰，
-因其近端算子為軟閾值而能把係數精確壓至收縮目標，同時達成收縮與變數選擇；
-惟 LASSO 在變數高度相關時傾向任意只保留其一，Zou and Hastie（2005）的
-Elastic Net 因而混合兩種懲罰，以群組效應使相關的一組變數傾向被一同保留
-或剔除；LASSO 對大係數亦施加同等收縮而產生偏誤，Zou（2006）的自適應
-LASSO、Meinshausen（2007）的鬆弛 LASSO 與 Zhang（2010）的 MCP 相繼提出
-修正。演算法方面，Friedman et al.（2010）的座標下降法已成為標準作法，
-Tseng（2001）與 Lee et al.（2014）分別提供區塊座標下降與近端牛頓法的
-收斂理論。
+下降，使總均方誤差下降。Stein（1956）首先指出多維常態平均數的樣本平均
+在三維以上並非可容許（Admissible），James and Stein（1961）給出具體的
+支配估計量，Efron and Morris（1973）則以經驗貝氏重新詮釋之，使收縮強度
+有了「由資料估計先驗變異」的操作意義。這一層詮釋對本文尤其重要，因為它
+說明收縮量不必以調校參數指定。
+
+同一思想在迴歸上的實作則另成一系。Hoerl and Kennard（1970）的 Ridge 以
+$L_2$ 懲罰縮減係數，原為處理多重共線性；Tibshirani（1996）的 LASSO 改用
+$L_1$ 懲罰，因其近端算子為軟閾值而能把係數精確壓至收縮目標，同時達成
+收縮與變數選擇；惟 LASSO 在變數高度相關時傾向任意只保留其一，
+Zou and Hastie（2005）的 Elastic Net 因而混合兩種懲罰；LASSO 對大係數
+亦施加同等收縮而產生偏誤，Zou（2006）的自適應 LASSO、Meinshausen（2007）
+的鬆弛 LASSO 與 Zhang（2010）的 MCP 相繼提出修正。演算法方面，
+Friedman et al.（2010）的座標下降法已成為標準作法，Tseng（2001）與
+Lee et al.（2014）分別提供區塊座標下降與近端牛頓法的收斂理論。
 
 此一脈絡進入死亡率模型的時間不算晚，但懲罰的對象與本文不同：
 Delwarde et al.（2007）與 Currie（2013）懲罰的皆為年齡參數的差分，即
-粗糙度，目的在取得平滑的年齡曲線，本文則依指導方向懲罰年齡參數本身，
-目的在辨識哪些年齡組顯著偏離參考水準。
+粗糙度，目的在取得平滑的年齡曲線；本文則依指導方向懲罰年齡參數本身，
+目的在辨識哪些年齡組顯著偏離參考水準。兩者的解釋並不相同——前者回答
+「年齡曲線應該多平滑」，後者回答「哪些年齡的改善速度顯著偏離平均」。
 
 更重要的是，這一整條脈絡有一個共同的操作負擔：懲罰強度必須由資料選出，
-而第三小節所述的選參準則錯置問題於此同樣無法迴避。此處值得引入一條字面上
+而前一小節所述的選參準則錯置問題於此同樣無法迴避。此處值得引入一條字面上
 與本文問題完全吻合、卻尚未被死亡率文獻援用的脈絡——小區域估計。
-Fay and Herriot（1979）的模型以受限最大概似（Restricted Maximum
-Likelihood，以下簡稱 REML）估計變異成分，並給出依訊噪比自動決定收縮強度
-的最佳線性無偏預測，Rao and Molina（2015）為該領域的標準參考。其相對於
-懲罰式估計的優勢在於沒有調校參數，收縮強度由估計出的變異成分決定，不需
-交叉驗證或格點搜尋，選參準則錯置的問題因而不復存在。
+Fay and Herriot（1979）的模型正是為了估計美國人口普查中小地方的所得而提出，
+其設定與本文高度平行：各小區域有一個直接估計值與一個已知的抽樣變異數，
+真值則圍繞某個迴歸預測值分布；以受限最大概似（Restricted Maximum
+Likelihood，以下簡稱 REML）估計先驗變異成分後，收縮強度即為訊噪比的函數，
+不需交叉驗證或格點搜尋。Rao and Molina（2015）為該領域的標準參考。就應用
+而言，該架構已是各國統計局編製小地區指標的主流工具，涵蓋所得、失業率、
+貧窮率等，處理的正是「每個小區域的樣本都太小、但區域之間可以互相借力」
+這一類問題——與鄉鎮市區生命表的結構完全相同。
 
-\subsubsection{（四）判斷準則}
+\subsubsection{（四）穩健損失與分位數迴歸}
 
-上述三者各有適用的情境，因此還需要一組準則，用以判斷手上的資料落在哪一
+前三條脈絡都在「平方損失或概似」的架構內改良，第四條則更換損失函數本身。
+Huber（1964）提出 $M$-估計量與 $\varepsilon$-污染模型，其設定是絕大多數
+觀測來自模型、少數來自別處，目標是使少數觀測無法主導估計；Hampel（1974）
+以影響函數刻畫單一觀測的影響力，Donoho and Huber（1983）則以崩潰點
+（Breakdown Point）刻畫估計量所能承受的污染比例上限。Rousseeuw（1984）的
+最小中位數平方與最小截尾平方把崩潰點推到 50\%，代價是效率極低；
+Müller and Neykov（2003）把截尾概似的崩潰點理論推廣至廣義線性模型。
+
+與 $M$-估計平行發展的是分位數迴歸。Koenker and Bassett（1978）以檢查函數
+$\rho_\tau$ 取代平方損失，使迴歸得以刻畫條件分位數而非條件平均；
+Koenker and Park（1996）提供非線性情形的內點法，Koenker（2005）為該領域的
+標準參考。此後的擴充包括 Zou and Yuan（2008）的複合分位數迴歸——讓不同
+分位共用斜率而只讓截距平移，以降低單一分位估計的變異——以及
+Machado and Santos Silva（2005）針對計數資料的抖動處理。
+Newey and Powell（1987）的 expectile 則以非對稱平方損失取代檢查函數，
+保留可微性因而可用迭代加權最小平方求解。
+
+死亡率模型上的援用並不多。Hyndman and Ullah（2007）在函數型主成分架構下
+提出穩健版本，Santolino（2020）則直接以分位數迴歸估計 LC 模型的參數，
+逐一估計各分位的 $\beta^\tau$ 與 $\kappa^\tau$。須指出 Santolino（2020）
+自承參數隨 $\tau$ 並無明顯規律，此點與每個年齡--年份格僅有一個觀測、
+識別完全依賴雙線性結構跨格借力有關，本文第伍節之五將回到這個問題。
+
+此處須預先點出一項與本文情境直接相關的區分。古典穩健統計所設想的是
+「污染」，即少數觀測來自模型之外；但零死亡格的性質並非如此——一格觀測到
+零並不表示該格被弄錯，而是它只告訴我們死亡數為零，不足以定出死亡率。
+依 Heitjan and Rubin（1991）的用語，這屬於粗化資料（Coarse Data）而非
+污染資料，兩者所需的處置方向相反。本文第柒節之四將以實測結果說明此一
+區分的後果。
+
+\subsubsection{（五）判斷準則}
+
+上述四者各有適用的情境，因此還需要一組準則，用以判斷手上的資料落在哪一
 情境。既有研究給出的準則多為人口數門檻，如 Wang et al.（2018）的
 50{,}000 與一百萬，惟門檻由模擬得出，未必適用於年齡結構或配適期長度不同
-的資料。本文第參節因此把前述三個層次各自翻譯成一個可由資料直接計算的量：
+的資料。本文第參節因此把前述四個層次各自翻譯成一個可由資料直接計算的量：
 零死亡格的分布對應偏誤減少的需求，死亡數的跨年齡落差與噪音變異的跨度
-對應加權的需求，而最大奇異值與純噪音上緣的比值則對應可估性的界限。四者
-皆不需要真值，前三者甚至不需要配適模型。
+對應加權的需求，最大奇異值與純噪音上緣的比值對應可估性的界限，而零格
+比例是否超過 50\% 則對應穩健損失的作用範圍。四者皆不需要真值，前三者
+甚至不需要配適模型。
 
 \section{研究資料與診斷}
 
-\subsection{資料來源與分布特性}
+\subsection{資料來源與分析邏輯}
+
+\subsubsection{（一）資料來源與處理}
 
 本文資料取自人類死亡率資料庫（Human Mortality Database，以下簡稱 HMD）的
-臺灣序列，涵蓋 1970 至 2024 年的分年齡死亡數與暴露數（人年）。原始檔為
-單齡組，本文依官方簡易生命表的慣例聚合為 0、1 至 4、5 至 9、依此類推至
-95 至 99，並將 100 歲以上併為開放組，共 22 個年齡組；併組的理由是 110 歲
-以上於 1970 至 2009 年的暴露數為零。主要分析對象為女性 2001 至 2024 年，
-共 $22\times24=528$ 格。
+臺灣序列，涵蓋 1970 至 2024 年的分年齡死亡數與暴露數（人年）。選用 HMD 而
+非內政部原始檔的理由有二：其一，HMD 已完成暴露數的人年換算與跨年份的
+定義一致性檢查，可避免因人口數與人年混用而產生的系統性偏差；其二，其
+資料處理流程有公開文件，便於重現。
 
-\begin{table}[H]
-\centering
-\caption{主分析資料的分布特性（女性 2001$\sim$2024 年）}
-\small
-\begin{tabular}{lr}
-\toprule
-項目 & 數值\\
-\midrule
-資料維度 & 22 齡組 $\times$ 24 年 $=$ 528 格\\
-單格死亡數：最小／中位數／最大 & 37／1,201／16,184\\
-零死亡格數 & \textbf{0}\\
-2024 年暴露數：最小／中位數／合計 & 2,883／552,075／11,871,065\\
-死亡數最少者（全期合計） & 5--9 歲組 1,812 人\\
-死亡數最多者（單年中位數） & 80--84 歲組 10,321 人\\
-\bottomrule
-\end{tabular}
-\label{tab:datadesc}
-\end{table}
+原始檔為單齡組，本文依官方簡易生命表的慣例聚合為 0、1 至 4、5 至 9、
+依此類推至 95 至 99，並將 100 歲以上併為開放組，共 22 個年齡組。併組的
+理由是 110 歲以上於 1970 至 2009 年的暴露數為零，若保留則該列在對數尺度上
+無定義。主要分析對象為女性 2001 至 2024 年，共 $22\times24=528$ 格；選擇
+女性的理由是其死亡率的時間趨勢較為規則，可使模型設定失誤與小樣本效應
+分離；選擇 2001 年起的理由則是避免更早期資料登記制度變動所帶來的干擾，
+惟此一區間涵蓋 2020 至 2024 年的新冠肺炎衝擊，其影響列為研究限制。
 
-表~\ref{tab:datadesc} 有兩點須特別說明。其一，全國層級的資料並無零死亡格，
-單格死亡數最少亦有 37 人，因此本文在全國資料上所見的問題不能直接歸因於
-資料稀疏。其二，死亡數在年齡上的分布極不均勻，5 至 9 歲組的單年死亡數
-中位數為 69 人，而 80 至 84 歲組達 10{,}321 人，相差約 150 倍；此一落差
-正是後續討論的關鍵，因為同一組資料之中不同年齡的有效樣本數相差兩個數量級，
-估計精度自不可同日而語。至於鄉鎮市區層級則完全不同，以單一性別兩萬人的
-規模推算，528 格中平均有 206 格無死亡發生，約四成的格子不含任何資訊。
+\subsubsection{（二）分析邏輯}
+
+本文的核心問題是小人口下的估計行為，但真實的鄉鎮市區資料並無真值可供
+比對，因此採取「以全國資料建構真值、再模擬小人口」的設計。具體而言，
+先以全國女性 2001 至 2024 年的配適結果作為真值
+$\{\alpha^{\text{true}}_x,\beta^{\text{true}}_x,\kappa^{\text{true}}_t\}$，
+令 $E_{x,t}=N\cdot w_{x,t}$、
+$D_{x,t}\sim\text{Poisson}(E_{x,t}m^{\text{true}}_{x,t})$，其中 $w_{x,t}$
+為全國最後一年的年齡結構、$N$ 為模擬的單一性別人口數。如此一來，任何
+估計值與真值的差距都只能來自抽樣與估計程序本身，而非母體差異。
+
+此一設計有兩項必須言明的代價。其一，它隱含「小區域與全國有相同年齡型態」
+的假設，真實鄉鎮市區的型態可能本就不同；本文第參節之二的前三項診斷不受
+此假設影響（它們只描述資料本身），但第四項診斷的最大奇異值會同時反映型態
+差異與噪音。其二，死亡數以卜瓦松生成，過度離散在設計上即不存在，因此
+負二項或準概似方法的效益無從測得。
+
+評估則分三個層次，依序對應本文的三類結果。第一層是\textbf{參數}，
+包含 $\alpha_x$ 的逐年齡偏誤、$\beta_x$ 與真值的相關係數與平方誤差和、
+以及 $\kappa_t$ 的漂移項偏誤；第二層是\textbf{預測區間}，以零歲平均餘命的
+區間寬度與涵蓋率衡量；第三層是\textbf{生命表}，以零歲平均餘命的偏誤與
+均方根誤差衡量。三層分開評估的理由是它們未必同向——第伍節之七將顯示，
+對數尺度上偏誤最大的年齡並非對平均餘命影響最大的年齡。
+
+模擬的人口規模取 $10^4$ 至 $5\times10^6$，重複次數除特別註明者外一律為
+100 次、種子固定，以使各表之間可以逐格對照。少數模擬會發散（單次平方
+誤差可達中位數的 $10^6$ 倍），故統計量一律採中位數而非平均數。
 
 \subsection{四項事前診斷}\label{sec:eda}
 
-第壹節已概述四項診斷的內容，本小節說明其計算方式與判讀門檻。四者的共同
-特點是不需要真值：前三項為純粹的探索性資料分析，第四項僅需一次成本不到
-一秒的預備配適。程式見 \texttt{R/core/eda\_diagnostics.R}。
+第\ref{sec:intro-data}已呈現四項診斷在本文資料上的結果（圖~\ref{fig:eda}），
+本小節說明其計算方式、判讀門檻，以及各門檻所指向之方法的優點與代價。
+四者的共同特點是不需要真值：前三項為純粹的探索性資料分析，第四項僅需
+一次成本不到一秒的預備配適。程式見 \texttt{R/core/eda\_diagnostics.R}。
+
+\subsubsection{（一）計算方式}
 
 第一項診斷取各年齡組單年死亡數的中位數，以對數刻度繪於年齡上，須看兩件事，
 即曲線的最低點是否進入個位數，以及最高與最低相差幾個數量級。第二項診斷取
@@ -469,14 +617,6 @@ $n\times m$ 噪音矩陣的最大奇異值收斂至 $\sigma\sqrt{T}\,(1+\sqrt{c}
 $c=A/T$，而該文式 (9) 另有一個便於操作的性質——在相變門檻上，觀測到的最大
 奇異值恰好等於這條上緣，故判讀規則即為最大奇異值是否穿出虛線。
 
-\begin{figure}[H]
-  \centering
-  \includegraphics[width=\textwidth]{figEDA_panel.png}
-  \caption{四項事前診斷。橫向比較全國女性實際資料與兩組模擬小人口
-  （以全國配適為真值，$D_{x,t}\sim\mathrm{Poisson}(N w_x m^{\mathrm{true}}_{x,t})$）。
-  \cn{1}\cn{2}\cn{3} 為純粹的探索性分析；\cn{4} 的噪音上緣需一次預備配適以估計 $\sigma$。}
-  \label{fig:eda}
-\end{figure}
 \begin{table}[H]
   \centering
   \caption{四項診斷的數值摘要}
@@ -508,6 +648,8 @@ $\sigma=\sqrt{\overline{1/\hat\mu}}$ 者最為可靠，本文採用此法；而�
 估計者不可使用，人數一萬時會誤判為可還原，因為四成零格被 0.5 墊平之後，
 二階差分反映的是替代值的假象而非真實噪音。
 
+\subsubsection{（二）判讀門檻與所指方法的權衡}
+
 \begin{table}[H]
   \centering
   \caption{診斷\cn{4}的判讀門檻與對應建議}
@@ -530,6 +672,47 @@ $\sigma=\sqrt{\overline{1/\hat\mu}}$ 者最為可靠，本文採用此法；而�
 （比值 0.43）時標準 LC 的 $\hat\beta_x$ 與真值相關僅 0.040，確實與隨機方向
 無異，但加上經驗貝氏收縮後可達 0.542。因此該格應讀為「不要以 SVD 估計」，
 而非「無論如何都不能估計」。
+
+診斷所指向的方法各有代價，宜在此一併預告，以便閱讀後續各節時能對照。
+表~\ref{tab:tradeoff} 整理五項對應關係及其優點與限制；各項的量化證據分別
+見第伍節與第陸節，此處只列結論。
+
+\begin{table}[H]
+\centering
+\caption{診斷所指向的方法及其權衡（量化證據見第伍、陸節）}
+\small
+\begin{tabular}{p{2.5cm}p{2.4cm}p{4.0cm}p{4.3cm}}
+\toprule
+診斷所示 & 指向的方法 & 優點 & 代價與限制\\
+\midrule
+\cn{1} 最小單年死亡中位數 $<5$
+ & Firth 偏誤減少
+ & 無調校參數；解必定有限；$\alpha$ 最大偏誤降 12.7 倍；大人口亦不劣於卜瓦松
+ & 對 $\beta_x$ 的改善有限；其改善集中於幼年組，而該處僅占平均餘命誤差的兩成\\
+\addlinespace
+\cn{1}\cn{3} 跨年齡落差 $>1$ 個數量級、噪音跨度 $>2$ 個數量級
+ & 資訊加權（卜瓦松，或 $w=\hat\mu$ 的加權 SVD）
+ & 漂移項偏誤降 2.7 至 13 倍；就平均餘命而言是改善最大的一項
+ & 完全不處理 $\alpha$ 的偏誤；權重若取觀測死亡數會與反應變數相關而產生內生性\\
+\addlinespace
+\cn{2} 零格比例 $<50\%$
+ & 檢查函數（中位數 LC）
+ & 可改善 $\alpha$ 且不需更換分配假設
+ & 超過 50\%（中位數的崩潰點）即失效；且在小人口反而損害 $\beta_x$\\
+\addlinespace
+\cn{3} $\beta_x$ 為變異數主導
+ & Fay-Herriot 經驗貝氏收縮
+ & 免調校參數；$\beta_x$ 的相關可由 0.04 升至 0.54
+ & 可交換先驗與真實的年齡結構不符；人數增大後偏誤轉為主要成分，固定強度的收縮反而有害\\
+\addlinespace
+\cn{4} $s_1/$上緣 $<0.6$
+ & 不以 SVD 估計 $\beta_x$
+ & 避免報告與隨機方向無異的估計值
+ & 門檻為漸近理論的近似，而本文 $A=22$ 屬小維度；且僅界定未正則化的分解\\
+\bottomrule
+\end{tabular}
+\label{tab:tradeoff}
+\end{table}
 
 綜合本文第伍節的結果，第一項診斷可給出兩個操作門檻：最小單年死亡數中位數
 低於 5 時，Firth 為必要而非選配，低於 20 時建議使用；死亡數的跨年齡落差
@@ -2537,6 +2720,11 @@ $N=5$ 萬、$\lambda/\lambda_{\max}=0.20$ 時，未懲罰版的平均絕對偏�
   \item[] Dokumentov, A., R. J. Hyndman, and L. Tickle. 2018. ``Bivariate
         Smoothing of Mortality Surfaces with Zero Counts: The Lasso2d Method.''
         \textit{Stat} 7(1): e199.
+  \item[] Donoho, D. L., and Huber, P. J. 1983. ``The Notion of Breakdown Point.''
+        In \textit{A Festschrift for Erich L. Lehmann}, 157-184. Belmont: Wadsworth.
+  \item[] Efron, B., and Morris, C. 1973. ``Stein's Estimation Rule and Its
+        Competitors---An Empirical Bayes Approach.''
+        \textit{Journal of the American Statistical Association} 68(341): 117-130.
   \item[] Eilers, P. H. C., and B. D. Marx. 1996. ``Flexible Smoothing with
         B-splines and Penalties.'' \textit{Statistical Science} 11(2): 89-102.
   \item[] Fay, R. E., and Herriot, R. A. 1979. ``Estimates of Income for Small Places:
@@ -2549,9 +2737,16 @@ $N=5$ 萬、$\lambda/\lambda_{\max}=0.20$ 時，未懲罰版的平均絕對偏�
         \textit{Journal of Statistical Software} 33(1): 1-22.
   \item[] Gavish, M., and Donoho, D. L. 2017. ``Optimal Shrinkage of Singular Values.''
         \textit{IEEE Transactions on Information Theory} 63(4): 2137-2152.
+  \item[] Goodman, L. A. 1979. ``Simple Models for the Analysis of Association in
+        Cross-Classifications Having Ordered Categories.''
+        \textit{Journal of the American Statistical Association} 74(367): 537-552.
+  \item[] Hampel, F. R. 1974. ``The Influence Curve and Its Role in Robust Estimation.''
+        \textit{Journal of the American Statistical Association} 69(346): 383-393.
   \item[] Hampel, F. R., Ronchetti, E. M., Rousseeuw, P. J., and Stahel, W. A. 1986.
         \textit{Robust Statistics: The Approach Based on Influence Functions}.
         New York: Wiley.
+  \item[] Heinze, G., and Schemper, M. 2002. ``A Solution to the Problem of Separation
+        in Logistic Regression.'' \textit{Statistics in Medicine} 21(16): 2409-2419.
   \item[] Heitjan, D. F., and Rubin, D. B. 1991. ``Ignorability and Coarse Data.''
         \textit{Annals of Statistics} 19(4): 2244-2253.
   \item[] Hoerl, A. E., and R. W. Kennard. 1970. ``Ridge Regression: Biased
@@ -2575,6 +2770,17 @@ $N=5$ 萬、$\lambda/\lambda_{\max}=0.20$ 時，未懲罰版的平均絕對偏�
   \item[] Jarner, S. F., and E. M. Kryger. 2011. ``Modelling Adult Mortality in
         Small Populations: The SAINT Model.''
         \textit{ASTIN Bulletin} 41(2): 377-418.
+  \item[] Johnstone, I. M. 2001. ``On the Distribution of the Largest Eigenvalue in
+        Principal Components Analysis.'' \textit{Annals of Statistics} 29(2): 295-327.
+  \item[] Koenker, R. 2005. \textit{Quantile Regression}. Cambridge: Cambridge
+        University Press.
+  \item[] Koenker, R., and Bassett, G. 1978. ``Regression Quantiles.''
+        \textit{Econometrica} 46(1): 33-50.
+  \item[] Koenker, R., and Park, B. J. 1996. ``An Interior Point Algorithm for Nonlinear
+        Quantile Regression.'' \textit{Journal of Econometrics} 71(1-2): 265-283.
+  \item[] Kosmidis, I., and Firth, D. 2021. ``Jeffreys-prior Penalty, Finiteness and
+        Shrinkage in Binomial-response Generalized Linear Models.''
+        \textit{Biometrika} 108(1): 71-82.
   \item[] Lee, J. D., Y. Sun, and M. A. Saunders. 2014. ``Proximal Newton-type
         Methods for Minimizing Composite Functions.''
         \textit{SIAM Journal on Optimization} 24(3): 1420-1443.
@@ -2596,6 +2802,8 @@ $N=5$ 萬、$\lambda/\lambda_{\max}=0.20$ 時，未懲罰版的平均絕對偏�
   \item[] Lu, Y., and D. Zhu. 2023. ``Modelling Mortality: A Bayesian
         Factor-augmented VAR (FAVAR) Approach.''
         \textit{ASTIN Bulletin} 53(1): 29-61.
+  \item[] Machado, J. A. F., and Santos Silva, J. M. C. 2005. ``Quantiles for Counts.''
+        \textit{Journal of the American Statistical Association} 100(472): 1226-1237.
   \item[] Meinshausen, N. 2007. ``Relaxed Lasso.''
         \textit{Computational Statistics \& Data Analysis} 52(1): 374-393.
   \item[] M\"{u}ller, C. H., and Neykov, N. 2003. ``Breakdown Points of Trimmed
@@ -2603,6 +2811,8 @@ $N=5$ 萬、$\lambda/\lambda_{\max}=0.20$ 時，未懲罰版的平均絕對偏�
         \textit{Journal of Statistical Planning and Inference} 116(2): 503-519.
   \item[] Newey, W. K., and Powell, J. L. 1987. ``Asymmetric Least Squares Estimation
         and Testing.'' \textit{Econometrica} 55(4): 819-847.
+  \item[] Paul, D. 2007. ``Asymptotics of Sample Eigenstructure for a Large Dimensional
+        Spiked Covariance Model.'' \textit{Statistica Sinica} 17(4): 1617-1642.
   \item[] Pitt, D., J. Li, and T. K. Lim. 2018. ``Smoothing Poisson Common
         Factor Model for Projecting Mortality Jointly for Both Sexes.''
         \textit{ASTIN Bulletin: The Journal of the IAA} 48(2): 509-541.
@@ -2616,6 +2826,8 @@ $N=5$ 萬、$\lambda/\lambda_{\max}=0.20$ 時，未懲罰版的平均絕對偏�
   \item[] Renshaw, A. E., and S. Haberman. 2003. ``Lee--Carter Mortality
         Forecasting with Age-specific Enhancement.''
         \textit{Insurance: Mathematics and Economics} 33(2): 255-272.
+  \item[] Rousseeuw, P. J. 1984. ``Least Median of Squares Regression.''
+        \textit{Journal of the American Statistical Association} 79(388): 871-880.
   \item[] Santolino, M. 2020. ``The Lee-Carter Quantile Mortality Model.''
         \textit{Scandinavian Actuarial Journal} 2020(7): 614-633.
   \item[] Schuette, D. R. 1978. ``A Linear Programming Approach to
@@ -2625,6 +2837,9 @@ $N=5$ 萬、$\lambda/\lambda_{\max}=0.20$ 時，未懲罰版的平均絕對偏�
         Forecasts of Mortality Rates and Life Expectancy: A Comparison of Ten
         Principal Component Methods.''
         \textit{Demographic Research} 25: 173-214.
+  \item[] Stein, C. 1956. ``Inadmissibility of the Usual Estimator for the Mean of a
+        Multivariate Normal Distribution.'' In \textit{Proceedings of the Third
+        Berkeley Symposium on Mathematical Statistics and Probability} 1: 197-206.
   \item[] Stoeldraijer, L., C. van Duin, L. van Wissen, and F. Janssen. 2018.
         ``Comparing Strategies for Matching Mortality Forecasts to the Most
         Recently Observed Data.'' \textit{Genus} 74(1): 16.
@@ -2637,12 +2852,12 @@ $N=5$ 萬、$\lambda/\lambda_{\max}=0.20$ 時，未懲罰版的平均絕對偏�
   \item[] Wang, H. C., C. J. Yue, and C. T. Chong. 2018. ``Mortality Models and
         Longevity Risk for Small Populations.''
         \textit{Insurance: Mathematics and Economics} 78: 351-359.
-  \item[] Wilmoth, J. R. 1993. \textit{Computational Methods for Fitting and
-        Extrapolating the Lee--Carter Model of Mortality Change.} Technical
-        Report, Department of Demography, University of California, Berkeley.
   \item[] Wi\'sniowski, A., P. W. F. Smith, J. Bijak, J. Raymer, and
         J. J. Forster. 2015. ``Bayesian Population Forecasting: Extending the
         Lee--Carter Method.'' \textit{Demography} 52(3): 1035-1059.
+  \item[] Wilmoth, J. R. 1993. \textit{Computational Methods for Fitting and
+        Extrapolating the Lee--Carter Model of Mortality Change.} Technical
+        Report, Department of Demography, University of California, Berkeley.
   \item[] Yang, S. S., J. C. Yue, and H. C. Huang. 2010. ``Modeling Longevity
         Risks Using a Principal Component Approach: A Comparison with Existing
         Stochastic Mortality Models.''
@@ -2662,10 +2877,12 @@ $N=5$ 萬、$\lambda/\lambda_{\max}=0.20$ 時，未懲罰版的平均絕對偏�
   \item[] Zou, H. 2006. ``The Adaptive Lasso and Its Oracle Properties.''
         \textit{Journal of the American Statistical Association}
         101(476): 1418-1429.
-
   \item[] Zou, H., and T. Hastie. 2005. ``Regularization and Variable Selection
         via the Elastic Net.'' \textit{Journal of the Royal Statistical
         Society, Series B} 67(2): 301-320.
+
+  \item[] Zou, H., and Yuan, M. 2008. ``Composite Quantile Regression and the Oracle
+        Model Selection Theory.'' \textit{Annals of Statistics} 36(3): 1108-1126.
 \end{itemize}
 
 \end{document}

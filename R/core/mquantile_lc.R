@@ -38,6 +38,38 @@
 #   IRLS 的優點是雙線性結構下兩個區塊都有封閉解，無須呼叫線性規劃求解器。
 ###############################################################################
 
+#' 推導：M-估計在異質變異下的變異數最適權重
+#'
+#'   設損失為 rho、psi = rho'，逐格權重 w_xt。估計方程為
+#'     sum_xt w_xt psi(u_xt) du_xt/dtheta = 0,
+#'   三明治變異數為 A^{-1} B A^{-1}，其中
+#'     A = sum w E[psi'(u)] g g',   B = sum w^2 E[psi(u)^2] g g',  g = du/dtheta.
+#'   最小化變異數得
+#'     w  ∝  E[psi'(u)] / E[psi(u)^2].                                     (**)
+#'
+#'   代入各損失（u ~ N(0, sigma^2)）：
+#'     最小平方   psi(u)=u        -> E[psi']=1, E[psi^2]=sigma^2  -> w ∝ 1/sigma^2
+#'     檢查函數   psi 有界        -> E[psi']=f(0), E[psi^2]=tau(1-tau)
+#'                                -> w ∝ f(0)，即 Koenker (2005) 定理 5.1
+#'     Huber(c)   psi=min(|u|,c)  -> E[psi'] = 2 Phi(c/sigma) - 1
+#'                                   E[psi^2] = sigma^2 beta_{c/sigma}
+#'                                -> w ∝ (2 Phi(c/sigma) - 1) / (sigma^2 beta_{c/sigma})
+#'
+#'   本問題的關鍵是 sigma_x 隨年齡變動：卜瓦松下對數尺度上
+#'   Var(log m_hat) ≈ 1/mu_x，故 sigma_x = mu_x^{-1/2}，c/sigma_x = c sqrt(mu_x)，
+#'
+#'     w_x  ∝  mu_x * ( 2 Phi(c sqrt(mu_x)) - 1 ) / beta_{c sqrt(mu_x)}.    (***)
+#'
+#'   兩個極限：
+#'     c sqrt(mu) -> Inf：2Phi-1 -> 1、beta -> 1，故 w ∝ mu     （最小平方）
+#'     c sqrt(mu) -> 0  ：2Phi(z)-1 ≈ z sqrt(2/pi)、beta_z ≈ z^2，
+#'                        故 w ∝ mu / z ∝ sqrt(mu)              （檢查函數）
+#'
+#'   因此最適權重在 sqrt(mu) 與 mu 之間內插，而\textbf{內插的變數是
+#'   c sqrt(mu) 而非 c}。這解釋了為何單一冪次 w = mu^p 不可能對：
+#'   同一筆資料的各年齡 mu 橫跨三個數量級，c sqrt(mu) 從 0.16 到 23，
+#'   隱含冪次因而由 0.56 漂到 0.87。wmode = "opt" 即實作 (***)。
+
 #' Huber 尺度的一致性常數 beta_c = E[psi_c(Z)^2]，Z ~ N(0,1)
 #'
 #'   psi_c(z) = z 若 |z| <= c，否則 c*sign(z)，故
@@ -140,7 +172,7 @@ mq_obj <- function(u, W, tau = 0.5, cn = Inf, cp = Inf) {
 #' @param zero_sub 零格替代值
 lc_mquantile <- function(D, E, tau = 0.5, k_c = 1.345,
                          k_cn = NULL, k_cp = NULL,
-                         wmode = c("none", "mu", "pow"), wpow = 1,
+                         wmode = c("none", "mu", "pow", "opt"), wpow = 1,
                          scale_mode = c("mad", "joint"), zero_sub = 0.5,
                          maxit = 60, tol = 1e-9, init = NULL) {
   wmode <- match.arg(wmode); scale_mode <- match.arg(scale_mode)
@@ -171,8 +203,20 @@ lc_mquantile <- function(D, E, tau = 0.5, k_c = 1.345,
   for (it in seq_len(maxit)) {
     if (wmode != "none") {
       mu_hat <- E * exp(outer(a, rep(1, Tn)) + outer(b, k))
-      pw <- if (wmode == "mu") 1 else wpow
-      Wd <- if (pw == 1) mu_hat else mu_hat^pw
+      if (wmode == "opt") {
+        ## 推導的變異數最適權重（見本檔開頭的說明）：
+        ##   w ∝ mu * (2 Phi(c sqrt(mu)) - 1) / beta_{c sqrt(mu)}
+        ## 其中 c 為絕對截點（= k_c * s），sigma_x^2 ≈ 1/mu_x。
+        cabs <- 0.5 * (k_cn + k_cp) * s
+        z <- cabs * sqrt(pmax(mu_hat, 1e-12))
+        bz <- matrix(vapply(as.vector(z), huber_beta, numeric(1)),
+                     nrow(z), ncol(z))
+        Wd <- mu_hat * (2 * pnorm(z) - 1) / pmax(bz, 1e-300)
+      } else {
+        pw <- if (wmode == "mu") 1 else wpow
+        Wd <- if (pw == 1) mu_hat else mu_hat^pw
+      }
+      Wd[!is.finite(Wd) | Wd <= 0] <- min(Wd[is.finite(Wd) & Wd > 0], na.rm = TRUE)
       Wd <- Wd / mean(Wd)
     }
     u  <- lm_ - outer(a, rep(1, Tn)) - outer(b, k)

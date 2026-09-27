@@ -92,3 +92,48 @@ lc_analytic <- function(D, E, c0 = 0.5, maxit = 20, tol = 1e-9,
   names(a) <- names(b) <- rownames(D); names(k) <- colnames(D)
   list(a = a, b = b, k = k, iter = it, c0 = c0, shrink = shrink)
 }
+
+#' 只校正 alpha 的版本（配合資訊加權）
+#'
+#'   動機。由 Proposition（beta 的分解）可知，逐格扣除 b 會同時做兩件事：
+#'     (甲) 移除 alpha 的偏誤，其量為列平均 bbar_x；
+#'     (乙) 移除 beta 的確定性擾動 Delta_{x,t} = b(mu_xt) - bbar_x。
+#'   但實測顯示 (乙) 只佔 beta 總誤差的一成以下，而逐格扣除所注入的
+#'   mu_hat 噪音卻使 beta 明顯變差。既然如此，正確的設計是\textbf{只做 (甲)}：
+#'   把 alpha_hat 扣掉 bbar_x，而完全不動中心化矩陣，
+#'   如此 beta_hat 與 kappa_hat 不受任何噪音注入，改由加權處理。
+#'
+#'   由於 alpha_hat 是列平均、在奇異值分解之前即已定出，
+#'   事後扣除 bbar_x 不影響 beta_hat 與 kappa_hat 的計算，
+#'   兩項改善因而可以疊加而不互相干擾。
+#'
+#' @param weight 是否以配適期望死亡數加權求解秩一結構
+lc_alpha_only <- function(D, E, c0 = 0.5, weight = TRUE,
+                          maxit = 20, tol = 1e-9, bfun = NULL) {
+  if (is.null(bfun)) bfun <- make_logbias(c0)
+  A <- nrow(D); Tn <- ncol(D)
+  lm_ <- log(pmax(D, c0) / E)
+  f <- lc_svd_fit(lm_); a <- f$a; b <- f$b; k <- f$k
+  for (it in seq_len(maxit)) {
+    mu_hat <- E * exp(outer(a, rep(1, Tn)) + outer(b, k))
+    bbar   <- rowMeans(bfun(mu_hat))          # 只取列平均，不用逐格值
+    if (weight) {
+      W  <- mu_hat / mean(mu_hat)
+      am <- rowSums(W * lm_) / rowSums(W)
+      Z  <- (lm_ - am) * sqrt(W)
+      sv <- svd(Z); u1 <- sv$u[, 1]; v1 <- sv$v[, 1]
+      if (sum(u1) < 0) { u1 <- -u1; v1 <- -v1 }
+      b2 <- u1 / sum(u1)
+      k2 <- sv$d[1] * v1 * sum(u1) / sqrt(pmax(colMeans(W), 1e-12))
+      k2 <- k2 - mean(k2); sb <- sum(b2); b2 <- b2 / sb; k2 <- k2 * sb
+    } else {
+      f2 <- lc_svd_fit(lm_); am <- f2$a; b2 <- f2$b; k2 <- f2$k
+    }
+    a2 <- am - bbar                            # 只校正 alpha
+    dif <- max(abs(a2 - a), abs(b2 - b), abs(k2 - k) / max(1, max(abs(k))))
+    a <- a2; b <- b2; k <- k2
+    if (dif < tol) break
+  }
+  names(a) <- names(b) <- rownames(D); names(k) <- colnames(D)
+  list(a = a, b = b, k = k, iter = it, c0 = c0, weight = weight)
+}

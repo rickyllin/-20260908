@@ -78,7 +78,11 @@ par(mfrow=c(1,2), mar=c(5.2,4.4,3.2,1.0), mgp=c(2.6,0.8,0))
 for (i in seq_along(NS)) {
   use <- c(1,2)                                    # 標準 LC 與 中心化
   bd  <- lapply(use, function(j) band(AA[[i]][,,j]))
-  yl  <- range(0, unlist(lapply(bd,function(b) c(b$lo,b$hi))), PRED[[i]], na.rm=TRUE)
+  ## ylim 以各帶的 2%/98% 分位為界並留邊，避免極端年齡把全圖壓扁
+  allv <- unlist(lapply(bd, function(b) c(b$lo, b$hi)))
+  yl <- range(c(quantile(allv, c(0.02, 0.98), na.rm = TRUE), 0, PRED[[i]]),
+              na.rm = TRUE)
+  yl <- yl + c(-1, 1) * 0.10 * diff(yl)
   plot(NA, xlim=c(1,A), ylim=yl, xaxt="n", xlab="年齡組",
        ylab=expression(hat(alpha)[x] - alpha[x]),
        main=sprintf("N = %s", format(NS[i], big.mark=",", scientific=FALSE)))
@@ -88,15 +92,18 @@ for (i in seq_along(NS)) {
   for (m in seq_along(use)) {
     j <- use[m]; b <- bd[[m]]; cl <- SPEC[[j]]$col
     polygon(c(xx,rev(xx)), c(b$lo,rev(b$hi)), col=tp(cl), border=NA)
+    ## 虛線標出區間的實際位置（5% 與 95% 分位）
+    lines(xx, b$lo, col=cl, lwd=1.1, lty=2)
+    lines(xx, b$hi, col=cl, lwd=1.1, lty=2)
     lines(xx, b$md, col=cl, lwd=2.2)
   }
   lines(xx, PRED[[i]], col="black", lwd=2.0, lty=2)
   points(xx, PRED[[i]], pch=4, cex=0.7, col="black")
-  legend("topright", bty="n", cex=0.78,
-    legend=c("標準 LC（帶：5–95%）","中心化（帶：5–95%）",
-             expression(paste("閉式預測  ", bar(b)[x]))),
-    col=c(SPEC[[1]]$col, SPEC[[2]]$col, "black"),
-    lwd=c(2.2,2.2,2.0), lty=c(1,1,2))
+  legend("topright", bty="n", cex=0.74,
+    legend=c("標準 LC：中線","標準 LC：5% 與 95%","中心化：中線",
+             "中心化：5% 與 95%", expression(paste("閉式預測  ", bar(b)[x]))),
+    col=c(SPEC[[1]]$col, SPEC[[1]]$col, SPEC[[2]]$col, SPEC[[2]]$col, "black"),
+    lwd=c(2.2,1.1,2.2,1.1,2.0), lty=c(1,2,1,2,2))
 }
 dev.off()
 
@@ -107,9 +114,18 @@ png_cjk("output/figures/figT2_beta_band.png", width = 2250, height = 1250, res =
 par(mfrow = c(2, 3), mar = c(5.0, 4.2, 3.0, 0.8), mgp = c(2.5, 0.75, 0))
 use <- c(1, 2, 3)
 for (i in seq_along(NS)) {
+  ## 同一列（同一人口規模）共用 ylim，使三個估計量的帶寬可橫向比較；
+  ## 以該列三條帶的 3%/97% 分位為界，避免單一極端年齡把全列壓扁。
+  rowv <- unlist(lapply(use, function(j) {
+    b <- band(BB[[i]][, , j]); c(b$lo, b$hi) }))
+  ## 取 12%/88% 分位而非全距：帶的極端處會把中線與真值壓扁，
+  ## 而帶寬的確切數值已另以文字標出，故此處優先保留中線的可讀性。
+  ylrow <- range(c(quantile(rowv, c(0.12, 0.88), na.rm = TRUE), truth$b),
+                 na.rm = TRUE)
+  ylrow <- ylrow + c(-1, 1) * 0.10 * diff(ylrow)
   for (m in seq_along(use)) {
     j  <- use[m]; b <- band(BB[[i]][, , j]); cl <- SPEC[[j]]$col
-    yl <- c(-0.16, 0.36)
+    yl <- ylrow
     plot(NA, xlim = c(1, A), ylim = yl, xaxt = "n", xlab = "年齡組",
          ylab = expression(hat(beta)[x]),
          main = sprintf("%s ．N = %s", SPEC[[j]]$id,
@@ -118,15 +134,19 @@ for (i in seq_along(NS)) {
     abline(h = 0, col = "grey40"); abline(v = xx, col = "grey93", lty = 3)
     polygon(c(xx, rev(xx)),
             c(pmax(b$lo, yl[1]), rev(pmin(b$hi, yl[2]))),
-            col = tp(cl, 0.28), border = NA)
+            col = tp(cl, 0.22), border = NA)
+    ## 虛線標出區間的實際位置；超出繪圖範圍者截在邊界上
+    lines(xx, pmax(pmin(b$lo, yl[2]), yl[1]), col = cl, lwd = 1.1, lty = 2)
+    lines(xx, pmax(pmin(b$hi, yl[2]), yl[1]), col = cl, lwd = 1.1, lty = 2)
     lines(xx, b$md, col = cl, lwd = 2.2)
     lines(xx, truth$b, col = "black", lwd = 2.4)
     points(xx, truth$b, pch = 16, cex = 0.6)
-    legend("topleft", bty = "n", cex = 0.72,
-           legend = c("真值", "估計中線", "5–95% 帶"),
-           col = c("black", cl, tp(cl, 0.5)), lwd = c(2.4, 2.2, 8))
-    text(A, yl[2] - 0.03, sprintf("帶寬中位 %.3f", median(b$hi - b$lo)),
-         adj = c(1, 1), cex = 0.78, col = cl)
+    legend("bottomleft", bty = "n", cex = 0.66,
+           legend = c("真值", "估計中線", "5% 與 95%（虛線）"),
+           col = c("black", cl, cl), lwd = c(2.4, 2.2, 1.1),
+           lty = c(1, 1, 2))
+    text(A, yl[2] - 0.04 * diff(yl), sprintf("帶寬中位 %.3f", median(b$hi - b$lo)),
+         adj = c(1, 1), cex = 0.82, col = cl, font = 2)
   }
 }
 dev.off()

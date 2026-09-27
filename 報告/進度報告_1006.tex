@@ -1932,6 +1932,132 @@ LC 模型上的結構性障礙，改取均勻向量為收縮目標後懲罰方�
 理由，亦即改善估計有兩條路——改懲罰項或改估計方程——而本文的證據顯示
 後者在小人口的效益較大。
 
+\subsection{與小樣本偏誤及資料污染方法論的對照}\label{sec:theory}
+
+本文的結果有一部分是既有理論的直接印證，另一部分則與其前提不符。此一
+區分值得單獨整理，因為它決定了本研究應歸屬的方法論脈絡，也決定了哪些
+工具可以借用、哪些不能。
+
+\subsubsection{（一）與理論吻合之處}
+
+\textbf{崩潰點界定了穩健損失的作用範圍。} 中位數的崩潰點為 50\%
+（Huber 1964；Hampel et al. 1986），而第\ref{sec:qlc}的三個規模恰好落在
+該點兩側：幼年組的零格比例在人數二十萬時為 30\% 至 36\%，中位數得以忽略
+被扭曲的觀測，5 至 9 歲組的 $\alpha$ 偏誤幾乎完全消除；人數五萬時升至
+74\% 至 77\%，改善僅兩成；人數一萬時達 93\% 至 95\%，改善僅 1\%。就
+「超過崩潰點即失去穩健性」這一點而言，理論的預測相當精確。
+
+\textbf{零計數使最大概似估計量不存在，此為完全分離的卜瓦松對應物。}
+Albert and Anderson（1984）把 logistic 迴歸的資料型態分為完全分離、
+準完全分離與重疊三類，並證明前兩者下最大概似估計量不存在。卜瓦松對數
+線性模型在零計數時有同樣的結構：概似在 $\alpha_x\to-\infty$ 時仍遞增，
+數值解只會停在某個絕對值很大的負值。本文人數一萬時卜瓦松最大概似在
+5 至 9 歲組給出 $-13.03$，正是此一現象；而 Firth（1993）的 Jeffreys
+懲罰使概似在參數空間邊界不再遞增，解必定存在且有限，實測降為 $+0.43$。
+
+\textbf{偏誤減少的階數與代價亦與理論一致。} Firth 的修正針對最大概似
+估計量的 $O(1/n)$ 偏誤（Cox and Snell 1968），實測人數五萬時 $\alpha$
+的偏誤中位數由 0.0611 降至 0.0088，約一個數量級，且不放大變異數。
+相對地，事後校正 $2\hat\theta-\bar\theta^{*}$ 的變異數約為原估計量的
+兩倍，此為 Quenouille（1956）以來的經典警告；本文實測偏誤平方和雖降
+71\%，人數五萬時的淨效果仍為負，須至二十萬才轉正。
+
+\textbf{穩健損失的效率代價同樣顯現。} 中位數在常態下相對於平均數的
+漸近效率為 $2/\pi\approx0.637$，最小截尾平方更僅約 8\%
+（Huber and Ronchetti 2009）。本文實測中位數 LC 的 $\beta$ 平方誤差和
+在人數一萬與五萬時反而大於標準 LC（10.864 對 7.916、5.349 對 4.449），
+即為此一代價在本問題上的具體形式。
+
+\textbf{相變與奇異值／奇異向量的區分亦如理論所述。} 門檻以下奇異向量
+與真值漸近正交（Benaych-Georges and Nadakuditi 2012），實測人數一萬時
+五種估計量的相關係數全在 0.125 以下；而 Gavish and Donoho（2017）的
+最適奇異值收縮對 $\beta_x$ 完全無作用，因為它在矩陣重建的意義下最適，
+作用於奇異值而非奇異向量。同理，Fay and Herriot（1979）的收縮係數由
+變異成分導出，在 $A=22$ 的維度下 James and Stein（1961）的支配結果
+成立，實測免調參即追平以真值挑出的最適懲罰強度。
+
+\subsubsection{（二）與理論前提不符之處}
+
+以下四項是本文結果與古典設定的實質差異，其中前兩項為低秩模型所特有。
+
+\textbf{其一，異質變異在秩一模型中造成的是偏誤，而非效率損失。} 在線性
+模型中，忽略異質變異使最小平方估計量失去效率但仍為不偏，此即 Gauss--Markov
+定理的內容。但 LC 模型的估計量是資料的非線性函數——主奇異向量——
+而 Zhang et al.（2022）指出，各列噪音變異數不同時，樣本 Gram 矩陣的
+期望為 $\Sigma_0+\mathrm{diag}(\sigma_1^2,\dots,\sigma_p^2)$，對角線被
+不均勻地灌水，主向量因而被系統性旋轉。本文的變體 E 正是此一差異的純粹
+展示：噪音對稱、期望為零、無重尾、不存在零格，卻仍產生 0.347 的漂移項
+偏誤，甚至略大於標準 LC 的 0.305。\textbf{這說明漂移項的偏誤無法以更換
+損失函數處理，因為問題不在損失函數的形狀。}
+
+\textbf{其二，被扭曲的觀測與其資訊量正相關，而非獨立。} 古典穩健統計
+隱含離群值隨機散布、與該觀測所攜帶的資訊無關。但在雙線性秩一模型中，
+$|\beta_x\kappa_t|$ 最大的年齡同時也是偏離秩一結構時殘差最大的年齡，
+因此「最不合模型」與「最具資訊」高度重疊。本文第\ref{sec:qlc}前一小節
+的實測即為直接證據：在模型正確、無零格亦無離群值的條件下，最小截尾
+平方仍丟掉了 64\% 的 1 至 4 歲組與 48\% 的 5 至 9 歲組，而這兩組的
+$\beta_x$ 分別為 0.1066 與 0.0697，是全表最大的兩個。截尾規則因而系統性
+地移除最有價值的格，此一情形在古典迴歸的崩潰點理論中並未涵蓋。
+
+\textbf{其三，零格是粗化而非污染。} 一格觀測到零並不表示該格的死亡率
+「被弄錯」，而是該格只告訴我們死亡數為零，亦即真實的死亡率落在某個區間
+之內；以 0.5 替代是插補，不是觀測。依 Heitjan and Rubin（1991）的用語，
+這屬於粗化資料（Coarse Data）而非污染資料，而兩者所需的處置方向相反：
+污染需要降低少數觀測的影響力，粗化則需要保留正確的概似支撐。這一點
+統一解釋了本文數項結果——Firth 之所以優於加權中位數（人數五萬時
+$\alpha$ 最大偏誤 0.0680 對 0.6925），並非因為它「更穩健」，而是因為
+它在計數尺度上估計、根本不產生那筆錯誤資訊，而後者只是對已產生的錯誤
+資訊較不敏感。
+
+\textbf{其四，截尾類的崩潰點理論在此前提不成立。} Müller and Neykov
+（2003）建立廣義線性模型中截尾概似估計量的崩潰點理論，其對數線性
+（卜瓦松）情形的結果建立在 $\gamma_z(\theta)=-z\theta+\exp(\theta)
++\log(z!)$ 於 $z>0$ 時為次緊緻（Sub-compact）之上。$z=0$ 時
+$\gamma_0(\theta)=\exp(\theta)$ 在 $\theta\to-\infty$ 時趨近於零，不具
+次緊緻性，亦即零計數格可被 $\theta\to-\infty$ 完美配適。而零格正是小
+人口情境的核心特徵，故截尾類方法在此的失效不是實作困難，是理論前提
+本身不成立。
+
+\subsubsection{（三）兩項對本問題有利的特殊性}
+
+上述差異多為不利，但本問題亦有兩項相對於古典設定的便利。
+
+\textbf{污染比例是可觀測的，而非未知的滋擾參數。} 在 $\varepsilon$-污染
+模型中，污染比例 $\varepsilon$ 是未知量，穩健方法之所以須付出效率代價，
+正是為了在不知道 $\varepsilon$ 的情形下提供保障。但本文的「污染」即零格
+替代，其比例就是診斷\cn{2}所量的零死亡格比例，拿到資料即可計算。因此
+使用者可以事前判斷穩健損失是否會失效，而不必為未知的污染水準付保險費。
+這是把崩潰點由理論性質轉為操作準則的關鍵。
+
+\textbf{扭曲的方向是已知且單邊的。} 零格以正值替代必然使該格的死亡率被
+高估，因而 $\alpha_x$ 被系統性推高，本文實測人數一萬時 5 至 9 歲組為
+$+2.33$，方向一致而非隨機。古典穩健統計對污染的分布不作假設，此處則
+可利用方向的資訊——這也是後續工作提議掃描 $\tau$ 的理由：若扭曲偏向
+左尾，最適的分位數應略高於 0.5。
+
+\subsubsection{（四）穩健須指定對什麼穩健}
+
+最後一項差異與標的量有關。古典穩健統計評估的對象是參數估計量本身，
+而人口學的標的是平均餘命，其對各年齡死亡率的敏感度由生命表的結構決定。
+Arriaga（1984）提出以年齡分解解釋平均餘命的變化，本文第\ref{sec:e0}把
+同一工具用於誤差而非變化，結果顯示對數尺度上偏誤最大的幼年組僅占平均
+餘命誤差的 20.6\%，而 60 至 89 歲合計占 62.8\%。
+
+換言之，一個在參數上「穩健」的估計量，未必在標的量上穩健，反之亦然。
+本文的建議因而不是採用某一種穩健方法，而是先辨識誤差的來源，再依標的量
+決定要處理哪一個來源。就平均餘命而言，這代表資訊加權的重要性更甚於
+偏誤減少；就 $\alpha_x$ 本身而言，則相反。
+
+\subsubsection{（五）本研究的方法論歸屬}
+
+綜合上述，本研究的問題宜歸類為\textbf{資訊不足與異質變異下的低秩估計}，
+而非資料污染。古典穩健統計在此提供的是兩件可借用的東西——崩潰點作為
+方法適用範圍的上界，以及效率代價的量化方式——而非其核心工具。真正對應
+本問題的三條脈絡分別是：小樣本偏誤減少（處理零格與對數所產生的錯誤
+資訊）、加權與低秩擾動理論（處理異質變異對主奇異向量的旋轉），以及
+小區域估計（處理變異數主導的參數）。本文第\ref{sec:est}所比較的估計量
+即依此三條脈絡選出。
+
 \subsection{研究限制}
 
 第一項限制與數值的可比較性有關。本文的模擬分屬數次獨立執行，其真值的
@@ -2349,22 +2475,33 @@ $N=5$ 萬、$\lambda/\lambda_{\max}=0.20$ 時，未懲罰版的平均絕對偏�
 \vspace{4pt}
 \noindent\textbf{二、英文部分}
 \begin{itemize}[leftmargin=2em, label={}, itemsep=3pt]
+  \item[] Albert, A., and Anderson, J. A. 1984. ``On the Existence of Maximum
+        Likelihood Estimates in Logistic Regression Models.'' \textit{Biometrika}
+        71(1): 1-10.
   \item[] Alho, J. M. 1992. ``Modeling and Forecasting U.S. Mortality:
         Comment.'' \textit{Journal of the American Statistical Association}
         87(419): 673-674.
+  \item[] Arriaga, E. E. 1984. ``Measuring and Explaining the Change in Life
+        Expectancies.'' \textit{Demography} 21(1): 83-96.
+  \item[] Baik, J., Ben Arous, G., and P\'{e}ch\'{e}, S. 2005. ``Phase Transition of
+        the Largest Eigenvalue for Nonnull Complex Sample Covariance Matrices.''
+        \textit{Annals of Probability} 33(5): 1643-1697.
   \item[] Basellini, U., C. G. Camarda, and H. Booth. 2023. ``Thirty Years On:
         A Review of the Lee--Carter Method for Forecasting Mortality.''
         \textit{International Journal of Forecasting} 39(3): 1033-1049.
+  \item[] Benaych-Georges, F., and Nadakuditi, R. R. 2012. ``The Singular Values and
+        Vectors of Low Rank Perturbations of Large Rectangular Random Matrices.''
+        \textit{Journal of Multivariate Analysis} 111: 120-135.
   \item[] Booth, H., J. Maindonald, and L. Smith. 2002. ``Applying Lee--Carter
         under Conditions of Variable Mortality Decline.''
         \textit{Population Studies} 56(3): 325-336.
-  \item[] Booth, H., R. J. Hyndman, L. Tickle, and P. De Jong. 2006.
-        ``Lee--Carter Mortality Forecasting: A Multi-country Comparison of
-        Variants and Extensions.'' \textit{Demographic Research} 15: 289-310.
   \item[] Booth, H., L. Tickle, and L. Smith. 2005. ``Evaluation of the
         Variants of the Lee-Carter Method of Forecasting Mortality:
         A Multi-country Comparison.''
         \textit{New Zealand Population Review} 31(1): 13-34.
+  \item[] Booth, H., R. J. Hyndman, L. Tickle, and P. De Jong. 2006.
+        ``Lee--Carter Mortality Forecasting: A Multi-country Comparison of
+        Variants and Extensions.'' \textit{Demographic Research} 15: 289-310.
   \item[] Brouhns, N., M. Denuit, and J. K. Vermunt. 2002. ``A Poisson
         Log-bilinear Regression Approach to the Construction of Projected
         Lifetables.'' \textit{Insurance: Mathematics and Economics}
@@ -2380,6 +2517,8 @@ $N=5$ 萬、$\lambda/\lambda_{\max}=0.20$ 時，未懲罰版的平均絕對偏�
   \item[] Chen, L., A. J. G. Cairns, and T. Kleinow. 2017. ``Small Population
         Bias and Sampling Effects in Stochastic Mortality Modelling.''
         \textit{European Actuarial Journal} 7(1): 193-230.
+  \item[] Cox, D. R., and Snell, E. J. 1968. ``A General Definition of Residuals.''
+        \textit{Journal of the Royal Statistical Society, Series B} 30(2): 248-265.
   \item[] Currie, I. D. 2011. ``Modelling and Forecasting the Mortality of the
         Very Old.'' \textit{ASTIN Bulletin} 41(2): 419-427.
   \item[] Currie, I. D. 2013. ``Smoothing Constrained Generalized Linear Models
@@ -2400,12 +2539,28 @@ $N=5$ 萬、$\lambda/\lambda_{\max}=0.20$ 時，未懲罰版的平均絕對偏�
         \textit{Stat} 7(1): e199.
   \item[] Eilers, P. H. C., and B. D. Marx. 1996. ``Flexible Smoothing with
         B-splines and Penalties.'' \textit{Statistical Science} 11(2): 89-102.
+  \item[] Fay, R. E., and Herriot, R. A. 1979. ``Estimates of Income for Small Places:
+        An Application of James-Stein Procedures to Census Data.''
+        \textit{Journal of the American Statistical Association} 74(366): 269-277.
+  \item[] Firth, D. 1993. ``Bias Reduction of Maximum Likelihood Estimates.''
+        \textit{Biometrika} 80(1): 27-38.
   \item[] Friedman, J., T. Hastie, and R. Tibshirani. 2010. ``Regularization
         Paths for Generalized Linear Models via Coordinate Descent.''
         \textit{Journal of Statistical Software} 33(1): 1-22.
+  \item[] Gavish, M., and Donoho, D. L. 2017. ``Optimal Shrinkage of Singular Values.''
+        \textit{IEEE Transactions on Information Theory} 63(4): 2137-2152.
+  \item[] Hampel, F. R., Ronchetti, E. M., Rousseeuw, P. J., and Stahel, W. A. 1986.
+        \textit{Robust Statistics: The Approach Based on Influence Functions}.
+        New York: Wiley.
+  \item[] Heitjan, D. F., and Rubin, D. B. 1991. ``Ignorability and Coarse Data.''
+        \textit{Annals of Statistics} 19(4): 2244-2253.
   \item[] Hoerl, A. E., and R. W. Kennard. 1970. ``Ridge Regression: Biased
         Estimation for Nonorthogonal Problems.''
         \textit{Technometrics} 12(1): 55-67.
+  \item[] Huber, P. J. 1964. ``Robust Estimation of a Location Parameter.''
+        \textit{Annals of Mathematical Statistics} 35(1): 73-101.
+  \item[] Huber, P. J., and Ronchetti, E. M. 2009. \textit{Robust Statistics},
+        2nd ed. Hoboken: Wiley.
   \item[] Hunt, A., and D. Blake. 2020. ``Identifiability in Age/Period
         Mortality Models.'' \textit{Annals of Actuarial Science} 14(2): 461-499.
   \item[] Hunt, A., and D. Blake. 2021. ``On the Structure and Classification of
@@ -2417,38 +2572,47 @@ $N=5$ 萬、$\lambda/\lambda_{\max}=0.20$ 時，未懲罰版的平均絕對偏�
   \item[] James, W., and C. Stein. 1961. ``Estimation with Quadratic Loss.''
         \textit{Proceedings of the Fourth Berkeley Symposium on Mathematical
         Statistics and Probability} 1: 361-379.
-  \item[] Lee, R. D., and L. R. Carter. 1992. ``Modeling and Forecasting U.S.
-        Mortality.'' \textit{Journal of the American Statistical Association}
-        87(419): 659-671.
-  \item[] Lee, R., and T. Miller. 2001. ``Evaluating the Performance of the
-        Lee--Carter Method for Forecasting Mortality.''
-        \textit{Demography} 38(4): 537-549.
   \item[] Jarner, S. F., and E. M. Kryger. 2011. ``Modelling Adult Mortality in
         Small Populations: The SAINT Model.''
         \textit{ASTIN Bulletin} 41(2): 377-418.
   \item[] Lee, J. D., Y. Sun, and M. A. Saunders. 2014. ``Proximal Newton-type
         Methods for Minimizing Composite Functions.''
         \textit{SIAM Journal on Optimization} 24(3): 1420-1443.
+  \item[] Lee, R. D., and L. R. Carter. 1992. ``Modeling and Forecasting U.S.
+        Mortality.'' \textit{Journal of the American Statistical Association}
+        87(419): 659-671.
+  \item[] Lee, R., and T. Miller. 2001. ``Evaluating the Performance of the
+        Lee--Carter Method for Forecasting Mortality.''
+        \textit{Demography} 38(4): 537-549.
   \item[] Li, J. S.-H., M. R. Hardy, and K. S. Tan. 2009. ``Uncertainty in
         Mortality Forecasting: An Extension to the Classical Lee-Carter
         Approach.'' \textit{ASTIN Bulletin} 39(1): 137-164.
-  \item[] Li, N., R. D. Lee, and S. Tuljapurkar. 2004. ``Using the Lee--Carter
-        Method to Forecast Mortality for Populations with Limited Data.''
-        \textit{International Statistical Review} 72(1): 19-36.
   \item[] Li, N., and R. Lee. 2005. ``Coherent Mortality Forecasts for a Group
         of Populations: An Extension of the Lee--Carter Method.''
         \textit{Demography} 42(3): 575-594.
+  \item[] Li, N., R. D. Lee, and S. Tuljapurkar. 2004. ``Using the Lee--Carter
+        Method to Forecast Mortality for Populations with Limited Data.''
+        \textit{International Statistical Review} 72(1): 19-36.
   \item[] Lu, Y., and D. Zhu. 2023. ``Modelling Mortality: A Bayesian
         Factor-augmented VAR (FAVAR) Approach.''
         \textit{ASTIN Bulletin} 53(1): 29-61.
   \item[] Meinshausen, N. 2007. ``Relaxed Lasso.''
         \textit{Computational Statistics \& Data Analysis} 52(1): 374-393.
+  \item[] M\"{u}ller, C. H., and Neykov, N. 2003. ``Breakdown Points of Trimmed
+        Likelihood Estimators and Related Estimators in Generalized Linear Models.''
+        \textit{Journal of Statistical Planning and Inference} 116(2): 503-519.
+  \item[] Newey, W. K., and Powell, J. L. 1987. ``Asymmetric Least Squares Estimation
+        and Testing.'' \textit{Econometrica} 55(4): 819-847.
   \item[] Pitt, D., J. Li, and T. K. Lim. 2018. ``Smoothing Poisson Common
         Factor Model for Projecting Mortality Jointly for Both Sexes.''
         \textit{ASTIN Bulletin: The Journal of the IAA} 48(2): 509-541.
+  \item[] Quenouille, M. H. 1956. ``Notes on Bias in Estimation.''
+        \textit{Biometrika} 43(3-4): 353-360.
   \item[] Rabbi, A. M. F., and S. Mazzuco. 2021. ``Mortality Forecasting with
         the Lee--Carter Method: Adjusting for Smoothing and Lifespan
         Disparity.'' \textit{European Journal of Population} 37(1): 97-120.
+  \item[] Rao, J. N. K., and Molina, I. 2015. \textit{Small Area Estimation}, 2nd ed.
+        Hoboken: Wiley.
   \item[] Renshaw, A. E., and S. Haberman. 2003. ``Lee--Carter Mortality
         Forecasting with Age-specific Enhancement.''
         \textit{Insurance: Mathematics and Economics} 33(2): 255-272.
@@ -2487,15 +2651,18 @@ $N=5$ 萬、$\lambda/\lambda_{\max}=0.20$ 時，未懲罰版的平均絕對偏�
         Modify the Estimation of Lee--Carter Model for Small Populations.''
         \textit{North American Actuarial Journal}.
         doi:10.1080/10920277.2019.1650288
-  \item[] Zhang, L., and Y. Zhuang. 2026. ``What KAN Mortality Say: Smooth and
-        Interpretable Mortality Modeling Using Kolmogorov--Arnold Networks.''
-        \textit{ASTIN Bulletin} 56(1): 32-59.
+  \item[] Zhang, A. R., Cai, T. T., and Wu, Y. 2022. ``Heteroskedastic PCA: Algorithm,
+        Optimality, and Applications.'' \textit{Annals of Statistics} 50(1): 53-80.
   \item[] Zhang, C.-H. 2010. ``Nearly Unbiased Variable Selection under
         Minimax Concave Penalty.'' \textit{The Annals of Statistics}
         38(2): 894-942.
+  \item[] Zhang, L., and Y. Zhuang. 2026. ``What KAN Mortality Say: Smooth and
+        Interpretable Mortality Modeling Using Kolmogorov--Arnold Networks.''
+        \textit{ASTIN Bulletin} 56(1): 32-59.
   \item[] Zou, H. 2006. ``The Adaptive Lasso and Its Oracle Properties.''
         \textit{Journal of the American Statistical Association}
         101(476): 1418-1429.
+
   \item[] Zou, H., and T. Hastie. 2005. ``Regularization and Variable Selection
         via the Elastic Net.'' \textit{Journal of the Royal Statistical
         Society, Series B} 67(2): 301-320.

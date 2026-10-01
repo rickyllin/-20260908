@@ -29,7 +29,7 @@ sim <- function(N, seed) {
 }
 expo <- function(N) { E <- outer(N*wage, rep(1,Tn)); dimnames(E) <- dimnames(D0); E }
 
-png_cjk("output/figures/figT0_oscillation.png", width=2250, height=800, res=150)
+png_cjk("output/figures/figT0_oscillation.png", width=2250, height=800, res = 198)
 par(mfrow=c(1,3), mar=c(5.2,4.6,3.4,1.0), mgp=c(2.7,0.8,0))
 
 ## ---- (a) 原始資料的震盪 ----

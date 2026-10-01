@@ -31,7 +31,7 @@ METR <- list(list(col="alpha最大", lab=expression(paste(alpha," 最大偏誤")
              list(col="SSE_beta", lab=expression(paste("SSE(", beta, ")"))),
              list(col="漂移偏誤", lab="|漂移項偏誤|"))
 
-png_cjk("output/figures/figT3_estimator_compare.png", width=2250, height=820, res=150)
+png_cjk("output/figures/figT3_estimator_compare.png", width=2250, height=820, res = 198)
 par(mfrow=c(1,3), mar=c(5.0,4.8,3.4,1.0), mgp=c(3.0,0.8,0))
 for (mm in METR) {
   vals <- c(abs(sim[[mm$col]]), abs(thin[[mm$col]]))
@@ -92,7 +92,7 @@ for (r in seq_len(REPS)) {
   }
   if (r%%25==0) cat(sprintf("  e0 rep %d/%d\n", r, REPS))
 }
-png_cjk("output/figures/figT4_e0_by_estimator.png", width=1700, height=820, res=150)
+png_cjk("output/figures/figT4_e0_by_estimator.png", width=1700, height=820, res = 198)
 par(mar=c(6.4,4.8,3.4,1.0), mgp=c(3.0,0.8,0))
 K <- length(FIT)
 plot(NA, xlim=c(0.5,K+0.5), ylim=range(c(EE,e0_true), na.rm=TRUE), xaxt="n",

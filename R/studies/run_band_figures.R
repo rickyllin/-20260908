@@ -73,7 +73,7 @@ tp <- function(col, alpha = 0.18) {        # 半透明色
 xx <- seq_len(A)
 
 ## =================== 圖一：alpha 的偏誤帶 ===================
-png_cjk("output/figures/figT1_alpha_band.png", width=2100, height=950, res=160)
+png_cjk("output/figures/figT1_alpha_band.png", width=2100, height=950, res = 211)
 par(mfrow=c(1,2), mar=c(5.2,4.4,3.2,1.0), mgp=c(2.6,0.8,0))
 for (i in seq_along(NS)) {
   use <- c(1,2)                                    # 標準 LC 與 中心化
@@ -110,7 +110,7 @@ dev.off()
 ## =================== 圖二：beta 的估計帶（每格一個估計量）===================
 ## 三條帶疊在同一格會糊成一片，故改為 2 列（人口規模）x 3 行（估計量），
 ## 每格只畫一條帶與真值，使「帶寬的寬窄」可以橫向直接比較。
-png_cjk("output/figures/figT2_beta_band.png", width = 2250, height = 1250, res = 155)
+png_cjk("output/figures/figT2_beta_band.png", width = 2250, height = 1250, res = 205)
 par(mfrow = c(2, 3), mar = c(5.0, 4.2, 3.0, 0.8), mgp = c(2.5, 0.75, 0))
 use <- c(1, 2, 3)
 for (i in seq_along(NS)) {

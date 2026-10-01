@@ -51,7 +51,7 @@ amax <- function(M) max(abs(apply(M,2,median,na.rm=TRUE)))
 bsse <- function(M) median(apply(M,1,function(v) sum((v-truth$b)^2)/sum(truth$b^2)),na.rm=TRUE)
 
 ## ---------- figT6：Pareto 圖 ----------
-png_cjk("output/figures/figT6_pareto.png", width=2250, height=820, res=150)
+png_cjk("output/figures/figT6_pareto.png", width=2250, height=820, res = 198)
 par(mfrow=c(1,3), mar=c(5.0,5.0,3.4,1.0), mgp=c(3.0,0.8,0))
 for (i in seq_along(NS)) {
   ax <- sapply(seq_len(K), function(j) amax(AA[[i]][,,j]))
@@ -81,7 +81,7 @@ band <- function(M) list(lo=apply(M,2,quantile,0.05,na.rm=TRUE),
 tp <- function(col,a=0.20){v<-col2rgb(col)/255; grDevices::rgb(v[1],v[2],v[3],a)}
 i <- 2   # N = 5e4
 use <- c(1,2,6)
-png_cjk("output/figures/figT7_joint_band.png", width=2250, height=880, res=150)
+png_cjk("output/figures/figT7_joint_band.png", width=2250, height=880, res = 198)
 par(mfrow=c(1,2), mar=c(5.4,4.8,3.4,1.0), mgp=c(2.9,0.8,0))
 ## alpha
 bd <- lapply(use, function(j) band(AA[[i]][,,j]))

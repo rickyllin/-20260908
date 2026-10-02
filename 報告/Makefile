@@ -7,7 +7,7 @@ BIBTEX  := PATH="$(TEXBIN):$$PATH" bibtex
 DOCS := 進度報告 進度報告_v2 進度報告_0929 進度報告_1006 進度報告_簡版 進度報告_簡報
 PDFS := $(addsuffix .pdf,$(DOCS))
 
-.PHONY: all full v2 v3 v4 v5 brief slides clean distclean
+.PHONY: all full v2 v3 v4 v5 part1 brief slides clean distclean
 
 all: $(PDFS)
 
@@ -16,6 +16,7 @@ v2:     進度報告_v2.pdf
 v3:     進度報告_0929.pdf
 v4:     進度報告_1006.pdf
 v5:     進度報告_1005_初版.pdf
+part1:  進度報告_1005_深入研究_Part1.pdf
 brief:  進度報告_簡版.pdf
 slides: 進度報告_簡報.pdf
 
@@ -25,6 +26,12 @@ slides: 進度報告_簡報.pdf
 	$(BIBTEX)  進度報告_1005_初版
 	$(XELATEX) 進度報告_1005_初版.tex
 	$(XELATEX) 進度報告_1005_初版.tex
+
+進度報告_1005_深入研究_Part1.pdf: 進度報告_1005_深入研究_Part1.tex references.bib
+	$(XELATEX) 進度報告_1005_深入研究_Part1.tex
+	$(BIBTEX)  進度報告_1005_深入研究_Part1
+	$(XELATEX) 進度報告_1005_深入研究_Part1.tex
+	$(XELATEX) 進度報告_1005_深入研究_Part1.tex
 
 # 其餘各版無 bibtex，跑兩次以解析交互參照
 %.pdf: %.tex

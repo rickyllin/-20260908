@@ -117,35 +117,37 @@ cg <- var_cost(g, C0);     rg <- rel_efficiency(g, C0)
 png_cjk("output/figures/figV1_logvar.png", width = 2300, height = 1500, res = 200)
 par(mfrow = c(2, 2), mar = c(4.2, 4.6, 2.6, 0.8), mgp = c(2.7, 0.8, 0))
 
+## 圖上不標文字。輔助線的約定：
+##   長虛線（lty = 2）為極限或漸近線，點線（lty = 3）為極值的位置與高度。
+##   各極值的數值於正文與圖註列出。
+LIM <- 2; EXT <- 3; GC <- "grey45"
+
 plot(g, vg, log = "x", type = "l", lwd = 2.4, col = "#1f4e79",
      xlab = expression(mu~"（單年期望死亡數）"), ylab = expression(v(mu*";"*c[0])),
      main = "(a) 對數尺度的變異數")
-abline(v = 2.0365, lty = 3, col = "grey40")
-text(0.012, max(vg)*0.92, "極大 0.481\n於 mu = 2.04", pos = 4, cex = 0.95)
+abline(h = 0,      lty = LIM, col = GC)          # 兩端的極限
+abline(v = 2.0365, lty = EXT, col = GC)          # 極大的位置
+abline(h = 0.4805, lty = EXT, col = GC)          # 極大的高度
 
 plot(g, 1 + eg, log = "x", type = "l", lwd = 2.4, col = "#9e2a2b",
      xlab = expression(mu), ylab = expression(A(mu)==1+mu*b*minute*(mu)),
      main = "(b) 估計方程的靈敏度", ylim = c(0, 1.2))
-abline(h = c(0, 1), lty = 3, col = "grey40")
-abline(v = 4.4288, lty = 3, col = "grey40")
-text(0.012, 0.92, "極限 1", pos = 4, cex = 0.95)
-text(0.012, 0.12, "極限 0", pos = 4, cex = 0.95)
-text(500, 1.13, "極大 1.126\n於 mu = 4.43", pos = 2, cex = 0.95)
+abline(h = c(0, 1), lty = LIM, col = GC)         # 兩端的極限
+abline(v = 4.4288,  lty = EXT, col = GC)
+abline(h = 1.1259,  lty = EXT, col = GC)
 
 plot(g, cg, log = "xy", type = "l", lwd = 2.4, col = "#2d6a4f",
      xlab = expression(mu), ylab = expression(1/A(mu)^2),
      main = "(c) 迭代校正的變異數代價")
-abline(h = 1, lty = 3, col = "grey40"); abline(v = 4.4288, lty = 3, col = "grey40")
-text(0.012, 2000, "mu -> 0 時發散", pos = 4, cex = 0.95)
-text(0.012, 2.1, "極限 1", pos = 4, cex = 0.95)
-text(60, 9, "極小 0.789 於 mu = 4.43", pos = 2, cex = 0.95)
-arrows(6, 6.5, 4.43, 1.1, length = 0.06, col = "grey35")
+abline(h = 1,      lty = LIM, col = GC)          # mu -> inf 的極限
+abline(v = 4.4288, lty = EXT, col = GC)
+abline(h = 0.7888, lty = EXT, col = GC)
 
 plot(g, rg, log = "x", type = "l", lwd = 2.4, col = "#7b2cbf",
      xlab = expression(mu), ylab = expression(RE(mu)),
      main = "(d) 相對於 Poisson MLE 的效率", ylim = c(0.85, 1.01))
-abline(h = 1, lty = 3, col = "grey40"); abline(v = 4.4697, lty = 3, col = "grey40")
-text(0.012, 0.995, "兩端皆趨近 1", pos = 4, cex = 0.95)
-text(500, 0.885, "極小 0.878\n於 mu = 4.47", pos = 2, cex = 0.95)
+abline(h = 1,      lty = LIM, col = GC)          # 兩端的極限
+abline(v = 4.4697, lty = EXT, col = GC)
+abline(h = 0.8776, lty = EXT, col = GC)
 dev.off()
 cat("\n圖已輸出：output/figures/figV1_logvar.png\n")

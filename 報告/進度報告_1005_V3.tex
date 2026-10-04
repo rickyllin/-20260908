@@ -63,16 +63,27 @@
 \newtheorem{prop}{Proposition}
 \newtheorem{cor}{Corollary}
 \newtheorem{lem}{Lemma}
-\newenvironment{proof}{\par\noindent\textit{證明}.\ }{\hfill$\square$\par\vspace{4pt}}
+\newenvironment{proof}{\par\noindent\textit{Proof}.\ }{\hfill$\square$\par\vspace{4pt}}
 \newcommand{\Ex}{\mathbb{E}}
 
 % 分部標題
 \newcommand{\partline}[2]{%
   \par\vspace{10pt}\noindent\rule{\textwidth}{0.8pt}\par\vspace{2pt}
   \noindent{\zihao{4}\bfseries 第#1部\quad #2}\par
-  \vspace{2pt}\noindent\rule{\textwidth}{0.8pt}\par\vspace{6pt}}
+  \vspace{2pt}\noindent\rule{\textwidth}{0.8pt}\par\vspace{6pt}%
+  \phantomsection\addcontentsline{toc}{part}{第#1部\quad #2}}
+
+% 目錄：只收到小節，部次以粗體與一行間距與節次區隔。
+\setcounter{tocdepth}{2}
+\makeatletter
+\renewcommand{\l@part}[2]{\par\vspace{8pt}%
+  \noindent{\bfseries #1}\par\vspace{2pt}}
+\renewcommand{\l@section}[2]{\@dottedtocline{1}{0em}{5.2em}{\bfseries #1}{\bfseries #2}}
+\renewcommand{\l@subsection}[2]{\@dottedtocline{2}{5.2em}{4.6em}{#1}{#2}}
+\makeatother
 
 \begin{document}
+\pagenumbering{roman}
 
 \begin{center}
 {\zihao{3}\bfseries 小人口 Lee-Carter 參數偏誤的閉式}\\[4pt]
@@ -115,7 +126,12 @@ $\mathrm{corr}(\log\max(D,c_0),D)^2$，其值全程不低於 $0.878$，
 \end{minipage}
 \end{center}
 
-\vspace{10pt}
+\clearpage
+{\zihao{4}\bfseries 目\quad 錄}\par\vspace{8pt}
+\makeatletter\@starttoc{toc}\makeatother
+
+\clearpage
+\pagenumbering{arabic}
 
 \section{緒論}\label{sec:intro}
 
@@ -1414,14 +1430,26 @@ $12\%$ 的一項。
 變異數 $v(\mu;c_0)$、靈敏度 $A(\mu)$、校正的變異數代價 $1/A(\mu)^2$、
 最適權重 $w(\mu)$ 與相對效率 $\mathrm{RE}(\mu)$；
 連同第\ref{subsec:bprops}的偏誤 $b(\mu;c_0)$，構成對該估計量的完整描述。
-圖~\ref{fig:v} 把其中四者並列。
+圖~\ref{fig:v} 把其中四者並列。該圖不在圖面上標注文字，
+各量的極限與漸近線以長虛線標示、極值的位置與高度以點線標示，
+其數值如下：$v$ 的兩端極限為零、於 $\mu=2.0365$ 取極大 $0.4805$；
+$A$ 的兩端極限為 $0$ 與 $1$、於 $\mu=4.4288$ 取極大 $1.1259$；
+$1/A^2$ 在 $\mu\to0$ 時發散、在 $\mu\to\infty$ 時趨於 $1$、
+於 $\mu=4.4288$ 取極小 $0.7888$；$\mathrm{RE}$ 的兩端極限皆為 $1$、
+於 $\mu=4.4697$ 取極小 $0.8776$。
 
 \begin{figure}[H]
 \centering
 \includegraphics[width=0.86\textwidth]{figV1_logvar.png}
 \caption{四個二階解析量對期望死亡數的變化（$c_0=0.5$，橫軸取對數）}
 
-{\footnotesize 註：(a) $v(\mu;c_0)$，於 $\mu=2.04$ 取極大 $0.481$；(b) $A(\mu)=1+\mu b'(\mu)$，於 $\mu=4.43$ 取極大 $1.126$；(c) $1/A(\mu)^2$，縱軸亦取對數，$\mu\to0$ 時發散、於 $\mu=4.43$ 取極小 $0.789$；(d) 相對於 Poisson 最大概似的效率，於 $\mu=4.47$ 取極小 $0.878$。}
+{\footnotesize 註：圖中不標文字，輔助線的約定為長虛線標示極限或漸近線、
+點線標示極值的位置與高度。各量的數值為：(a) $v(\mu;c_0)$ 兩端趨於零，
+於 $\mu=2.0365$ 取極大 $0.4805$；(b) $A(\mu)=1+\mu b'(\mu)$ 的兩端極限為
+$0$ 與 $1$，於 $\mu=4.4288$ 取極大 $1.1259$；(c) $1/A(\mu)^2$ 的縱軸亦取對數，
+$\mu\to0$ 時發散、$\mu\to\infty$ 時趨於 $1$，於 $\mu=4.4288$ 取極小 $0.7888$；
+(d) 相對於 Poisson 最大概似的效率兩端皆趨近 $1$，
+於 $\mu=4.4697$ 取極小 $0.8776$。}
 
 \label{fig:v}
 \end{figure}

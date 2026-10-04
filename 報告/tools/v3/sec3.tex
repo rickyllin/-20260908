@@ -1,0 +1,215 @@
+\subsection{估計方程的一致性與偏誤的一般形式}\label{subsec:consistency}\label{subsec:mixrep}
+
+先確立一項與訊息量有關的事實。$g_{c_0}(d)=\log\max(d,c_0)$ 在 $0<c_0<1$ 時是
+$\{0,1,2,\dots\}$ 上的雙射，故 $\sigma\bigl(g_{c_0}(D)\bigr)=\sigma(D)$，
+兩者所生成的 $\sigma$-體相同，Cramér--Rao 下界在轉換前後一致；
+標準 LC 的偏誤因而不源於訊息的損失。
+
+設殘差為 $u_i(\theta)$、損失為 $\rho$、$\psi=\rho'$，$M$-估計量 $\hat\theta$
+使 $\sum_i\rho(u_i(\theta))$ 極小，故滿足
+\begin{equation}\label{eq:ee}
+\sum_i \psi\big(u_i(\hat\theta)\big)\,
+\frac{\partial u_i}{\partial\theta}\Big|_{\hat\theta}=0 .
+\end{equation}
+式~\eqref{eq:ee} 除以樣本數後依大數法則收斂到其期望，
+故 $\hat\theta$ 收斂到母體估計方程
+\begin{equation}\label{eq:pop}
+\Ex\!\left[\psi\big(u(\theta^{\ast})\big)\,
+\frac{\partial u}{\partial\theta}\right]=0
+\end{equation}
+的解 $\theta^{\ast}$。Fisher 一致性即 $\theta^{\ast}=\theta_0$，
+其充要條件為式~\eqref{eq:pop} 在真值處成立。
+該條件對最大概似自動成立，對最小平方則須誤差的期望為零，
+而後者的前提是損失作用在未經轉換的反應變數上。
+由式~\eqref{eq:lcobj}，標準 LC 的 $\psi(u)=u$ 且
+$\partial u_{x,t}/\partial\alpha_x=-1$，故該條件在 $\alpha_x$ 分量上為
+\begin{equation}\label{eq:popalpha}
+\sum_{t}\Ex\big[\ell_{x,t}-\alpha_x^{\ast}-\beta_x\kappa_t\big]=0 .
+\end{equation}
+以下不指定 $D_{x,t}$ 的分布，蓋因式~\eqref{eq:popalpha} 左式與真值之差的
+形式與分布無關。
+
+\begin{prop}\label{prop:fisher}
+設 $D_{x,t}$ 的分布為 $F_{x,t}$，其期望為 $\mu_{x,t}=E_{x,t}m_{x,t}$，
+且 $\Ex_{F}\bigl[\lvert\log\max(D_{x,t},c_0)\rvert\bigr]<\infty$。則
+\begin{equation}\label{eq:b}
+\Ex\big[\psi(u_{x,t})\big]=\Ex[\ell_{x,t}]-\log m_{x,t}=b(F_{x,t};c_0),
+\qquad
+b(F;c_0)\;\equiv\;\Ex_{F}\big[\log\max(D,c_0)\big]-\log\Ex_{F}[D] .
+\end{equation}
+\end{prop}
+
+\begin{proof}
+由式~\eqref{eq:ell} 與~\eqref{eq:lc}，曝露數在相減時約去：
+\begin{equation}\label{eq:pf1}
+\ell_{x,t}-\log m_{x,t}
+=\log\frac{\max(D_{x,t},c_0)}{E_{x,t}}-\log\frac{\mu_{x,t}}{E_{x,t}}
+=\log\max(D_{x,t},c_0)-\log\mu_{x,t} .
+\end{equation}
+取期望並代入 $\mu_{x,t}=\Ex_{F}[D_{x,t}]$ 即得式~\eqref{eq:b}。
+\end{proof}
+
+\begin{cor}\label{cor:alpha}
+$\displaystyle \Ex[\hat\alpha_x]-\alpha_x
+=\frac{1}{T}\sum_{t=1}^{T} b(F_{x,t};c_0)\;\equiv\;\bar b_x .$
+\end{cor}
+
+\begin{proof}
+由式~\eqref{eq:svd} 取期望，並用期望值的線性性質與 Proposition~\ref{prop:fisher}。
+\end{proof}
+
+\begin{prop}\label{prop:split}
+設 $D$ 取值於 $\{0,1,2,\dots\}$，$\mu=\Ex[D]>0$，$\pi=\Pr(D=0)<1$，
+$\mu_{+}=\Ex[D\mid D\ge1]$，並令
+$J(F)=\log\mu_{+}-\Ex[\log D\mid D\ge1]\ge0$。則
+\begin{equation}\label{eq:split}
+b(F;c_0)=
+\underbrace{\pi\log\frac{c_0}{\mu_{+}}-\log(1-\pi)}_{S(F;c_0)}
+\;-\;\underbrace{(1-\pi)\,J(F)}_{\text{Jensen 項}} ,
+\end{equation}
+且 $\pi$ 可忽略時
+$(1-\pi)J(F)=\dfrac{\operatorname{Var}(D)}{2\mu^{2}}
++O\bigl(\Ex|D-\mu|^{3}/\mu^{3}\bigr)$。
+\end{prop}
+
+\begin{proof}
+$D\ge1$ 時 $\max(D,c_0)=D$，故
+$\Ex[\log\max(D,c_0)]=\pi\log c_0+(1-\pi)\Ex[\log D\mid D\ge1]$。
+代入 $\Ex[\log D\mid D\ge1]=\log\mu_{+}-J(F)$ 與 $\mu=(1-\pi)\mu_{+}$，
+再減去 $\log\mu=\log(1-\pi)+\log\mu_{+}$，即得式~\eqref{eq:split}。
+$J(F)$ 的展開為 $\log$ 在 $\mu$ 處的二階泰勒展開取期望，
+其二次項係數為 $-\tfrac12$。
+\end{proof}
+
+依有限混合的表示式 \citep[§1.2]{yao2024}，由式~\eqref{eq:ell} 另得
+\begin{equation}\label{eq:mix}
+\ell_{x,t}\;\sim\;\pi_{x,t}\,\delta_{\log(c_0/E_{x,t})}
+\;+\;(1-\pi_{x,t})\,G_{x,t},
+\qquad \pi_{x,t}=\Pr(D_{x,t}=0),
+\end{equation}
+其中 $\delta$ 為點質量、$G_{x,t}$ 為 $\log(D_{x,t}/E_{x,t})$ 在
+$D_{x,t}\ge1$ 條件下的分布，而式~\eqref{eq:split} 即該混合的期望減去真值：
+\begin{equation}\label{eq:bmix}
+b(F;c_0)=\underbrace{\pi\log c_0}_{\text{退化成分}}
++\underbrace{(1-\pi)\,\Ex[\log D\mid D\ge1]}_{\text{正常成分}}-\log\mu .
+\end{equation}
+把 \citet{donoho1983} 所給中位數類估計量可承受污染比例的上界 $50\%$ 代入
+式~\eqref{eq:mix}，得其失效條件
+\begin{equation}\label{eq:ln2}
+\pi_{x,t}=\Pr(D_{x,t}=0)>\tfrac12
+\quad\xrightarrow{\ \text{Poisson}\ }\quad
+\mu_{x,t}<\ln 2=0.6931 ;
+\end{equation}
+把 Proposition~\ref{prop:fisher} 代回式~\eqref{eq:popalpha}，
+得估計量實際收斂到的位置
+\begin{equation}\label{eq:astar}
+\alpha_x^{\ast}=\alpha_x+\frac1T\sum_t b(F_{x,t};c_0)
+\;\equiv\;\alpha_x+\bar b_x .
+\end{equation}
+
+式~\eqref{eq:b} 至式~\eqref{eq:astar} 合起來給出五項性質。
+其一，$b(F;c_0)$ 不為零的條件極弱，$\Pr(D=0)>0$ 與
+$\operatorname{Var}(D)>0$ 任一成立即足，故標準 LC 的 $\hat\alpha_x$ Fisher
+不一致，而該不一致並非分布誤設的後果。
+其二，Corollary~\ref{cor:alpha} 為有限樣本的恆等式，對任何 $F_{x,t}$、
+任何 $T$ 與任何 $\mu_{x,t}$ 精確成立，蓋因 $\hat\alpha_x$ 於奇異值分解之前
+即已由列平均定出，不牽涉非線性函數的展開；這與 \citet{coxsnell1968} 與
+\citet{firth1993} 所處理的 $O(n^{-1})$ 漸近偏誤性質不同。
+$\hat\beta_x$ 與 $\hat\kappa_t$ 為奇異向量，其偏誤須另行處理，
+見第\ref{sec:betadec}。
+其三，式~\eqref{eq:astar} 的 $\bar b_x$ 不含 $T$，故增加觀測年數不使該偏移
+消失；能使它縮小的只有人口規模，蓋因 $\bar b_x$ 透過 $\mu_{x,t}$ 依賴規模。
+其四，式~\eqref{eq:split} 的兩項分別由 $\Pr(D=0)$ 與
+$\operatorname{Var}(D)/\mu^{2}$ 決定，方向相反，故偏誤的符號由兩者的消長
+決定，而兩者皆可由資料估計。
+其五，式~\eqref{eq:mix} 的混合權重 $\pi_{x,t}$ 由分布本身給定而非待估，
+蓋因該混合來自分析者所施加的替代規則而非來自資料；
+故此處的污染不必以穩健損失處理，可直接扣除其期望，
+而式~\eqref{eq:ln2} 另給出中位數類估計量失效的門檻。
+該門檻與 $c_0$ 無關，且與實測相符：人數五萬時 1 至 4 歲組的單年期望死亡數
+為 $\mu=0.3$，理論零格比例 $e^{-0.3}=0.7408$，實測為 $74\%$。
+
+由 Proposition~\ref{prop:fisher}，母體估計方程在真值處的值為
+$b(F_{x,t};c_0)$。$M$-估計理論對此的標準補救為中心化估計方程，
+即以 $\psi^{*}(u)=\psi(u)-\Ex[\psi(u)]$ 取代 $\psi$，使 $\Ex[\psi^{*}]=0$。
+平方損失下 $\psi(u)=u$，故
+\begin{equation}\label{eq:center}
+\psi^{*}(u_{x,t})=u_{x,t}-b(F_{x,t};c_0) .
+\end{equation}
+因 $\psi$ 為線性，$\Ex[\psi(u-b)]=\Ex[\psi(u)]-b$，
+式~\eqref{eq:center} 精確地移除該不一致；若 $\psi$ 非線性（Huber 損失或
+檢查函數），$\Ex[\psi(u-b)]\ne\Ex[\psi(u)]-b$，所須扣除的量須另解方程求得，
+中心化因而只能做到一階。就移除 Fisher 不一致而言，平方損失的線性 $\psi$
+反為一項便利，此即本文雖由穩健統計的框架出發而最終回到平方損失的理由。
+第\ref{sec:result}節所用的估計量即式~\eqref{eq:center}。
+
+\subsection{Poisson、常態與過度離散三種情形}\label{sec:normal}
+
+式~\eqref{eq:split} 的兩項各只依賴 $F$ 的一項特徵，故代入分布即得各自的形式。
+
+\textbf{Poisson。} 代入 $\pi=e^{-\mu}$ 與 $\mu_{+}=\mu/(1-e^{-\mu})$，
+式~\eqref{eq:b} 化為
+\begin{equation}\label{eq:bform}
+b(\mu;c_0)=e^{-\mu}\log c_0
++\sum_{d\ge1}\frac{e^{-\mu}\mu^{d}}{d!}\log d-\log\mu ,
+\end{equation}
+其絕對收斂可由 $\log d\le d$ 與 $\sum_{d\ge1}e^{-\mu}\mu^{d}d/d!=\mu$
+比較判定，實作上取 $d\le\mu+12\sqrt{\mu}+12$ 時所棄尾項之和小於機器精度。
+$\operatorname{Var}(D)=\mu$ 使 Jensen 項為 $1/(2\mu)$，
+而 $\pi=e^{-\mu}$ 使 $S$ 在 $\mu$ 小時主導。
+
+\textbf{常態。} 連續分布取到零的機率為零，故 $\pi=0$、$S\equiv0$，
+式~\eqref{eq:split} 只剩 Jensen 項。設
+$\ell_{x,t}\sim N\!\big(\log m_{x,t}-\tfrac{1}{2\mu_{x,t}},\,1/\mu_{x,t}\big)$
+（此為 $\log(D/E)$ 在 $\mu$ 大時的標準常態近似），則
+\begin{equation}\label{eq:bnormal}
+b_N(\mu)=-\frac{1}{2\mu}=-\frac{\operatorname{Var}(D)}{2\mu^{2}} .
+\end{equation}
+
+\textbf{過度離散。} 設 $\operatorname{Var}(D)=\phi\mu$ 且 $\phi>1$，
+則由 Proposition~\ref{prop:split}，Jensen 項為 $\phi/(2\mu)$，
+而 $S$ 只透過 $\pi$ 與 $\mu_{+}$ 受影響。以負二項代入計算，
+$\phi=1.5$ 時 $\mu=50$ 處的 Jensen 項由 $0.0102$ 升至 $0.0153$，
+與 $\phi$ 成比例；$\mu=0.3$ 處的 $S$ 則由 $0.7284$ 只變為 $0.7315$。
+
+\begin{table}[H]
+\centering
+\caption{三種分布下的兩項與偏誤（$c_0=0.5$）。Poisson 與負二項皆取
+$\Ex[D]=\mu$，負二項另取 $\operatorname{Var}(D)=1.5\mu$；
+常態欄為式~\eqref{eq:bnormal}，其 $S$ 恆為零}
+\footnotesize
+\begin{tabular}{rrrrrrrr}
+\toprule
+ & \multicolumn{3}{c}{Poisson（$\phi=1$）} & \multicolumn{3}{c}{負二項（$\phi=1.5$）} & 常態\\
+\cmidrule(lr){2-4}\cmidrule(lr){5-7}\cmidrule(lr){8-8}
+$\mu$ & $S$ & Jensen & $b$ & $S$ & Jensen & $b$ & $b_N$\\
+\midrule
+$0.1$   & $1.6801$  & $-0.0014$ & $1.6787$  & $1.6829$  & $-0.0060$ & $1.6769$  & $-5.0000$\\
+$0.3$   & $0.7284$  & $-0.0108$ & $0.7176$  & $0.7315$  & $-0.0210$ & $0.7105$  & $-1.6667$\\
+$0.5$   & $0.3670$  & $-0.0254$ & $0.3416$  & $0.3662$  & $-0.0383$ & $0.3279$  & $-1.0000$\\
+$0.9234$& $0.0615$  & $-0.0615$ & $0.0000$  & $0.0474$  & $-0.0764$ & $-0.0289$ & $-0.5415$\\
+$2.0$   & $-0.0619$ & $-0.1255$ & $-0.1874$ & $-0.0972$ & $-0.1474$ & $-0.2446$ & $-0.2500$\\
+$5.0$   & $-0.0088$ & $-0.1111$ & $-0.1199$ & $-0.0227$ & $-0.1539$ & $-0.1767$ & $-0.1000$\\
+$10$    & $-0.0001$ & $-0.0551$ & $-0.0552$ & $-0.0006$ & $-0.0835$ & $-0.0841$ & $-0.0500$\\
+$50$    & $-0.0000$ & $-0.0102$ & $-0.0102$ & $-0.0000$ & $-0.0153$ & $-0.0153$ & $-0.0100$\\
+$100$   & $-0.0000$ & $-0.0050$ & $-0.0050$ & $-0.0000$ & $-0.0076$ & $-0.0076$ & $-0.0050$\\
+\bottomrule
+\end{tabular}
+\label{tab:normal}
+\end{table}
+
+表~\ref{tab:normal} 連同式~\eqref{eq:bform} 至式~\eqref{eq:bnormal} 給出三項
+性質。其一，常態的公式在 $\mu>9.5$ 時相對誤差小於一成，
+但在 $\mu<1$ 的年齡不僅量級錯誤，\textbf{正負號亦相反}：
+$\mu=0.3$ 時常態給 $-1.667$ 而 Poisson 為 $+0.718$，蓋因常態框架中 $S$ 恆為
+零，而在小 $\mu$ 處主導者正是 $S$。
+其二，過度離散只改變 Jensen 項，而小 $\mu$ 的年齡其偏誤幾乎全部來自 $S$，
+故診斷對 $\phi$ 不敏感；以偏誤的變號點為例，$\phi$ 由 $1$ 增至 $1.5$ 與
+$2.0$ 時 $\mu^{\ast}$ 僅由 $0.9234$ 移至 $0.8690$ 與 $0.8289$。
+其三，三欄的差別只出現在 $F$ 的兩項特徵上，
+而 Proposition~\ref{prop:fisher} 與 Corollary~\ref{cor:alpha} 本身不依賴
+任何分布假設，故分布的選擇只影響偏誤的\textbf{數值}，不影響其\textbf{存在}。
+本文因而在加權的推導上採常態、在偏誤的推導上採 Poisson：
+前者處理變異數的異質，屬二階動差的性質，常態近似已足；
+後者處理替代規則對一階動差的影響，而該效果只在離散分布上存在。
+

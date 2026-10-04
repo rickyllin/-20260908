@@ -7,7 +7,7 @@ BIBTEX  := PATH="$(TEXBIN):$$PATH" bibtex
 DOCS := 進度報告 進度報告_v2 進度報告_0929 進度報告_1006 進度報告_簡版 進度報告_簡報
 PDFS := $(addsuffix .pdf,$(DOCS))
 
-.PHONY: all full v2 v3 v4 v5 part1 v1005 v1005s brief slides clean distclean
+.PHONY: all full v2 v3 v4 v5 part1 v1005 v1005s v1005t brief slides clean distclean
 
 all: $(PDFS)
 
@@ -19,6 +19,7 @@ v5:     進度報告_1005_初版.pdf
 part1:  進度報告_1005_深入研究_Part1.pdf
 v1005:  進度報告_1005_V2.pdf
 v1005s: 進度報告_1005_V2_無精算概念.pdf
+v1005t: 進度報告_1005_V3.pdf
 brief:  進度報告_簡版.pdf
 slides: 進度報告_簡報.pdf
 
@@ -47,6 +48,13 @@ slides: 進度報告_簡報.pdf
 	$(BIBTEX)  進度報告_1005_V2_無精算概念
 	$(XELATEX) 進度報告_1005_V2_無精算概念.tex
 	$(XELATEX) 進度報告_1005_V2_無精算概念.tex
+
+# V3（精簡版）由 tools/make_v3.py 自動產生，不要直接編輯其 .tex
+進度報告_1005_V3.pdf: 進度報告_1005_V3.tex references.bib
+	$(XELATEX) 進度報告_1005_V3.tex
+	$(BIBTEX)  進度報告_1005_V3
+	$(XELATEX) 進度報告_1005_V3.tex
+	$(XELATEX) 進度報告_1005_V3.tex
 
 # 其餘各版無 bibtex，跑兩次以解析交互參照
 %.pdf: %.tex

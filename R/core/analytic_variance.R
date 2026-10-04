@@ -30,43 +30,63 @@
 #       故 mu * b'(mu) -> -1；
 #     mu -> inf 時 E[log(D+1)] - E[log D] ~ 1/mu，故 mu * b'(mu) -> 0。
 #
-# 三、校正的變異數膨脹因子
+# 三、估計方程的靈敏度，與校正的變異數代價
 #
-#   校正須代入 mu_hat，而 mu_hat = E exp(alpha_hat + beta_hat kappa_hat) 依賴
-#   alpha_hat 本身。令 A = alpha_hat_x - alpha_x，則一階展開給出
+#   校正後的估計方程為 psi = g_{c0}(D) - log E - eta - b(mu(eta))，其中
+#   mu = E exp(eta)。該方程的期望為零（這正是校正的定義），其靈敏度為
 #
-#     b_bar(mu_hat) = b_bar(mu) + c_x A + (來自 beta_hat kappa_hat 的項),
-#     c_x = mean_t [ mu_{x,t} b'(mu_{x,t}; c0) ].                         (***)
+#     A(mu) = -E[d psi / d eta] = 1 + mu b'(mu; c0).                     (***)
 #
-#   若暫時忽略後一項（即把 beta kappa 當已知），校正後的偏差為
-#   (1 - c_x) A - b_bar_x，故變異數膨脹因子為 (1 - c_x)^2。
-#   由 (**) 的極限，零格主導的年齡 c_x -> -1，膨脹因子 -> 4；
-#   期望死亡數大的年齡 c_x -> 0，膨脹因子 -> 1。
-#   亦即\textbf{校正所付的變異數代價，恰好集中在它收益最大的年齡}。
+#   由 Poisson 的共變數恆等式 d/dmu E[h(D)] = Cov(h(D), D)/mu 另可得
+#   A(mu) = Cov(g_{c0}(D), D)，故 A 同時是靈敏度與共變數，兩種讀法等價。
 #
-# 四、以臺灣女性資料核對（REPS = 100，種子同 run_analytic_bias.R）
+#   依 M-估計的三明治公式，校正後估計量的逐格變異數為 v(mu)/A(mu)^2，
+#   而未校正者為 v(mu)。故\textbf{變異數的代價為 1/A^2}，其中
+#   A 的兩端極限由 (**) 直接讀出：mu -> 0 時 A -> 0 故代價發散；
+#   mu -> inf 時 A -> 1 故代價趨於 1。A 的極大在 mu = 4.4288 處為 1.1259，
+#   對應代價的極小 0.7888，亦即\textbf{校正在期望死亡數大的年齡反而降低變異數}。
+#
+#   須注意這是\textbf{迭代（不動點）}版本的代價，亦即 R/core/analytic_bias_lc.R
+#   的 lc_analytic() 與 lc_alpha_only() 所實作者：該處 mu_hat 由校正後的參數
+#   重新算出，反覆至收斂。若只做一步校正（mu_hat 取自未校正的配適），
+#   代價改為 (1 - mu b')^2，量級小得多。兩者不可混用，見第四節的實測。
+#
+# 四、相對於 Poisson 最大概似的效率
+#
+#   Poisson MLE 的逐格變異數為 1/mu，故校正後最小平方相對於它的效率為
+#
+#     RE(mu) = (1/mu) / (v(mu)/A^2) = A^2 / (mu v(mu))
+#            = Cov(g,D)^2 / (Var(g) Var(D)) = corr(g_{c0}(D), D)^2.       (****)
+#
+#   由最後一個等式立得 0 <= RE <= 1。數值上兩端皆趨近 1，
+#   極小值為 0.8776（mu = 4.4700），亦即\textbf{取對數與零格替代合起來，
+#   其效率損失全程不超過約 12%}，而最差處在中段而非資料最稀處。
+#   後者的理由是 mu 小時 D 幾乎只取 {0,1}，而 g_{c0} 在該兩點上是雙射，
+#   相關係數因而趨近 1。
+#
+#   一項順帶的結論：g_{c0}(d) = log max(d, c0) 在 0 < c0 < 1 時是
+#   {0,1,2,...} 上的雙射，故 sigma(g(D)) = sigma(D)，
+#   \textbf{零格替代與取對數合起來不損失任何資訊}。標準 LC 的全部損失
+#   因而來自估計方程的期望不為零，而非來自轉換丟掉了訊息。
+#
+# 五、以臺灣女性資料核對（REPS = 100，種子同 run_analytic_bias.R）
 #
 #   v(mu; c0) 對標準 LC 逐年齡 alpha 的抽樣標準差：閉式與實測的比值在
 #   22 個年齡上落在 0.82 至 1.15 之間，兩個規模的中位數分別為 0.97 與 1.02。
-#   亦即\textbf{標準 LC 的 alpha 變異數亦可由單一個死亡數的函數預測}，
-#   與偏誤的情形相同。
+#   亦即\textbf{標準 LC 的 alpha 變異數亦可由單一個死亡數的函數預測}。
 #
-#   膨脹因子 (1 - c_x)^2 的核對結果分為兩段，須分別陳述。
-#     mu >~ 1 的年齡（N = 5e4 時為第 7 至 22 組）：閉式與實測幾乎重合，
-#       例如第 13 至 21 組的預測為 0.92/0.95/0.97/0.98/0.98/0.98/0.99/0.98/0.95，
-#       實測為 0.92/0.95/0.97/0.98/0.98/0.98/0.99/0.98/0.95。
-#       值得注意的是該值\textbf{小於 1}：mu > 2 時 b'(mu) > 0 使 c_x > 0，
-#       故校正在期望死亡數大的年齡反而\textbf{降低}變異數。
-#     mu < 1 的年齡：閉式\textbf{高估}膨脹，例如 N = 5e4 的第 3 組預測 3.33
-#       而實測 2.54。原因是一階展開在該處失效，b 於 mu 小時高度凸，
-#       且 mu_hat 受零格替代的牽制而不如展開式所假設的那樣自由變動。
-#   因此 (***) 不是上界也不是下界，而是在 mu >~ 1 時精確、在 mu < 1 時偏高。
-#   二階展開或直接以 mu_hat 的模擬分布計算，列為本分支的待辦。
+#   1/A^2 對迭代校正的變異數代價：mu >~ 0.2 的年齡與實測相當接近
+#   （N = 5e4 時第 3 至 9 組的預測為 32.7/31.0/8.45/3.52/1.98/1.28/0.92，
+#   實測為 31.5/26.7/8.48/3.77/2.05/1.54/1.18）；mu < 0.1 的年齡則閉式
+#   大幅高估（N = 1e4 第 3 組預測 797 而實測 97），因為一階展開在
+#   A 趨近零處失效。
 #
 #   另有一項與偏誤無關的發現：v(mu; c0) 對 mu 非單調，於 mu ~ 2 處取極大
-#   （c0 = 0.5 時 v(2) = 0.480），兩端皆趨於零。
+#   （c0 = 0.5 時 v(2.0365) = 0.4805），兩端皆趨於零。
 #   亦即對數尺度上最吵的年齡不是零格主導的年齡，而是每年約兩人死亡的年齡。
-###############################################################################
+#
+#   四個量的最差處互不重疊：b 在 mu -> 0 最大、v 在 mu = 2.04 最大、
+#   1/A^2 在 mu -> 0 發散而於 mu = 4.43 最小、RE 在 mu = 4.47 最小。
 
 #' E[ g(D) ] 的截斷精確計算，g 取 log max(., c0) 與其平方
 #' @return list(m1 = E[log max(D,c0)], m2 = E[(log max(D,c0))^2],
@@ -98,7 +118,17 @@ logbias_deriv <- function(mu, c0 = 0.5) {
 #' mu * b'(mu)，即式 (***) 中逐格的貢獻；極限為 -1（mu->0）與 0（mu->inf）
 logbias_elast <- function(mu, c0 = 0.5) mu * logbias_deriv(mu, c0)
 
-#' 逐年齡的解析預測：alpha_hat 的變異數、校正的膨脹因子與校正後變異數下界
+#' 估計方程的靈敏度 A(mu) = 1 + mu b'(mu) = Cov(g(D), D)
+sens_A <- function(mu, c0 = 0.5) 1 + logbias_elast(mu, c0)
+
+#' 迭代校正的變異數代價 1/A^2
+var_cost <- function(mu, c0 = 0.5) 1 / sens_A(mu, c0)^2
+
+#' 相對於 Poisson MLE 的效率 = corr(log max(D,c0), D)^2
+rel_efficiency <- function(mu, c0 = 0.5)
+  sens_A(mu, c0)^2 / (mu * logvar_exact(mu, c0))
+
+#' 逐年齡的解析預測：alpha_hat 的變異數、校正的變異數代價與校正後的變異數
 #' @param MU A x T 的期望死亡數矩陣
 #' @return data.frame(age, sd_raw, c_x, inflate, sd_corr_lower)
 alpha_var_predict <- function(MU, c0 = 0.5) {
@@ -107,7 +137,11 @@ alpha_var_predict <- function(MU, c0 = 0.5) {
   el <- matrix(logbias_elast(as.vector(MU), c0), A, T)
   sd_raw <- sqrt(rowSums(v)) / T          # Var(alpha_hat) = T^-2 sum_t v
   c_x    <- rowMeans(el)
-  data.frame(age = seq_len(A), sd_raw = sd_raw, c_x = c_x,
-             inflate = (1 - c_x)^2,
-             sd_corr_lower = abs(1 - c_x) * sd_raw)
+  Ax     <- 1 + c_x                       # 靈敏度
+  re     <- rowMeans(matrix(rel_efficiency(as.vector(MU), c0), A, T))
+  data.frame(age = seq_len(A), sd_raw = sd_raw, c_x = c_x, A = Ax,
+             cost = 1 / Ax^2,             # 迭代校正的變異數代價
+             cost_onestep = (1 - c_x)^2,  # 一步校正的對照
+             sd_corr = sd_raw / abs(Ax),
+             rel_eff = re)
 }

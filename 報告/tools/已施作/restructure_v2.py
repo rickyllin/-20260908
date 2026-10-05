@@ -152,7 +152,7 @@ merge("subsec:concl", "subsec:future")
 # ===================== 參之二、之三：一般形式 → 三種分布 → 應用 =====================
 LOG.append(u"\n理論推導改序：")
 
-NEW23 = io.open("報告/tools/v3/sec3.tex", encoding="utf-8").read()
+NEW23 = io.open("報告/tools/已施作/v3/sec3.tex", encoding="utf-8").read()
 
 
 i = s.index(u"\\subsection{估計方程的一致性檢驗}")
@@ -176,7 +176,7 @@ LOG.append(u"\n緒論：")
 m = re.search(u"\\\\subsection\\{研究目的與貢獻\\}\\\\label\\{subsec:design\\}\n(.*?)(?=\\\\section\\{文獻回顧\\})", s, re.S)
 assert m, u"找不到壹之三"
 CONTRIB = m.group(1).strip()
-NEWAIM = io.open("報告/tools/v3/aim.tex", encoding="utf-8").read()
+NEWAIM = io.open("報告/tools/已施作/v3/aim.tex", encoding="utf-8").read()
 s = s[:m.start()] + NEWAIM + s[m.end():]
 LOG.append(u"  壹之三 貢獻（%d 字）移入結論，改寫為研究目的與取徑" % len(CONTRIB))
 

@@ -1,68 +1,34 @@
-# 以 xelatex 編譯中文報告與簡報
-# TinyTeX 裝在 ~/Library/TinyTeX，不在 PATH 上時用下面這行補
+# 以 xelatex 編譯中文報告。TinyTeX 裝在 ~/Library/TinyTeX，不在 PATH 上時用下面這行補。
 TEXBIN  := $(HOME)/Library/TinyTeX/bin/universal-darwin
 XELATEX := PATH="$(TEXBIN):$$PATH" xelatex -interaction=nonstopmode
 BIBTEX  := PATH="$(TEXBIN):$$PATH" bibtex
 
-DOCS := 進度報告 進度報告_v2 進度報告_0929 進度報告_1006 進度報告_簡版 進度報告_簡報
-PDFS := $(addsuffix .pdf,$(DOCS))
+# 目前維護中的三份文件。歷次已被取代的版本置於 封存/，不再編譯。
+#   v2      進度報告_1005_V2             完整版（母本，只編輯這一份）
+#   v3      進度報告_1005_V3             精簡版（主文四十頁以內，由 tools/make_v3.py 產生）
+#   nonact  進度報告_1005_V2_無精算概念   統計版（由 tools/make_statistics_version.py 產生）
+.PHONY: all v2 v3 nonact gen clean distclean
 
-.PHONY: all full v2 v3 v4 v5 part1 v1005 v1005s v1005t brief slides clean distclean
+all: v2 v3 nonact
 
-all: $(PDFS)
+v2:     進度報告_1005_V2.pdf
+v3:     進度報告_1005_V3.pdf
+nonact: 進度報告_1005_V2_無精算概念.pdf
 
-full:   進度報告.pdf
-v2:     進度報告_v2.pdf
-v3:     進度報告_0929.pdf
-v4:     進度報告_1006.pdf
-v5:     進度報告_1005_初版.pdf
-part1:  進度報告_1005_深入研究_Part1.pdf
-v1005:  進度報告_1005_V2.pdf
-v1005s: 進度報告_1005_V2_無精算概念.pdf
-v1005t: 進度報告_1005_V3.pdf
-brief:  進度報告_簡版.pdf
-slides: 進度報告_簡報.pdf
+# 由母本重新產生兩個衍生版的 .tex（改完 V2 之後先跑這個）
+gen:
+	cd .. && python3 報告/tools/make_v3.py
+	cd .. && python3 報告/tools/make_statistics_version.py
 
-# 1005 初版的書目由 references.bib 經 bibtex 產生，故須四道
-進度報告_1005_初版.pdf: 進度報告_1005_初版.tex references.bib
-	$(XELATEX) 進度報告_1005_初版.tex
-	$(BIBTEX)  進度報告_1005_初版
-	$(XELATEX) 進度報告_1005_初版.tex
-	$(XELATEX) 進度報告_1005_初版.tex
-
-進度報告_1005_深入研究_Part1.pdf: 進度報告_1005_深入研究_Part1.tex references.bib
-	$(XELATEX) 進度報告_1005_深入研究_Part1.tex
-	$(BIBTEX)  進度報告_1005_深入研究_Part1
-	$(XELATEX) 進度報告_1005_深入研究_Part1.tex
-	$(XELATEX) 進度報告_1005_深入研究_Part1.tex
-
-進度報告_1005_V2.pdf: 進度報告_1005_V2.tex references.bib
-	$(XELATEX) 進度報告_1005_V2.tex
-	$(BIBTEX)  進度報告_1005_V2
-	$(XELATEX) 進度報告_1005_V2.tex
-	$(XELATEX) 進度報告_1005_V2.tex
-
-# 統計版由 tools/make_statistics_version.py 自動產生，不要直接編輯其 .tex
-進度報告_1005_V2_無精算概念.pdf: 進度報告_1005_V2_無精算概念.tex references.bib
-	$(XELATEX) 進度報告_1005_V2_無精算概念.tex
-	$(BIBTEX)  進度報告_1005_V2_無精算概念
-	$(XELATEX) 進度報告_1005_V2_無精算概念.tex
-	$(XELATEX) 進度報告_1005_V2_無精算概念.tex
-
-# V3（精簡版）由 tools/make_v3.py 自動產生，不要直接編輯其 .tex
-進度報告_1005_V3.pdf: 進度報告_1005_V3.tex references.bib
-	$(XELATEX) 進度報告_1005_V3.tex
-	$(BIBTEX)  進度報告_1005_V3
-	$(XELATEX) 進度報告_1005_V3.tex
-	$(XELATEX) 進度報告_1005_V3.tex
-
-# 其餘各版無 bibtex，跑兩次以解析交互參照
-%.pdf: %.tex
+# 書目由 references.bib 經 bibtex 產生，故每份都要四道
+%.pdf: %.tex references.bib
+	$(XELATEX) $<
+	$(BIBTEX)  $(basename $<)
 	$(XELATEX) $<
 	$(XELATEX) $<
 
 clean:
-	rm -f *.aux *.log *.nav *.out *.snm *.toc *.vrb *.bbl *.blg
+	rm -f *.aux *.log *.out *.toc *.bbl *.blg *.nav *.snm *.vrb *.synctex.gz
 
 distclean: clean
-	rm -f $(PDFS)
+	rm -f 進度報告_1005_V2.pdf 進度報告_1005_V3.pdf 進度報告_1005_V2_無精算概念.pdf

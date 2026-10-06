@@ -1,0 +1,470 @@
+\documentclass[UTF8, fontset=macnew, a4paper, 12pt]{ctexart}
+
+\usepackage{geometry}
+\geometry{top=2.2cm, bottom=2.2cm, left=2.2cm, right=2.2cm}
+\usepackage{amsmath, amssymb}
+\usepackage{booktabs}
+\usepackage{multirow}
+\usepackage{tabularx}
+\usepackage{graphicx}
+\usepackage{caption}
+\usepackage{xcolor}
+\usepackage{float}
+\usepackage{enumitem}
+\usepackage{fancyhdr}
+\usepackage{setspace}
+\usepackage{pifont}
+\usepackage{natbib}
+% 拉丁作者名之後採半形括號（中文作者名在書目的中文部分仍用全形）；
+% 第五個引數留空表示作者與年份之間不加逗號。
+\bibpunct{(}{)}{; }{a}{}{,}
+\usepackage[hidelinks]{hyperref}
+
+\graphicspath{{../output/figures/}}
+\captionsetup{font=small, labelfont=bf, labelsep=quad}
+\setlist{itemsep=2pt, parsep=0pt, topsep=4pt}
+\singlespacing
+
+% ctexart 預設的圖表標號前綴為簡體「图」，改回正體。
+\renewcommand{\figurename}{圖}
+\renewcommand{\tablename}{表}
+
+\ctexset{
+  section/format = \raggedright\zihao{4}\bfseries,
+  section/name   = {},
+  section/number = \bignum{\value{section}},
+  section/aftername = 、,
+  subsection/format = \raggedright\zihao{5}\bfseries,
+  subsection/number = \chinese{subsection},
+  subsection/aftername = 、,
+  subsubsection/format = \raggedright\normalsize\bfseries,
+}
+\newcommand{\bignum}[1]{\ifcase#1\or 壹\or 貳\or 參\or 肆\or 伍\or
+  陸\or 柒\or 捌\or 玖\or 拾\fi}
+\renewcommand{\thesection}{\bignum{\value{section}}}
+% 交叉引用子節時補上節次，否則 \ref 只印出「三」而無從判斷屬於哪一節。
+\renewcommand{\thesubsection}{\chinese{subsection}}
+\makeatletter
+\renewcommand{\p@subsection}{\thesection 節之}
+\makeatother
+\setcounter{secnumdepth}{2}
+
+\pagestyle{fancy}
+\fancyhf{}
+\fancyhead[L]{}
+\fancyhead[R]{\small 進度報告（理論初探：擬概似與變異安定轉換）}
+\fancyfoot[C]{\small \thepage}
+\renewcommand{\headrulewidth}{0.4pt}
+
+% U+2460~2463 不在 xeCJK 認定的 CJK 範圍內，會落到拉丁字型而缺字，
+% 因此改用 pifont 的圈號。
+\newcommand{\cn}[1]{\ding{\number\numexpr171+#1\relax}}
+\newcommand{\edag}{e_0^{\dagger}}
+\newtheorem{prop}{Proposition}
+\newtheorem{cor}{Corollary}
+\newtheorem{lem}{Lemma}
+\newenvironment{proof}{\par\noindent\textit{Proof}.\ }{\hfill$\square$\par\vspace{4pt}}
+\newcommand{\Ex}{\mathbb{E}}
+
+% 分部標題
+\newcommand{\partline}[2]{%
+  \par\vspace{10pt}\noindent\rule{\textwidth}{0.8pt}\par\vspace{2pt}
+  \noindent{\zihao{4}\bfseries 第#1部\quad #2}\par
+  \vspace{2pt}\noindent\rule{\textwidth}{0.8pt}\par\vspace{6pt}%
+  \phantomsection\addcontentsline{toc}{part}{第#1部\quad #2}}
+
+% 目錄：只收到小節，部次以粗體與一行間距與節次區隔。
+\setcounter{tocdepth}{2}
+\makeatletter
+\renewcommand{\l@part}[2]{\par\vspace{8pt}%
+  \noindent{\bfseries #1}\par\vspace{2pt}}
+\renewcommand{\l@section}[2]{\@dottedtocline{1}{0em}{5.2em}{\bfseries #1}{\bfseries #2}}
+\renewcommand{\l@subsection}[2]{\@dottedtocline{2}{5.2em}{4.6em}{#1}{#2}}
+\makeatother
+
+\begin{document}
+\pagenumbering{roman}
+
+\begin{center}
+{\zihao{3}\bfseries 不取對數的小人口死亡率估計}\\[4pt]
+{\zihao{5} ——擬概似、變異安定轉換與有界影響}\\[6pt]
+{\zihao{5} Estimating Small-Population Mortality without the Log Transform:}\\[2pt]
+{\zihao{5} Quasi-Likelihood, Variance-Stabilising Transformations,}\\[2pt]
+{\zihao{5} and Bounded Influence}\\[12pt]
+{\zihao{5} （林子立）\quad 指導教授：余清祥\,教授}\\[4pt]
+{\zihao{5} 國立政治大學統計學系}\\[4pt]
+{\zihao{5} 中華民國 115 年 10 月}
+\end{center}
+
+\vspace{6pt}
+\begin{center}
+\begin{minipage}{0.92\textwidth}
+\small
+\textbf{摘要}\par\vspace{4pt}
+本報告回應一個問題：若不經過對數轉換，其他方法在小樣本下是否仍有穩健的
+估計結果。把各法寫成同一族估計方程
+$\sum w\,\psi(h(D)-h(\mu))\,\partial h(\mu)/\partial\theta=0$
+之後，問題化為 $(h,w,\psi)$ 三個選擇，而答案分三層。
+其一，$h$ 取恆等時估計方程\textbf{恆為無偏}，蓋因 $\Ex[D-\mu]=0$；
+本文所研究的偏誤 $b(\mu;c_0)$ 因而完全是轉換所造成，不是小樣本所固有。
+其二，代價是解的存在性：本文既有的結果顯示 Poisson 最大概似在人數一萬時
+$\alpha$ 最大偏誤為 $13.03$，劣於標準 Lee-Carter 的 $2.33$，
+而 Firth 的預先懲罰可把它壓到 $0.43$。\textbf{偏誤由估計方程移到了解本身}。
+其三，權重的選擇決定了對數尺度的最小平方實際在解哪一條估計方程：
+本報告指出並以數值核對，取 $w=\mu$ 時對數尺度加權最小平方與 Poisson
+擬分數\textbf{一階等價}（兩個分數向量的相關係數由 $0.588$ 升至 $0.99998$），
+而不加權時相關係數停在 $0.12$ 附近，對應的變異函數為 $V(\mu)=\mu^2$，
+即固定變異係數。\textbf{標準 Lee-Carter 因而隱含假設了固定變異係數而非
+Poisson，本文的資訊加權正是這一處的修正}，而非一個權宜的裝置。
+至於介於兩者之間的變異安定轉換，平方根族在零處有定義、不需替代值，
+且偏誤有界：折算為對數尺度後，對數轉換的偏誤於 $\mu=0.02$ 達 $+3.24$
+而平方根族停在約 $-0.31$；代價是秩一結構在對數尺度上最好
+（第一奇異值佔 $83.9\%$、殘差 $0.0657$）而在平方根尺度上較差
+（$75.7\%$、$0.0840$）。
+\par\vspace{6pt}
+\textbf{關鍵詞}：擬概似、變異函數、變異安定轉換、有界影響、
+Poisson 複合決策、Lee-Carter 模型
+\end{minipage}
+\end{center}
+
+\clearpage
+{\zihao{4}\bfseries 目\quad 錄}\par\vspace{8pt}
+\makeatletter\@starttoc{toc}\makeatother
+
+\clearpage
+\pagenumbering{arabic}
+
+\section{問題的設定}\label{sec:setup}
+
+\subsection{三個選擇}\label{subsec:three}
+
+把本文已評估過的各種估計量寫成同一族估計方程，可使「不取對數會如何」
+這個問題變得精確。該族為
+
+\begin{equation}\label{eq:family}
+\sum_{x,t} w_{x,t}\;
+\psi\!\big(h(D_{x,t})-h(\mu_{x,t})\big)\;
+\frac{\partial h(\mu_{x,t})}{\partial\theta}\;=\;0 ,
+\end{equation}
+
+其中 $\theta=(\alpha,\beta,\kappa)$、$\mu_{x,t}=E_{x,t}\exp(\alpha_x+\beta_x\kappa_t)$，
+而三個選擇分別是資料的轉換 $h$、權重 $w$ 與損失的導數 $\psi$。
+表~\ref{tab:family} 列出各法在式~\eqref{eq:family} 中的位置。
+
+\begin{table}[H]
+\centering
+\caption{各估計量在同一族估計方程中的位置}
+\small
+\renewcommand{\arraystretch}{1.15}
+\begin{tabular}{llll}
+\toprule
+估計量 & 轉換 $h$ & 權重 $w$ & 損失 $\psi$\\
+\midrule
+標準 Lee-Carter \citep{lee1992} & $\log\max(\cdot,c_0)$ & $1$ & 恆等\\
+本文的資訊加權 & $\log\max(\cdot,c_0)$ & $\hat\mu$ & 恆等\\
+本文的中心化校正 & $\log\max(\cdot,c_0)-b(\hat\mu;c_0)$ & $\hat\mu$ & 恆等\\
+Poisson 最大概似 \citep{brouhns2002} & 恆等 & $1$ & 恆等\\
+Firth 預先懲罰 \citep{firth1993} & 恆等 & $1$ & 恆等（加懲罰）\\
+負二項擬概似 & 恆等 & $(1+\phi\mu)^{-1}$ & 恆等\\
+Anscombe 轉換 \citep{anscombe1948} & $2\sqrt{\cdot+3/8}$ & $1$ & 恆等\\
+Bartlett 轉換 \citep{bartlett1936} & $\sqrt{\cdot+3/8}$ & $1$ & 恆等\\
+Freeman-Tukey \citep{freeman1950} & $\sqrt{\cdot}+\sqrt{\cdot+1}$ & $1$ & 恆等\\
+$M$-分位數（本文第肆章） & $\log\max(\cdot,c_0)$ & $\hat\mu$ & Huber\\
+有界影響擬概似 \citep{cantoni2001} & 恆等 & $1$ & Huber（Pearson 殘差）\\
+\bottomrule
+\end{tabular}
+
+\vspace{2pt}
+\parbox{0.92\textwidth}{\footnotesize 註：$h$ 取恆等時
+$\partial h(\mu)/\partial\theta=\mu\,\partial\log\mu/\partial\theta$，
+故式~\eqref{eq:family} 中的 $w$ 與該項合併後的淨權重才是變異函數所決定者，
+見第\ref{sec:quasi}節。}
+\label{tab:family}
+\end{table}
+
+老師的問題落在表的第一欄：把 $h$ 由 $\log\max(\cdot,c_0)$ 換掉之後，
+小樣本的表現會如何。以下三節分別處理恆等轉換、權重的作用，
+以及介於兩者之間的平方根族。
+
+\section{恆等轉換下偏誤的去向}\label{sec:identity}
+
+\subsection{估計方程恆為無偏}\label{subsec:unbiased}
+
+\begin{prop}\label{prop:nobias}
+式~\eqref{eq:family} 中取 $h$ 為恆等、$\psi$ 為恆等時，
+估計方程於真值處的期望為零，對一切 $\mu>0$ 皆然：
+$$\Ex\Big[\sum_{x,t}w_{x,t}(D_{x,t}-\mu_{x,t})
+\frac{\partial\mu_{x,t}}{\partial\theta}\Big]=0 .$$
+故不存在 Fisher 不一致，亦不存在 $b(\mu;c_0)$ 的對應物。
+\end{prop}
+
+\begin{proof}
+$D_{x,t}$ 的期望為 $\mu_{x,t}$，而 $w_{x,t}$ 與
+$\partial\mu_{x,t}/\partial\theta$ 於真值處為常數，
+故每一項的期望皆為零。
+\end{proof}
+
+命題~\ref{prop:nobias} 雖然簡單，其意涵卻是本報告的起點：
+\textbf{本文整篇所處理的偏誤完全是轉換所造成的，不是小樣本所固有的。}
+$b(\mu;c_0)$ 之所以存在，是因為 $\Ex[\log\max(D,c_0)]\neq\log\mu$；
+而 $\Ex[D]=\mu$ 是精確的。就偏誤一項而論，不取對數是完全的解答。
+
+此一結論可由表~\ref{tab:bias} 讀出。該表把各轉換的偏誤
+$\Ex[h(D)]-h(\mu)$ 折算為對數尺度的單位後並列，
+使之可以互相比較；折算係數為 $h'(\mu)\mu$。
+
+\begin{table}[H]
+\centering
+\caption{各轉換的偏誤，折算為對數死亡率的單位}
+\small
+\renewcommand{\arraystretch}{1.1}
+\begin{tabular}{lrrrrrrr}
+\toprule
+轉換 & $\mu=0.02$ & $0.05$ & $0.25$ & $1$ & $2$ & $5$ & $100$\\
+\midrule
+$\log\max(\cdot,c_0)$ & $+3.24$ & $+2.34$ & $+0.87$ & $-0.03$ & $-0.19$ & $-0.12$ & $-0.005$\\
+$2\sqrt{\cdot+3/8}$ & $-0.31$ & $-0.31$ & $-0.28$ & $-0.19$ & $-0.12$ & $-0.05$ & $-0.003$\\
+$\sqrt{\cdot}+\sqrt{\cdot+1}$ & $-14.93$ & $-6.13$ & $-1.38$ & $-0.37$ & $-0.17$ & $-0.05$ & $-0.003$\\
+恆等 & $0$ & $0$ & $0$ & $0$ & $0$ & $0$ & $0$\\
+\bottomrule
+\end{tabular}
+
+\vspace{2pt}
+\parbox{0.92\textwidth}{\footnotesize 註：各值為
+$(\Ex[h(D)]-h(\mu))/(h'(\mu)\mu)$，以截斷精確和計算。
+恆等一列全為零是命題~\ref{prop:nobias}，非數值巧合。
+Freeman-Tukey 一列的大值來自其慣用的中心化 $2\sqrt{\mu+1/2}$
+是大 $\mu$ 的近似：$\mu\to0$ 時 $\Ex[h(D)]\to1$ 而該式趨於 $1.414$，
+相差一個不隨 $\mu$ 消失的常數。
+若改以精確級數 $\Ex[h(D)]$ 為中心化則無此問題，
+但該級數須逐格計算，已不是一個封閉的轉換。}
+\label{tab:bias}
+\end{table}
+
+\subsection{代價在解的存在性，不在偏誤}\label{subsec:existence}
+
+命題~\ref{prop:nobias} 並未使問題消失，只是把它移了位置。
+本文第伍節已有的結果足以說明：人數一萬時，標準 Lee-Carter 的
+$\alpha$ 最大偏誤為 $2.3309$，而\textbf{Poisson 最大概似為 $13.0317$}，
+反而劣一個量級；Firth 的預先懲罰可把它壓到 $0.4267$。
+成因是完全分離 \citep{albert1984}：某年齡各年幾乎全為零死亡時，
+Poisson 對數概似對 $\alpha_x$ 單調，最大概似解為 $-\infty$。
+亦即
+
+> 恆等轉換使估計方程無偏，卻使解在小樣本下不存在或極不穩定。
+
+這與本文既有的「事後校正對預先懲罰」之分正好平行。
+取對數是一種\textbf{正規化}：它把 $D=0$ 這個資訊壓成一個有限的值
+$\log(c_0/E)$，代價是引入 $b(\mu;c_0)$；
+Firth 的懲罰是另一種正規化，代價是引入一個先驗。
+\textbf{兩者都在換取解的存在性，差別只在收費的方式。}
+就此而言「不取對數是否更穩健」的答案是：
+就偏誤而言是，就存在性而言不是，而小樣本的困難主要在後者。
+
+\section{權重決定了實際在解的那條估計方程}\label{sec:quasi}
+
+\subsection{對數尺度的加權最小平方與擬分數}\label{subsec:equiv}
+
+既然偏誤與權重在式~\eqref{eq:family} 中是兩個獨立的選擇，
+一個自然的問題是：既有的對數尺度最小平方，
+實際上對應到哪一個變異函數。答案可以寫清楚。
+
+\begin{prop}\label{prop:quasi}
+記 $\ell_{x,t}=\log\max(D_{x,t},c_0)/E_{x,t}$。
+對數尺度的加權正規方程為
+$\sum_t w_{x,t}(\ell_{x,t}-\log m_{x,t})=0$（對 $\alpha_x$ 的分量）。
+以 $\ell-\log m\approx(D-\mu)/\mu$ 線性化，該式成為
+$\sum_t w_{x,t}\mu_{x,t}^{-1}(D_{x,t}-\mu_{x,t})=0$。
+與變異函數 $V$ 的擬分數
+$\sum_t V(\mu_{x,t})^{-1}\mu_{x,t}(D_{x,t}-\mu_{x,t})=0$
+\citep{wedderburn1974,mccullagh1983} 比較，得
+$$w_{x,t}\;=\;\frac{\mu_{x,t}^2}{V(\mu_{x,t})} .$$
+故 $w=\mu$ 對應 $V(\mu)=\mu$，即 Poisson；
+而 $w=1$ 對應 $V(\mu)=\mu^2$，即固定變異係數。
+\end{prop}
+
+\begin{proof}
+把兩式的每一項逐格對照即得；$\partial\log\mu/\partial\alpha_x$
+在兩式中相同，故可消去。
+\end{proof}
+
+\begin{table}[H]
+\centering
+\caption{命題~\ref{prop:quasi} 的數值核對}
+\small
+\renewcommand{\arraystretch}{1.1}
+\begin{tabular}{lrrr}
+\toprule
+人數 & $\mathrm{cor}(U_{w=\mu},U_P)$ & $\mathrm{cor}(U_{w=1},U_P)$
+& $U_{w=\mu}$ 對 $U_P$ 的相對 RMS 差\\
+\midrule
+$10^4$ & 0.5879 & $-0.0329$ & 1.2653\\
+$10^5$ & 0.9664 & 0.2215 & 0.4515\\
+$10^6$ & 0.9986 & 0.1206 & 0.1629\\
+$10^8$ & \textbf{0.99998} & 0.1242 & \textbf{0.0204}\\
+\bottomrule
+\end{tabular}
+
+\vspace{2pt}
+\parbox{0.92\textwidth}{\footnotesize 註：於真值 $\theta$ 處計算三個分數向量
+對 $\alpha_x$ 的 22 個分量：$U_{w}=\sum_t w(\ell-\log m)$ 與
+$U_P=\sum_t(D-\mu)$。$w=\mu$ 時相關係數趨於一而相對差趨於零，
+$w=1$ 時相關係數停在 $0.12$ 附近。
+此處比較分數向量而非參數估計值，蓋因各法的識別條件不同，
+$\alpha$ 的數值相差一個位移與尺度，不可直接比較。}
+\label{tab:quasicheck}
+\end{table}
+
+\subsection{意涵}\label{subsec:implication}
+
+命題~\ref{prop:quasi} 與表~\ref{tab:quasicheck} 給出三件事。
+
+\textbf{其一，標準 Lee-Carter 隱含假設了固定變異係數而非 Poisson。}
+$w=1$ 對應 $V(\mu)=\mu^2$，亦即假設死亡率的變異係數不隨年齡改變。
+死亡數為計數，其變異係數隨 $\mu$ 遞減（$\mu^{-1/2}$），
+故該假設在年齡之間系統性地錯——而錯得最嚴重的正是 $\mu$ 小的幼年組。
+
+\textbf{其二，本文的資訊加權是這一處的修正，而非一個權宜的裝置。}
+先前把 $w=\hat\mu$ 說成「以期望死亡數加權」是對的但不夠深：
+它恰好是使對數尺度最小平方與 Poisson 擬分數一階等價的那個權重。
+\textbf{這同時解釋了為何加權處理的是漂移項而中心化處理的是 $\alpha_x$}：
+漂移由 $\mu$ 大的年齡主導，而那正是 $w=1$ 與 $w=\mu$ 相差最多之處；
+$\alpha_x$ 的偏誤則來自 $\mu$ 小的年齡，那是轉換本身的問題。
+兩項改善之所以可以疊加，是因為它們修正的是估計方程的兩個不同部分。
+
+\textbf{其三，$b(\mu;c_0)$ 是一階等價之後剩下的二階差。}
+命題~\ref{prop:quasi} 的線性化忽略了 $\Ex[h(D)]-h(\mu)$ 這一項，
+而該項對 $h=\log$ 正是 $b(\mu;c_0)$。
+於是本文的兩個工具在這個框架中有明確的分工：
+加權校正變異函數（一階），中心化校正轉換的偏誤（二階）。
+
+\section{變異安定轉換}\label{sec:vst}
+
+\subsection{於零有定義，且偏誤有界}\label{subsec:vstbias}
+
+平方根族是恆等與對數之間的中點。其性質見表~\ref{tab:bias}：
+Anscombe 與 Bartlett 的轉換在 $\mu\to0$ 時偏誤趨於約 $-0.31$ 的常數，
+而對數轉換的偏誤發散（$\mu=0.02$ 時 $+3.24$）。
+掃描 $\mu\in[0.01,500]$ 得最大 $|$偏誤$|$：
+對數為 $0.5997$（於 $\mu=4.83$，以 $\mu$ 為單位）、
+Anscombe 與 Bartlett 同為 $0.2536$（於 $\mu=4.61$）。
+\textbf{更要緊的是平方根族在 $D=0$ 處有定義，故不需要 $c_0$}，
+本文第參節對 $c_0$ 任意性的整段批評因而不適用於它。
+
+\subsection{代價是秩一結構變差}\label{subsec:rankone}
+
+但本文的模型是 $\log m_{x,t}=\alpha_x+\beta_x\kappa_t$，
+而該雙線性結構只在對數尺度上成立。
+表~\ref{tab:rankone} 以全國女性資料（抽樣誤差可忽略）衡量各尺度的秩一適足性。
+
+\begin{table}[H]
+\centering
+\caption{秩一結構在各尺度上的適足性}
+\small
+\renewcommand{\arraystretch}{1.1}
+\begin{tabular}{lrrr}
+\toprule
+尺度 & 第一奇異值佔比 & 前二佔比 & 殘差 RMS（對數單位）\\
+\midrule
+$\log m$（本文的模型尺度） & \textbf{0.8390} & 0.9039 & \textbf{0.0657}\\
+$m^{1/3}$ & 0.8259 & 0.9291 & 0.0727\\
+$2\sqrt{m}$（Anscombe 尺度） & 0.7566 & 0.9274 & 0.0840\\
+$m$（率本身） & 0.7208 & 0.9460 & 0.1356\\
+\bottomrule
+\end{tabular}
+
+\vspace{2pt}
+\parbox{0.92\textwidth}{\footnotesize 註：全國女性 2001--2024 年。
+各尺度先作列中心化再取奇異值分解，殘差一律換算為
+「配適值取對數後與 $\log m$ 之差」的均方根，故可互相比較。
+$\sqrt m$ 與 $2\sqrt m$ 的佔比相同，蓋因常數倍不改變奇異值的比例。}
+\label{tab:rankone}
+\end{table}
+
+秩一在對數尺度上最好，平方根尺度的殘差由 $0.0657$ 升至 $0.0840$，
+增加約兩成八。\textbf{此一代價與所免除的偏誤須放在一起看}：
+模型誤設的代價是對數單位的 $0.018$，
+而所免除的轉換偏誤在 $\mu=0.02$ 處為 $3.24$。
+就小人口而言這個交換明顯有利，
+故平方根族是老師的問題所指向、而本文尚未試過的方向。
+
+兩項須先處理的實作問題。其一，變異安定的對象是\textbf{計數}而非率：
+$\mathrm{Var}[2\sqrt{D+3/8}]\approx1$ 而
+$\mathrm{Var}[2\sqrt{D/E+3/8}]$ 隨 $E$ 變動，
+而本文各年齡的曝露相差一個量級以上，故不可直接對率作轉換後配適。
+正確的作法是以 $h(D)$ 為反應、$2\sqrt{E e^{\alpha+\beta\kappa}+3/8}$
+為平均函數作非線性最小平方——而依命題~\ref{prop:quasi} 的同一論證，
+這恰好又是一個擬概似估計方程，\textbf{亦即轉換與加權在一階上是同一件事}，
+兩者的差別正是二階的 $\tfrac12 h''(\mu)V(\mu)$。
+其二，配適後須回轉到率的尺度，而回轉有其偏誤
+（\citealp{duan1983}；\citealp{santossilva2006}），
+此處不能沿用本文的 $b(\mu;c_0)$，須另行推導。
+
+\section{有界影響}\label{sec:bounded}
+
+表~\ref{tab:family} 的第三欄尚未動過。在計數尺度上作穩健估計的標準作法是
+把 Pearson 殘差 $(D-\mu)/\sqrt{V(\mu)}$ 以 Huber 函數截斷
+\citep{cantoni2001,kunsch1989}，如此影響函數有界而估計方程仍為條件無偏。
+這一條與本文第肆章的 $M$-分位數是同一個想法施於不同的尺度：
+本文截斷的是對數尺度的殘差，而此處截斷的是計數尺度的 Pearson 殘差。
+
+本文已有一項相關的結論可以接上：第肆章的掃描顯示
+\textbf{改變分配假設優於改變損失函數}，而 \citet{santossilva2006}
+在計量經濟學一側所主張的正是同一件事——異質變異下取對數會造成偏誤，
+應改用 Poisson 擬概似而非另尋損失。
+依此預期，有界影響的版本在本文的資料上\textbf{改善應該有限}，
+蓋因問題不在少數離群值而在整列零格；
+但這一項尚未實測，而其成本不高，宜補上以使第肆章的結論有一個計數尺度的對照。
+
+\section{對老師問題的回答}\label{sec:answer}
+
+\textbf{就偏誤而言，不取對數是完全的解答，而且是精確的。}
+命題~\ref{prop:nobias}：$\Ex[D-\mu]=0$，故恆等轉換下不存在
+Fisher 不一致，也沒有 $b(\mu;c_0)$ 的對應物。
+本文整篇所研究的偏誤是轉換造成的，不是小樣本所固有的。
+
+\textbf{就小樣本的穩健性而言則不是，而且本文已有反證。}
+人數一萬時 Poisson 最大概似的 $\alpha$ 最大偏誤為 $13.03$，
+劣於標準 Lee-Carter 的 $2.33$，成因是完全分離使解為 $-\infty$
+\citep{albert1984}。偏誤由估計方程移到了解的存在性，
+而小樣本的困難主要在後者。Firth 的預先懲罰把它壓到 $0.43$，
+代價是引入一個先驗。\textbf{取對數與加懲罰都是正規化，
+差別只在收費的方式。}
+
+\textbf{真正的中間地帶是變異安定轉換，而本文尚未試過。}
+平方根族在零處有定義故不需 $c_0$，偏誤有界（$\mu\to0$ 時約 $-0.31$，
+對數為 $+3.24$），代價是秩一結構的殘差由 $0.0657$ 升至 $0.0840$。
+就小人口而言此一交換有利。
+
+\textbf{另有一項順帶的收穫。} 命題~\ref{prop:quasi} 指出本文的資訊加權
+恰是使對數尺度最小平方與 Poisson 擬分數一階等價的權重，
+而標準 Lee-Carter 的不加權對應固定變異係數。
+這使本文的兩個工具有了明確的分工——加權修正變異函數（一階），
+中心化修正轉換的偏誤（二階）——也解釋了為何兩項改善可以疊加。
+
+\section{後續工作}\label{sec:next}
+
+\textbf{第一，以 Anscombe 尺度配適並與現行各法比較。}
+依第\ref{subsec:rankone}節須以非線性最小平方而非奇異值分解實作，
+平均函數為 $2\sqrt{E e^{\alpha+\beta\kappa}+3/8}$，
+並須處理回轉偏誤。預期在人數一萬處優於標準 Lee-Carter，
+與 Firth 的高下則須實測。
+
+\textbf{第二，補上有界影響擬概似的對照。}
+成本不高，可使第肆章「改變分配假設優於改變損失函數」的結論
+有一個計數尺度的對照組。
+
+\textbf{第三，把命題~\ref{prop:quasi} 寫進主報告。}
+它使資訊加權由一個權宜的裝置變成變異函數的修正，
+且證明只有數行。
+
+\textbf{第四，取得 \citet{anscombe1948}、\citet{bartlett1936}、
+\citet{freeman1950} 與 \citet{cantoni2001} 的原文。}
+本文書目中現有 \citet{anscombe1956} 與 \citet{bartlett1937,bartlett1953}，
+但變異安定轉換的原始文獻是 1936 與 1948 這兩篇，須補。
+
+\clearpage
+\bibliographystyle{plainnat}
+\bibliography{references,references_1013}
+
+\end{document}

@@ -7,13 +7,22 @@ BIBTEX  := PATH="$(TEXBIN):$$PATH" bibtex
 #   v2      進度報告_1005_V2             完整版（母本，只編輯這一份）
 #   v3      進度報告_1005_V3             精簡版（主文四十頁以內，由 tools/make_v3.py 產生）
 #   nonact  進度報告_1005_V2_無精算概念   統計版（由 tools/make_statistics_version.py 產生）
-.PHONY: all v2 v3 nonact gen clean distclean
+#   theory  進度報告_1012_理論初探         理論初探（獨立撰寫，書目另加 references_1012.bib）
+.PHONY: all v2 v3 nonact theory gen clean distclean
 
-all: v2 v3 nonact
+all: v2 v3 nonact theory
 
 v2:     進度報告_1005_V2.pdf
 v3:     進度報告_1005_V3.pdf
 nonact: 進度報告_1005_V2_無精算概念.pdf
+theory: 進度報告_1012_理論初探.pdf
+
+# 理論初探另載入書目增補檔，故不走下方的通用規則
+進度報告_1012_理論初探.pdf: 進度報告_1012_理論初探.tex references.bib references_1012.bib
+	$(XELATEX) $<
+	$(BIBTEX)  $(basename $<)
+	$(XELATEX) $<
+	$(XELATEX) $<
 
 # 由母本重新產生兩個衍生版的 .tex（改完 V2 之後先跑這個）
 gen:
@@ -31,4 +40,5 @@ clean:
 	rm -f *.aux *.log *.out *.toc *.bbl *.blg *.nav *.snm *.vrb *.synctex.gz
 
 distclean: clean
-	rm -f 進度報告_1005_V2.pdf 進度報告_1005_V3.pdf 進度報告_1005_V2_無精算概念.pdf
+	rm -f 進度報告_1005_V2.pdf 進度報告_1005_V3.pdf 進度報告_1005_V2_無精算概念.pdf \
+	      進度報告_1012_理論初探.pdf

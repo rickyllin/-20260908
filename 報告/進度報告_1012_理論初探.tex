@@ -1,0 +1,684 @@
+\documentclass[UTF8, fontset=macnew, a4paper, 12pt]{ctexart}
+
+\usepackage{geometry}
+\geometry{top=2.2cm, bottom=2.2cm, left=2.2cm, right=2.2cm}
+\usepackage{amsmath, amssymb}
+\usepackage{booktabs}
+\usepackage{multirow}
+\usepackage{tabularx}
+\usepackage{graphicx}
+\usepackage{caption}
+\usepackage{xcolor}
+\usepackage{float}
+\usepackage{enumitem}
+\usepackage{fancyhdr}
+\usepackage{setspace}
+\usepackage{pifont}
+\usepackage{natbib}
+% 拉丁作者名之後採半形括號（中文作者名在書目的中文部分仍用全形）；
+% 第五個引數留空表示作者與年份之間不加逗號。
+\bibpunct{(}{)}{; }{a}{}{,}
+\usepackage[hidelinks]{hyperref}
+
+\graphicspath{{../output/figures/}}
+\captionsetup{font=small, labelfont=bf, labelsep=quad}
+\setlist{itemsep=2pt, parsep=0pt, topsep=4pt}
+\singlespacing
+
+% ctexart 預設的圖表標號前綴為簡體「图」，改回正體。
+\renewcommand{\figurename}{圖}
+\renewcommand{\tablename}{表}
+
+\ctexset{
+  section/format = \raggedright\zihao{4}\bfseries,
+  section/name   = {},
+  section/number = \bignum{\value{section}},
+  section/aftername = 、,
+  subsection/format = \raggedright\zihao{5}\bfseries,
+  subsection/number = \chinese{subsection},
+  subsection/aftername = 、,
+  subsubsection/format = \raggedright\normalsize\bfseries,
+}
+\newcommand{\bignum}[1]{\ifcase#1\or 壹\or 貳\or 參\or 肆\or 伍\or
+  陸\or 柒\or 捌\or 玖\or 拾\fi}
+\renewcommand{\thesection}{\bignum{\value{section}}}
+% 交叉引用子節時補上節次，否則 \ref 只印出「三」而無從判斷屬於哪一節。
+\renewcommand{\thesubsection}{\chinese{subsection}}
+\makeatletter
+\renewcommand{\p@subsection}{\thesection 節之}
+\makeatother
+\setcounter{secnumdepth}{2}
+
+\pagestyle{fancy}
+\fancyhf{}
+\fancyhead[L]{}
+\fancyhead[R]{\small 進度報告（1012 理論初探）}
+\fancyfoot[C]{\small \thepage}
+\renewcommand{\headrulewidth}{0.4pt}
+
+% U+2460~2463 不在 xeCJK 認定的 CJK 範圍內，會落到拉丁字型而缺字，
+% 因此改用 pifont 的圈號。
+\newcommand{\cn}[1]{\ding{\number\numexpr171+#1\relax}}
+\newcommand{\edag}{e_0^{\dagger}}
+\newtheorem{prop}{Proposition}
+\newtheorem{cor}{Corollary}
+\newtheorem{lem}{Lemma}
+\newenvironment{proof}{\par\noindent\textit{Proof}.\ }{\hfill$\square$\par\vspace{4pt}}
+\newcommand{\Ex}{\mathbb{E}}
+
+% 分部標題
+\newcommand{\partline}[2]{%
+  \par\vspace{10pt}\noindent\rule{\textwidth}{0.8pt}\par\vspace{2pt}
+  \noindent{\zihao{4}\bfseries 第#1部\quad #2}\par
+  \vspace{2pt}\noindent\rule{\textwidth}{0.8pt}\par\vspace{6pt}%
+  \phantomsection\addcontentsline{toc}{part}{第#1部\quad #2}}
+
+% 目錄：只收到小節，部次以粗體與一行間距與節次區隔。
+\setcounter{tocdepth}{2}
+\makeatletter
+\renewcommand{\l@part}[2]{\par\vspace{8pt}%
+  \noindent{\bfseries #1}\par\vspace{2pt}}
+\renewcommand{\l@section}[2]{\@dottedtocline{1}{0em}{5.2em}{\bfseries #1}{\bfseries #2}}
+\renewcommand{\l@subsection}[2]{\@dottedtocline{2}{5.2em}{4.6em}{#1}{#2}}
+\makeatother
+
+\begin{document}
+\pagenumbering{roman}
+
+\begin{center}
+{\zihao{3}\bfseries 修勻、資訊加權與中心化校正的代數關係}\\[4pt]
+{\zihao{5} ——理論初探}\\[6pt]
+{\zihao{5} The Algebra Shared by Graduation, Information Weighting,}\\[2pt]
+{\zihao{5} and Centring Correction: A First Exploration}\\[12pt]
+{\zihao{5} （林子立）\quad 指導教授：余清祥\,教授}\\[4pt]
+{\zihao{5} 國立政治大學統計學系}\\[4pt]
+{\zihao{5} 中華民國 115 年 10 月 12 日}
+\end{center}
+
+\vspace{6pt}
+\begin{center}
+\begin{minipage}{0.92\textwidth}
+\small
+\textbf{摘要}\par\vspace{4pt}
+本文把三件原先各自成立的工具寫進同一組正規方程式
+$\hat r=(W+h\Delta^{\top}\!\Delta)^{-1}W(y-b)$：資訊加權供其中的 $W$，
+修勻供 $h\Delta^{\top}\!\Delta$，而對數轉換偏誤的中心化供位移項 $b$。
+由此得到四項結果。其一，沿年齡修勻之後，$b(\mu;c_0)$ 不再是該估計量的偏誤，
+應扣除的是 $S\,b(\hat\mu)$，其中 $S$ 為修勻算子；原樣扣除的誤設量隨平滑量
+增大，實測中 $\alpha_x$ 的最大偏誤由 $0.672$ 升至 $11.072$，而依此改正後
+在三十三倍的平滑量全距內只落在 $0.213$ 至 $0.303$。其二，沿時間修勻則
+不需要任何輸送：對任一凸的懲罰 $J(\Delta^{z}r)$，$W$ 加權平均恆不變，
+而 $z\ge2$ 時 $W$ 加權的最小平方斜率亦恆不變，故 $\hat\alpha_x$ 與漂移項
+精確不動，修勻只作用於 $\beta_x$ 與時間參數的形狀。
+其三，該不變性來自差分算子的零空間而非二次範數，故把懲罰改為 $L_1$
+不影響兩項保證，所改變的是解的類別——由處處彎曲改為分段多項式，
+而其貝氏讀法由常態先驗改為 Laplace 先驗，亦即常態的尺度混合。
+其四，高階修正有三種可能的對象，其中插入式誤差可分解為
+$b'(\mu)\,\mathrm{bias}(\hat\mu)+\tfrac12 b''(\mu)\mathrm{Var}(\hat\mu)$ 兩項，
+實測與該分解的逐年齡相關為 $0.817$ 與 $0.899$，但兩項在最關鍵的幼年組
+幾乎互相抵銷（人數五萬、$1$--$4$ 歲：$-0.113$ 與 $+0.075$，而實際為 $+0.001$），
+故直接施以二階校正在數值上不穩定。
+\par\vspace{6pt}
+\textbf{關鍵詞}：Whittaker 修勻、trend filtering、混合模型表示、
+零空間不變性、插入式估計、高階偏誤修正
+\end{minipage}
+\end{center}
+
+\clearpage
+{\zihao{4}\bfseries 目\quad 錄}\par\vspace{8pt}
+\makeatletter\@starttoc{toc}\makeatother
+
+\clearpage
+\pagenumbering{arabic}
+
+\section{修勻、資訊加權與中心化的代數關係}\label{sec:algebra}
+
+本文先前確立的結果有三。其一，標準 Lee-Carter 模型對
+$\log\hat m_{x,t}=\log(\max(D_{x,t},c_0)/E_{x,t})$ 作奇異值分解，
+而 $\hat\alpha_x$ 即該列的平均，故其偏誤為逐格偏誤的平均，
+且逐格偏誤有閉式 $b(\mu;c_0)=\Ex[\log\max(D,c_0)]-\log\mu$。
+其二，該偏誤可事後扣除，此即 \citet{coxsnell1968} 意義下的修正，
+與 \citet{firth1993} 的預先修正相對。其三，扣除不處理時間參數的漂移，
+須另以期望死亡數加權處理。
+
+\citet{whittaker1923} 的修勻、\citet{lee2003} 的 partial SMR 與
+\citet{yue2019} 把兩者接在 Lee-Carter 之前或之後的作法，
+在本文的架構中則是另一類改動：它們改動資料而非估計方程。
+本節指出三者其實落在同一組正規方程式的三個位置。
+
+\subsection{同一組正規方程式}\label{subsec:one}
+
+Whittaker 修勻解的是
+
+\begin{equation}\label{eq:whit}
+\min_r \ (y-r)^{\top} W (y-r) + h\, r^{\top}\Delta^{\top}\!\Delta\, r
+\quad\Longrightarrow\quad
+(W + h\Delta^{\top}\!\Delta)\,\hat r = W y ,
+\end{equation}
+
+其中 $y$ 為觀測的對數死亡率、$W$ 為權重對角矩陣、$\Delta$ 為 $z$ 階差分算子、
+$h$ 為平滑量。本文的資訊加權供的正是式~\eqref{eq:whit} 中的 $W$，
+修勻供的是 $h\Delta^{\top}\!\Delta$，而中心化供的是把資料端由 $y$ 換成 $y-b$，
+於是三者合併為
+
+\begin{equation}\label{eq:unified}
+\hat r \;=\; (W + h\Delta^{\top}\!\Delta)^{-1} W\,(y-b),
+\qquad S \;:=\; (W + h\Delta^{\top}\!\Delta)^{-1} W .
+\end{equation}
+
+式~\eqref{eq:unified} 有兩種讀法，而本文的兩個問題各對應一種。
+就計算而言，三個工具落在三個互不相同的位置，故可以疊加；
+第\ref{sec:age}與第\ref{sec:time}節檢驗疊加是否真的成立。
+就推論而言，$W$ 是概似的精確度而 $h\Delta^{\top}\!\Delta$ 是先驗的精確度，
+$\hat r$ 即高斯線性模型的後驗平均，而 $(W+h\Delta^{\top}\!\Delta)^{-1}$ 即後驗變異數。
+\citet{kimeldorf1967} 的貝氏修勻給出的正是這個讀法，
+\citet{verrall1993} 把它寫成狀態空間的形式，
+而 \citet{eilers1996} 的 P-樣條與 \citet{currie2004} 在死亡率上的應用
+使 $h$ 成為一個變異成分比，於是可以由 REML 定出
+（\citealp{ruppert2003}；\citealp{langbrezger2004}）。
+
+\subsection{兩個方向的修勻並不對稱}\label{subsec:two}
+
+$\Delta$ 可以沿年齡作用，也可以沿時間作用，而兩者的性質截然不同。
+沿年齡的修勻是死亡率文獻的主流，\citet{currie2004} 由此處理
+$\hat\beta_x$ 在相鄰年齡之間的劇烈起伏，\citet{delwarde2007}
+把懲罰直接加在 Poisson 對數概似上，\citet{currie2013} 則給出帶約束與
+懲罰的一般框架。沿時間的修勻在死亡率文獻中少見以修勻之名出現，
+但標準 Lee-Carter 的外推步驟——$\kappa_t$ 為帶漂移的隨機漫步
+\citep{lee1992}——本身即是一個沿時間的平滑先驗，
+只是 $h$ 被慣例固定。本文以下兩節分別處理兩個方向，
+而兩者對中心化校正的影響並不相同。
+
+\section{年齡方向的修勻與校正量的對應}\label{sec:age}
+
+\subsection{修勻改變估計量，故改變其偏誤}\label{subsec:transport}
+
+沿年齡修勻之後的資料為 $\tilde\ell = S\ell$。由 $\Ex[\ell]=\log\mu+b(\mu)$ 得
+
+\begin{prop}\label{prop:transport}
+設 $S$ 為式~\eqref{eq:unified} 的修勻算子，$\tilde\ell=S\ell$。則
+$$\Ex[\tilde\ell] \;=\; S\log\mu \;+\; S\,b(\mu),$$
+故以 $\log\mu$ 為目標時，$\tilde\ell$ 的偏誤為
+$(S-I)\log\mu$ 與 $S\,b(\mu)$ 兩項之和。
+\end{prop}
+
+\begin{proof}
+$\Ex$ 為線性算子而 $S$ 為常數矩陣，故
+$\Ex[S\ell]=S\,\Ex[\ell]=S(\log\mu+b(\mu))$，加減 $\log\mu$ 即得。
+\end{proof}
+
+命題~\ref{prop:transport} 的意涵直接：\textbf{修勻改變了估計量， $b(\mu;c_0)$ 因而不再是它的偏誤}。$b$ 是一個特定泛函的偏誤，
+即 $\Ex[\log\max(D,c_0)]-\log\mu$；修勻之後的估計量是跨年齡的加權平均，
+其偏誤是被 $S$ 重新分配過的 $b$。應扣除的是 $S\,b(\hat\mu)$ 而非 $b(\hat\mu)$，
+且原樣扣除的誤設量隨 $h$ 增大。
+
+\subsection{實測}\label{subsec:age-emp}
+
+表~\ref{tab:transport} 以臺灣女性 2001--2024 年的資料驗證。
+以全國資料的 Poisson 配適為真值，按該年齡結構縮放至指定人數後
+模擬 Poisson 死亡數，重複 100 次，固定種子；
+$\lambda=h/\bar w$ 為標準化後的平滑量。
+年齡組為 $0$、$1$--$4$、$5$--$9$、\ldots、$100^+$ 共二十二組，
+而差分懲罰只施於 $5$--$9$ 歲以上的二十組：前兩組的組距與其餘不同，
+二階差分在不等距格子上本即誤設，且嬰幼兒死亡率在年齡上陡降、
+其型態本身並不平滑。
+
+\begin{table}[H]
+\centering
+\caption{校正量輸送前後的對照}
+\small
+\renewcommand{\arraystretch}{1.1}
+\begin{tabular}{llrrrrr}
+\toprule
+人數 & 估計量 & $\alpha$ 中位 & $\alpha$ 最大 & $\mathrm{SSE}(\beta)$ & $e_0$ 偏誤 & $e_0$ 均方根\\
+\midrule
+\multirow{7}{*}{五萬}
+ & Firth                            & 0.0071 & \textbf{0.0760} & 1.4968 & $-0.091$ & \textbf{0.556}\\
+ & 中心化＋加權                      & 0.0235 & 0.0739 & 1.1220 & $+0.203$ & 0.712\\
+ & 先修勻、原樣扣 $b$，$\lambda=1$    & 0.0595 & 2.1845 & 1.0118 & $+0.244$ & 0.678\\
+ & 先修勻、扣 $Sb$，$\lambda=0.3$     & 0.0381 & 0.3007 & 1.0263 & $+0.185$ & 0.673\\
+ & 先修勻、扣 $Sb$，$\lambda=1$       & 0.0390 & 0.2773 & 1.0075 & $+0.213$ & 0.671\\
+ & 先修勻、扣 $Sb$，$\lambda=3$       & 0.0551 & 0.2131 & 0.9917 & $+0.197$ & 0.677\\
+ & 先修勻、扣 $Sb$，$\lambda=10$      & 0.0406 & 0.3031 & \textbf{0.9508} & $+0.295$ & 0.703\\
+\midrule
+\multirow{5}{*}{一萬}
+ & Firth                            & 0.0129 & \textbf{0.1560} & 20.8896 & $-1.048$ & 1.517\\
+ & 中心化＋加權                      & 0.0471 & 0.5064 & 2.6644 & $-1.153$ & 1.802\\
+ & 先修勻、原樣扣 $b$，$\lambda=10$   & 0.2256 & 4.1166 & 1.1106 & $-0.241$ & 1.490\\
+ & 先修勻、扣 $Sb$，$\lambda=3$       & 0.0963 & 0.3281 & 1.2502 & $-0.195$ & 1.473\\
+ & 先修勻、扣 $Sb$，$\lambda=10$      & 0.0878 & 0.3343 & 1.1627 & $\mathbf{-0.001}$ & \textbf{1.480}\\
+\bottomrule
+\end{tabular}
+
+\vspace{2pt}
+\parbox{0.92\textwidth}{\footnotesize 註：種子與本文第伍節不同，
+故基準線的數字與該節的表略有差異（人數五萬時中心化加權的 $e_0$ 偏誤
+此處為 $+0.203$、該節為 $+0.003$，相差約一點八個蒙地卡羅標準誤），
+比較須在同一張表內進行。完整結果見 \texttt{tableG2\_graduation\_transport.csv}。}
+\label{tab:transport}
+\end{table}
+
+原樣扣除時 $\alpha$ 最大偏誤隨平滑量單調爆開，人數五萬時
+$\lambda=0.3,1,3,10$ 分別為 $0.672$、$2.185$、$5.169$、$11.072$，
+與命題~\ref{prop:transport} 所預測的「誤設量隨 $h$ 增大」一致。
+改扣 $S\,b(\hat\mu)$ 之後爆開完全消失，且在三十三倍的 $\lambda$ 全距內
+$\alpha$ 最大偏誤只落在 $0.213$ 至 $0.303$。
+此一對平滑量的不敏感性有一項實務意涵：本文已以整節指出零格替代值 $c_0$
+的任意性（\citealp{chenroth2024} 在計量經濟學一側指出同一問題），
+若在此另引入一個手選的 $h$，論證即不一致；輸送之後 $h$ 幾乎不改動結論，
+故該顧慮得以解消，而第\ref{sec:premise}節的 REML 成為加分而非前提。
+
+人數一萬時 $\lambda=10$ 的輸送版在零歲平均餘命上追上 Firth：
+偏誤 $-0.001$ 對 $-1.048$、均方根 $1.480$ 對 $1.517$，
+而 $\mathrm{SSE}(\beta)$ 為 $1.163$ 對 $20.890$。
+平均餘命的離散原是 Firth 唯一全面勝出之處，至此不再成立；
+但 Firth 在 $\alpha$ 上仍勝（最大 $0.156$ 對 $0.334$），與本文既有的結論一致。
+
+\subsection{修勻自身的偏誤不宜一併扣除}\label{subsec:nosecond}
+
+命題~\ref{prop:transport} 的另一項 $(S-I)\log\mu$ 為修勻自身的偏誤。
+以 $\log\hat\mu$ 代入而一併扣除的版本在實測中發散，
+人數一萬、$\lambda=10$ 時零歲平均餘命的偏誤達 $1.8\times10^{6}$ 歲。
+成因明確：$\log\hat\mu$ 本身來自修勻後的配適、已經是平滑的，
+以它估計修勻的偏誤等於要求迭代自己把平滑反轉回去，每一輪放大一次。
+此一現象與非參數推論的既有結論一致——\citet{calonico2018} 指出
+為改善涵蓋率而估計並扣除平滑偏誤往往不如直接少平滑一些。
+故 $(S-I)\log\mu$ 應留著不動，它是修勻的代價；
+$\lambda$ 掃描顯示該代價在本文的規模下很小，
+零歲平均餘命的偏誤在 $-0.001$ 至 $+0.295$ 歲之間。
+
+\section{時間方向的修勻與兩個不變性}\label{sec:time}
+
+\subsection{零空間給出的兩項保證}\label{subsec:null}
+
+沿時間方向時，$\hat\alpha_x$ 恰是該年齡各年的 $W$ 加權平均，
+而漂移項是時間的斜率。兩者都落在差分算子的零空間附近，
+故有以下結果。本節把它寫成對任意凸懲罰皆成立的形式，
+蓋因第\ref{sec:l1}節要用到這個一般性。
+
+\begin{prop}\label{prop:invariance}
+設 $W$ 為正定對角矩陣、$\Delta^{z}$ 為 $z$ 階差分算子、$J$ 為任一凸函數，
+而 $\hat r$ 為
+$$\min_r\ \tfrac12 (r-y)^{\top}W(r-y) + J(\Delta^{z} r)$$
+的解。記 $\mathbf 1=(1,\ldots,1)^{\top}$、$t=(1,2,\ldots,T)^{\top}$。則
+\begin{enumerate}[label=(\roman*)]
+\item 對 $z\ge1$，$\mathbf 1^{\top}W\hat r=\mathbf 1^{\top}W y$；
+\item 對 $z\ge2$，另有 $t^{\top}W\hat r=t^{\top}W y$。
+\end{enumerate}
+亦即 $W$ 加權平均恆不變，而 $z\ge2$ 時 $W$ 加權的最小平方斜率亦恆不變。
+\end{prop}
+
+\begin{proof}
+目標函數為凸，其一階條件為
+$W(\hat r-y)+(\Delta^{z})^{\top}g=0$，其中
+$g\in\partial J(\Delta^{z}\hat r)$ 為某個次梯度。
+左乘 $\mathbf 1^{\top}$ 並利用 $\mathbf 1^{\top}(\Delta^{z})^{\top}=(\Delta^{z}\mathbf 1)^{\top}=0$
+（差分算子消滅常數）即得 (i)。
+$z\ge2$ 時另有 $\Delta^{z}t=0$（二階以上的差分消滅一次式），
+左乘 $t^{\top}$ 即得 (ii)。
+加權最小平方斜率為
+$\sum_i w_i(t_i-\bar t_w)\hat r_i\big/\sum_i w_i(t_i-\bar t_w)^2$，
+其分子等於 $t^{\top}W\hat r-\bar t_w\,\mathbf 1^{\top}W\hat r$，
+由 (i) 與 (ii) 知該值不變。
+\end{proof}
+
+\begin{cor}\label{cor:alpha}
+沿時間以同一組權重 $W$ 施以修勻時，$\hat\alpha_x$ 精確不變；
+若另取 $z\ge2$，則 $\kappa_t$ 的加權最小平方斜率亦精確不變。
+故沿時間的修勻只作用於 $\beta_x$ 與時間參數的形狀。
+\end{cor}
+
+推論~\ref{cor:alpha} 與第\ref{sec:age}節形成明顯的對比。
+沿年齡修勻會改動 $\hat\alpha_x$，故必須依命題~\ref{prop:transport} 輸送校正量；
+沿時間修勻不動 $\hat\alpha_x$，故與中心化校正完全不互相干擾，
+可以直接疊上去而不需任何修正。
+
+\subsection{兩項須注意的事}\label{subsec:time-caveat}
+
+\textbf{其一，漂移估計式必須與懲罰相容，而現行的並不相容。}
+本文目前以端點差 $(\kappa_T-\kappa_1)/(T-1)$ 估漂移
+（\texttt{R/core/rabbi\_mazzuco\_replication.R} 第 199 行），
+而端點差不落在懲罰的零空間，修勻會動它：
+在一組 $T=24$ 的核對中由 $0.3179$ 變為 $0.2924$，
+而同一組資料的加權最小平方斜率精確不變（差 $5.6\times10^{-17}$）。
+改用加權最小平方斜率可使推論~\ref{cor:alpha} 的保證真正生效。
+
+\textbf{其二，推論~\ref{cor:alpha} 的保證對 $\hat\alpha_x$ 是精確的， 對漂移則只是近似。} $\hat\alpha_x$ 就是加權列平均，命題直接適用；
+但 $\hat\kappa_t$ 由中心化後加權矩陣的奇異值分解得出，
+是資料的非線性函數，故零空間的論證不能逐字套用。
+實測顯示漂移的偏誤不因修勻而惡化、在小人口下反而改善，
+但這是實證結果而非命題的推論。
+
+\subsection{實測}\label{subsec:time-emp}
+
+\begin{table}[H]
+\centering
+\caption{沿時間修勻對四項指標的影響}
+\small
+\renewcommand{\arraystretch}{1.1}
+\begin{tabular}{llrrrrr}
+\toprule
+人數 & $\lambda$ & $\alpha$ 最大 & $\alpha$ 中位 & $\mathrm{SSE}(\beta)$ & 漂移偏誤 & $\kappa$ 粗糙度\\
+\midrule
+\multirow{4}{*}{一萬}
+ & 不修勻 & 0.8046 & 0.1346 & 2.6644 & 0.1850 & 315.97\\
+ & 0.1    & 0.8034 & 0.1327 & 2.2584 & 0.1446 & 67.46\\
+ & 0.4    & 0.8040 & 0.1299 & \textbf{2.1026} & \textbf{0.1379} & 15.93\\
+ & 10     & 0.8053 & 0.1237 & 1.9083 & 0.1288 & 0.31\\
+\midrule
+\multirow{4}{*}{五萬}
+ & 不修勻 & 0.4683 & 0.0663 & 1.1132 & 0.1190 & 88.91\\
+ & 0.1    & 0.4700 & 0.0661 & 1.1006 & 0.1201 & 19.81\\
+ & 0.4    & 0.4717 & 0.0656 & 1.0999 & 0.1262 & 4.77\\
+ & 10     & 0.4742 & 0.0653 & 1.0890 & 0.1282 & 0.08\\
+\bottomrule
+\end{tabular}
+
+\vspace{2pt}
+\parbox{0.92\textwidth}{\footnotesize 註：$\kappa$ 粗糙度為
+$\sum_t(\Delta^2\kappa_t)^2$，真值為 $20.57$。$\alpha$ 最大與中位為
+各次重複之 $\max_x|\hat\alpha_x-\alpha_x|$ 與
+$\mathrm{median}_x|\hat\alpha_x-\alpha_x|$ 的中位數，
+故與表~\ref{tab:transport} 的統計量定義不同，兩表的數字不可互相比較。
+重複 100 次，固定種子。}
+\label{tab:time}
+\end{table}
+
+三項讀法。其一，$\alpha$ 最大偏誤在 $\lambda$ 跨一百倍時幾乎不動
+（一萬：$0.8046$ 至 $0.8053$；五萬：$0.4683$ 至 $0.4742$），
+與推論~\ref{cor:alpha} 一致；殘餘的微小變動來自迭代中 $W=\hat\mu/\bar{\hat\mu}$
+隨 $\beta,\kappa$ 更新而略有改變，並非同一組權重。
+
+其二，\textbf{中心化校正把 $\hat\kappa$ 弄得比真值粗糙十五倍}
+（$315.97$ 對 $20.57$），而沿時間修勻正好把它修回來；
+把 $\lambda$ 校到粗糙度對上真值時，一萬人約在 $\lambda=0.3$、
+五萬人約在 $\lambda=0.1$。本文第伍節之四已記錄「校正後的時間路徑比
+標準 Lee-Carter 更不平滑」，此處給出該觀察的量化版與其對策。
+
+其三，在校準後的 $\lambda$ 上，人數一萬時 $\mathrm{SSE}(\beta)$ 由
+$2.6644$ 降到 $2.1026$、漂移偏誤由 $0.1850$ 降到 $0.1379$，
+各約兩成一與兩成七；人數五萬時除 $\kappa$ 的粗糙度以外幾乎沒有變化。
+漂移是本文承認中心化碰不到、只能靠加權處理的一項，
+故這是第二支獨立的槓桿。
+
+\textbf{但限制要寫清楚：使時間方向安全的那個不變性， 同時使它對 $\alpha$ 完全無用。} $\hat\alpha_x$ 不變是精確的，
+故不應期待沿時間的修勻改善 $\alpha$ 的偏誤。
+又 $\lambda$ 在時間方向對 $\kappa$ 的形狀影響甚大，
+不像年齡方向輸送之後那樣不敏感，故在這個方向
+平滑量的估計由加分項回升為必要。
+
+\section{以 $L_1$ 範數取代二次懲罰}\label{sec:l1}
+
+\subsection{兩項不變性不受範數選擇影響}\label{subsec:l1-inv}
+
+把式~\eqref{eq:whit} 的懲罰改為 $h\|\Delta^{z}r\|_1$ 即
+\citet{kim2009} 的 trend filtering。命題~\ref{prop:invariance} 已就
+任意凸的 $J$ 證明，故 $J(\cdot)=h\|\cdot\|_1$ 是其特例，
+兩項不變性原封不動。\textbf{這一點本身即是結論： 不變性來自差分算子的零空間，與二次範數無關。}
+
+表~\ref{tab:l1inv} 以 ADMM 解 $L_1$ 問題後核對。
+解法器先以 $h\to\infty$ 核對過：$z=1$ 時退化為加權常數、
+$z=2$ 時退化為加權最小平方直線，兩者的最大差為
+$7.5\times10^{-10}$ 與$2.9\times10^{-9}$。
+
+\begin{table}[H]
+\centering
+\caption{$L_1$ 懲罰下兩項不變性的數值核對}
+\small
+\renewcommand{\arraystretch}{1.1}
+\begin{tabular}{llrrr}
+\toprule
+序列 & $z$ & 加權平均之差 & 加權斜率之差 & $\textstyle\sum_i\mathrm{sign}(\Delta^z\hat r)_i$\\
+\midrule
+\multirow{2}{*}{雜訊無趨勢}
+ & 1 & $5.4\times10^{-16}$ & $2.2\times10^{-2}$ & $-1$\\
+ & 2 & $5.4\times10^{-16}$ & $0$ & $2$\\
+\midrule
+\multirow{2}{*}{強單調上升}
+ & 1 & $0$ & $4.6\times10^{-2}$ & $21$\\
+ & 2 & $8.7\times10^{-15}$ & $0$ & $22$\\
+\bottomrule
+\end{tabular}
+
+\vspace{2pt}
+\parbox{0.92\textwidth}{\footnotesize 註：$T=24$，權重為 $U(0.2,5)$ 的隨機抽樣，
+$h=4$。$z=1$ 時斜率之差與 $\sum_i\mathrm{sign}$ 同時非零，
+與命題~\ref{prop:invariance} 的證明一致——該情形下
+$t^{\top}(\Delta^{1})^{\top}g=\sum_i g_i$ 不必為零。}
+\label{tab:l1inv}
+\end{table}
+
+$z=1$ 時斜率不受保護，而其機制可由證明直接讀出：
+$\Delta^{1}t=\mathbf 1$，故 $t^{\top}(\Delta^{1})^{\top}g=\sum_i g_i$，
+該和不必為零。$z=2$ 時 $\Delta^{2}t=0$，保證因而無條件成立。
+\textbf{據此，若要沿時間修勻而保住漂移，$z$ 必須取二階以上， 不可圖省事用一階差分。} 標準 Lee-Carter 的外推之所以沒有這個問題，
+是因為它讓漂移自由，零空間因而同為 $\mathrm{span}\{\mathbf 1,t\}$。
+
+\subsection{改變的是解的類別}\label{subsec:l1-sol}
+
+$L_2$ 與 $L_1$ 的差別在解的型態。$L_2$ 的解處處彎曲，
+每一個二階差分都非零；$L_1$ 的解為 $z-1$ 次的分段多項式，
+折點由資料選出，而 \citet{tibshiraniRJ2014} 證明該估計量在
+有界總變差的函數類上達到極小極大最適率。
+兩者因而各在不同的函數類上最適：$L_2$ 對應 Sobolev 類（處處平滑），
+$L_1$ 對應總變差類（大致平滑而容許少數大的轉折）。
+
+表~\ref{tab:l1kappa} 把兩者調到同一個粗糙度再比較。
+
+\begin{table}[H]
+\centering
+\caption{臺灣女性 $\kappa_t$ 在同一粗糙度下兩種懲罰的解}
+\small
+\renewcommand{\arraystretch}{1.1}
+\begin{tabular}{llrl}
+\toprule
+懲罰 & $h$ & 粗糙度 & 非零二階差分（折點）\\
+\midrule
+原始 $\hat\kappa$ & — & 31.243 & 22 / 22\\
+$L_2$（Whittaker） & 0.0420 & 15.604 & 22 / 22\\
+$L_1$（trend filtering） & 0.0450 & 15.627 & 15 / 22\\
+\bottomrule
+\end{tabular}
+
+\vspace{2pt}
+\parbox{0.92\textwidth}{\footnotesize 註：2001--2024 年，$z=2$，等權重。
+粗糙度為 $\sum_t(\Delta^2\kappa_t)^2$，兩法皆調到原始值的一半。
+$L_1$ 的折點位於 2005--2010、2012--2016、2018、2020、2022、2023；
+未獲折點者為 2002--2004、2011、2017、2019、2021。
+原始 $\hat\kappa$ 二階差分最大的五年為 2015 ($+2.30$)、2010 ($+2.00$)、
+2005 ($-1.79$)、2012 ($-1.72$)、2020 ($+1.61$)，五者在 $L_1$ 解中皆保留為折點。}
+\label{tab:l1kappa}
+\end{table}
+
+在同一粗糙度下，$L_1$ 保留十五個折點而使七段完全筆直，
+$L_2$ 則二十二個二階差分全部非零。
+稀疏的程度並不大，故不宜誇稱 $L_1$ 給出一條「幾段直線」的路徑；
+\textbf{但型態的差別是實質的：$L_1$ 把平滑量集中花在少數幾年， 而原始 $\hat\kappa$ 二階差分最大的五年全部被保留為折點。}
+這一點對本文的資料有具體意義——觀測期間含 2021 至 2022 年，
+若該期間的衝擊確實與其餘年度不同量級，
+則「所有衝擊皆為同一個常態分布」的 $L_2$ 先驗即為誤設，
+而 $L_1$ 正是對該誤設的直接回應。
+
+\subsection{貝氏讀法由常態先驗改為尺度混合}\label{subsec:l1-bayes}
+
+$L_1$ 懲罰的貝氏讀法是 Laplace 先驗，而 Laplace 分布是常態的尺度混合，
+混合密度為指數分布 \citep{andrews1974}；\citet{parkcasella2008} 即以此
+給出 Bayesian lasso 的階層表示。於是
+
+\begin{center}
+\begin{minipage}{0.88\textwidth}\small
+$L_2$ 懲罰 $\;\longleftrightarrow\;$ 單一變異數的常態先驗 $\;\longleftrightarrow\;$ \textbf{混合模型}\\[3pt]
+$L_1$ 懲罰 $\;\longleftrightarrow\;$ 常態的尺度混合先驗 $\;\longleftrightarrow\;$ \textbf{混合分布模型}
+\end{minipage}
+\end{center}
+
+亦即由 $L_2$ 改為 $L_1$，恰好就是由混合模型走到混合分布模型。
+本文先前提出的另一條路線——把穩健損失寫成常態的尺度混合，
+使資訊加權成為一個潛在變數層——用的是同一個表示定理
+（\citealp{andrews1974}；\citealp{hunter2000}），
+只是施加在概似端而非先驗端。兩者因而可以同時進行：
+概似端的尺度混合給出穩健與加權，先驗端的尺度混合給出 $L_1$ 修勻。
+
+三項代價須一併記下。其一，$L_1$ 沒有閉式的 $S$，
+故後驗變異數 $(W+h\Delta^{\top}\Delta)^{-1}$ 這個現成的區間來源消失；
+有效自由度雖可由折點數加 $z$ 計算，但折點是資料選出來的，
+以之計算的區間涉及選擇後推論的問題。其二，$h$ 不再是一個變異成分，
+故 REML 不適用，須改以交叉驗證或 SURE。其三，沒有 $S$ 也就沒有
+命題~\ref{prop:transport} 的輸送算子，故 $L_1$ 不宜用在年齡方向；
+但時間方向依推論~\ref{cor:alpha} 本來就不需要輸送，
+\textbf{故 $L_1$ 最有吸引力之處恰是它不需要輸送的那個方向。}
+
+最後須明確區隔：此處的 $L_1$ 施加在時間參數的差分上，
+目的是選出轉折的位置，與本文先前評估後未採用的
+「在 $\beta_x$ 上施以 $L_1$ 以作變數選擇」並非同一件事，
+後者的結論不因本節而改變。
+
+\section{高階修正的三種對象}\label{sec:higher}
+
+$b(\mu;c_0)$ 對 Poisson 而言是精確的級數而非展開式，
+故「高階」在本文的架構中必須指明對象。以下三種各有不同的理論依據。
+
+\subsection{插入式誤差}\label{subsec:plugin}
+
+本文扣除的是 $b(\hat\mu)$ 而非 $b(\mu)$，其差可展開為
+
+\begin{equation}\label{eq:plugin}
+\Ex[b(\hat\mu)]-b(\mu)\;=\;b'(\mu)\,\big(\Ex[\hat\mu]-\mu\big)
+\;+\;\tfrac12 b''(\mu)\,\mathrm{Var}(\hat\mu)\;+\;O(\cdot).
+\end{equation}
+
+兩個導數皆可由差分恆等式
+$\frac{d}{d\mu}\Ex[g(D)]=\Ex[g(D{+}1)]-\Ex[g(D)]$ 精確算出，
+施用兩次即得
+$b''(\mu)=\Ex[g(D{+}2)]-2\Ex[g(D{+}1)]+\Ex[g(D)]+\mu^{-2}$，
+其與數值微分在 $\mu=3$ 處相符至六位（$0.016079$）。
+$b''$ 的三項性質：$\mu\to0$ 時 $b''\sim\mu^{-2}$ 而為正且發散
+（$\mu=0.02$ 時 $2500.0$）；於 $\mu\approx3.5846$ 變號；
+大 $\mu$ 時 $b''\to-\mu^{-3}$，極小值 $-0.0069$ 於 $\mu=4.8575$。
+
+表~\ref{tab:higher} 以 200 次重複檢驗式~\eqref{eq:plugin} 能否解釋實測。
+
+\begin{table}[H]
+\centering
+\caption{插入式誤差與其二項展開的對照（人數五萬）}
+\small
+\renewcommand{\arraystretch}{1.1}
+\begin{tabular}{lrrrrr}
+\toprule
+年齡 & $\mu$ & $\Ex[b(\hat\mu)]-b(\mu)$ & 一階項 & 二階項 & 兩項和\\
+\midrule
+0      & 1.15 & $+0.0020$ & $-0.0247$ & $+0.0211$ & $-0.0036$\\
+1--4   & 0.32 & $+0.0006$ & $-0.1132$ & $+0.0754$ & $-0.0378$\\
+5--9   & 0.26 & $+0.0075$ & $-0.0862$ & $+0.0829$ & $-0.0032$\\
+10--14 & 0.26 & $+0.0493$ & $-0.0298$ & $+0.0746$ & $+0.0447$\\
+15--19 & 0.52 & $+0.0447$ & $-0.0071$ & $+0.0362$ & $+0.0290$\\
+30--34 & 1.78 & $+0.0016$ & $-0.0100$ & $+0.0098$ & $-0.0002$\\
+50--54 & 10.11 & $+0.0009$ & $+0.0014$ & $-0.0005$ & $+0.0009$\\
+70--74 & 48.84 & $+0.0004$ & $+0.0008$ & $-0.0002$ & $+0.0005$\\
+\bottomrule
+\end{tabular}
+
+\vspace{2pt}
+\parbox{0.92\textwidth}{\footnotesize 註：重複 200 次，各欄為該年齡各年的平均。
+逐年齡相關為 $0.817$、迴歸斜率 $0.792$；一階項與二階項的絕對值
+各佔 $47\%$ 與 $53\%$。人數二十萬時相關升至 $0.899$ 而斜率降至 $0.478$，
+兩項佔比為 $68\%$ 與 $32\%$。$\hat\mu$ 本身在幼年組偏高 $3\%$ 至 $12\%$。}
+\label{tab:higher}
+\end{table}
+
+結論有兩層。\textbf{式~\eqref{eq:plugin} 抓到了正確的結構}：逐年齡相關為
+$0.817$ 與 $0.899$，故插入式誤差確實由 $\hat\mu$ 的偏誤與變異兩者決定。
+\textbf{但它不宜作為校正使用。} 兩項在最關鍵的幼年組幾乎互相抵銷——
+$1$--$4$ 歲時一階項為 $-0.1132$、二階項為 $+0.0754$、兩項和 $-0.0378$，
+而實際只有 $+0.0006$。亦即兩個各約 $0.1$ 量級的項相減得到 $0.001$ 量級的淨值，
+其餘落在三階。要施以二階校正，就得把兩個大項各算到相對精度極高，
+而其中的 $\mathrm{Var}(\hat\mu)$ 與 $\Ex[\hat\mu]-\mu$ 本身都只有估計值。
+這同時解釋了為何只修勻 $\hat\mu$ 的版本效果不如預期：
+修勻降低 $\mathrm{Var}(\hat\mu)$ 而壓低二階項，
+卻同時給 $\hat\mu$ 添上平滑偏誤而放大一階項，
+而 $|b'|$ 在小 $\mu$ 處甚大（$\mu=0.1$ 時 $-9.31$），後者因而佔上風。
+
+方法論的歸屬清楚。一階的事後修正即 \citet{coxsnell1968}，
+其在廣義線性模型的具體形式見 \citet{cordeiro1991}，
+而 \citet{kosmidis2009} 推廣至非線性指數族——Lee-Carter 的雙線性結構
+正屬此類。更高階的部分，\citet{kosmidis2014} 給出回顧，
+而 \citet{kennepagui2017} 區分平均無偏與中位數無偏。
+\textbf{後者對本文特別切題，蓋因本文全程以中位數報告結果}，
+故若要往高階走，中位數無偏才是前後一致的目標。
+
+\subsection{年齡與時間參數的展開}\label{subsec:beta-order}
+
+$\hat\alpha_x$ 有恆等式而 $\hat\beta_x$ 沒有，原因是前者在奇異值分解之前
+即由列平均定出，後者是奇異向量。要寫出 $\Ex[\hat\beta_x]-\beta_x$
+須用逐元而非子空間的擾動理論，\citet{abbe2020} 給出的特徵向量逐元展開
+正是所需的形式。\textbf{此處的「高階」是指該展開的二階項， 而一階項本身尚未做出}，故這一支的邊際報酬最高，
+但也最可能受限於 $A=22$、$T=24$ 的小維度。
+
+\subsection{修勻自身的偏誤}\label{subsec:smooth-order}
+
+第\ref{subsec:nosecond}節的 $(S-I)\log\mu$ 是第三種意思，
+而該節的實測與 \citet{calonico2018} 的結論一致：
+估計並扣除平滑偏誤不如直接少平滑一些。
+三者相較，\ref{subsec:plugin}是解釋性的、\ref{subsec:beta-order}是值得做的、
+而\ref{subsec:smooth-order}的理論明白指向不要做。
+
+\section{混合模型讀法的前提}\label{sec:premise}
+
+式~\eqref{eq:unified} 的推論讀法要成立，以下各項須先確認。
+前兩項是代數上的，其餘為資料上的。
+
+\begin{enumerate}[label=\arabic*.]
+\item \textbf{差分的階數決定漂移是否受罰。} $\Delta^2$ 的零空間為
+$\mathrm{span}\{\mathbf 1,t\}$，故 $z\ge2$ 不罰水準與斜率；
+純 $z=1$ 會縮減斜率（核對中由 $0.2508$ 縮到 $0.2433$）。
+\item \textbf{漂移估計式須與懲罰相容。} 現行的端點差不在零空間內，
+應改為加權最小平方斜率，見第\ref{subsec:time-caveat}節。
+\item \textbf{變異成分須可識別。} 實測的適當 $\lambda$ 隨人數而變
+（一萬約 $0.3$、五萬約 $0.1$），故固定一個值不可行；
+但 REML 可能把變異成分推到邊界，而該情形下的概似比檢定是非標準的
+\citep{crainiceanu2004}。
+\item \textbf{常態近似在時間方向較安全。} $\hat\kappa_t$ 是跨二十二個年齡組的
+匯總，有中央極限定理可用；而 $\hat\alpha_x$ 是單一年齡沿時間的平均，
+$\mu\ll1$ 時 $\log\max(D,c_0)$ 是有原子的離散分布。
+可疑的是年齡方向而非時間方向。
+\item \textbf{權重應計算而非估計。} 混合模型要求誤差變異已知至一個尺度，
+而本文已有 $v(\mu;c_0)=\mathrm{Var}[\log\max(D,c_0)]$ 的閉式，
+直接代入即可。
+\item \textbf{衝擊的序列獨立性須檢查。} 高斯差分先驗假設 $\Delta^{z}\kappa$
+為白噪音。觀測期間含 2021 至 2022 年，若該期間的衝擊有序列相關，
+先驗即為誤設，而平滑量會以錯誤的方式吸收它。
+\item \textbf{整列全零仍無法處理。} 修勻算子精確保留常數（$S\mathbf 1=\mathbf 1$），
+故某年齡各年全為零死亡時，沿時間修勻無從增加資訊。
+此與年齡方向在 $1$--$4$ 歲的盲點同性質。
+\end{enumerate}
+
+\section{後續工作}\label{sec:next}
+
+依本文的結果，優先序如下。
+
+\textbf{第一，把差分算子改為組距加權。} 現行作法把 $0$ 與 $1$--$4$ 歲排除在
+懲罰之外，而排除本身製造了一個人為邊界：人數五萬、$\lambda=10$ 時
+$\alpha$ 最大偏誤移到 $5$--$9$ 歲且符號相反（$-0.303$，
+$\lambda=1$ 時為 $10$--$14$ 歲的 $+0.277$）。改以組距加權的差分算子
+可使二十二組落在同一個懲罰內，既不誤設不等距的格子，也不製造邊界。
+
+\textbf{第二，把命題~\ref{prop:transport} 與命題~\ref{prop:invariance} 接進主報告。} 兩者都是短證明且已有實測支持，
+而命題~\ref{prop:invariance} 的一般形式使 $L_2$ 與 $L_1$ 共用同一組保證。
+
+\textbf{第三，取得 \citet{kimeldorf1967} 與 \citet{whittaker1923} 的原文。}
+兩篇皆已在報告中被引用並據以實作，卻尚未持有全文；
+前者是第\ref{subsec:one}節貝氏讀法的原始依據。
+
+\textbf{第四，$1$--$4$ 歲改以參考母體或沿時間借資訊。}
+第\ref{sec:premise}節第七項指出修勻在該年齡無從施力，
+而 \citet{lee2003} 的 partial SMR 與 \citet{yue2019} 的接法正是替代工具。
+
+\textbf{第五，尺度混合的階層模型與其後驗區間。}
+概似端與先驗端的尺度混合可同時進行，而後驗給出本文目前所缺的區間推論；
+計算須走 Laplace 近似 \citep{rue2009} 而非抽樣。
+
+\clearpage
+\bibliographystyle{plainnat}
+\bibliography{references,references_1012}
+
+\end{document}

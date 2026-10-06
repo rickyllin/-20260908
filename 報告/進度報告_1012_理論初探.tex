@@ -543,6 +543,52 @@ $L_1$ 懲罰 $\;\longleftrightarrow\;$ 常態的尺度混合先驗 $\;\longleftr
 「在 $\beta_x$ 上施以 $L_1$ 以作變數選擇」並非同一件事，
 後者的結論不因本節而改變。
 
+
+\subsection{推廣至收縮先驗}\label{subsec:shrink}
+
+命題~\ref{prop:invariance} 要求懲罰為凸，而該假設其實可以去掉。
+文獻在 $L_1$ 之後的發展是把 $\Delta^{z}r$ 的先驗由單一變異數的常態
+改為尺度逐點變動的混合：\citet{jullion2007} 以 Normal-Exponential-Gamma、
+\citet{faulkner2018} 以 horseshoe 施於 $k$ 階差分並報告其在偏誤與精確度
+之間最佳、\citet{kowal2019} 進一步讓局部尺度依賴過程自身的歷史。
+$L_1$ 的 Laplace 先驗在這個分類中是尺度混合的一個特例。
+以下指出\textbf{整族先驗都保留同樣的兩項不變性}。
+
+\begin{prop}\label{prop:shrink}
+設工作概似為 $y\mid r\sim N(r,\,\sigma^2W^{-1})$，
+而先驗 $\pi(r)=f(\Delta^{z}r)$ 只透過 $\Delta^{z}r$ 依賴 $r$。
+令 $P$ 為對 $\mathcal N=\mathrm{span}\{\mathbf 1,t\}$ 的 $W$-正交投影
+（$z\ge2$；$z=1$ 時 $\mathcal N=\mathrm{span}\{\mathbf 1\}$）。則
+$$\Ex[Pr\mid y]\;=\;Py ,$$
+亦即後驗平均精確保留資料在零空間上的成分。
+\end{prop}
+
+\begin{proof}
+$\Delta^{z}P=0$，故 $\pi$ 只依賴 $(I-P)r$，
+亦即先驗在 $\mathcal N$ 的方向上為平坦。
+$P$ 為 $W$-正交投影，故
+$(r-y)^{\top}W(r-y)=(Pr-Py)^{\top}W(Pr-Py)
++((I-P)r-(I-P)y)^{\top}W((I-P)r-(I-P)y)$，
+交叉項為零。後驗因而在 $Pr$ 與 $(I-P)r$ 之間因式分解，
+且 $Pr$ 的後驗為 $N(Py,\sigma^2(P^{\top}WP)^{-1})$，
+其平均即 $Py$。
+\end{proof}
+
+命題~\ref{prop:shrink} 覆蓋 $L_2$、$L_1$、NEG、horseshoe
+與動態收縮，蓋因五者都只透過 $\Delta^{z}r$ 依賴 $r$。
+以 horseshoe 的 Gibbs 抽樣核對（$T=24$、保留五萬次、資料含一個轉折）：
+加權平均之差為 $7.5\times10^{-5}$、加權斜率之差為 $4.3\times10^{-6}$，
+而蒙地卡羅標準誤為 $1.1\times10^{-3}$，故兩者皆落在抽樣誤差之內；
+同時後驗確實平滑了資料（$\|\hat r-y\|=1.149$）。
+
+\textbf{其意涵是本文可以採用上述任一先驗而不失去
+$\hat\alpha_x$ 與漂移的保證。} 本文選 $L_2$ 與 $L_1$ 的理由因而不是統計效能——
+\citet{faulkner2018} 的比較顯示 horseshoe 在偏誤與精確度之間優於
+Laplace——而是推導的長度：凸的情形有命題~\ref{prop:invariance} 的
+三行次梯度證明，而非凸的情形須走命題~\ref{prop:shrink} 的因式分解論證，
+且後者只對高斯工作概似成立。這一點須誠實寫，
+不可暗示 $L_1$ 在統計上優於收縮先驗。
+
 \section{高階修正的三種對象}\label{sec:higher}
 
 $b(\mu;c_0)$ 對 Poisson 而言是精確的級數而非展開式，

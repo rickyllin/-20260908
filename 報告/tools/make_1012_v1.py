@@ -276,8 +276,24 @@ U^{*}_r=\sum_{x,t}\Big(D_{x,t}+\tfrac{1}{2}h_{x,t}-\mu_{x,t}\Big)
 $D_{x,t}+\tfrac12 h_{x,t}$，其餘一概不動。}
 本文的實作即依式~\eqref{eq:firthscore}，以 $I$ 的 Moore--Penrose 廣義逆
 處理 Lee-Carter 參數化多出的兩個自由度。
-由 $\mathrm{tr}(H)=p$ 可知所加的總量恆為 $p/2$，
-而其在各格之間的分配由槓桿決定。
+所加的總量恆為 $\mathrm{tr}(H)/2$，而其在各格之間的分配由槓桿決定。
+須注意 Lee-Carter 的參數化有兩個冗餘的方向（尺度與位置），
+故 $\mathrm{rank}(I)=p-2$ 而 $\mathrm{tr}(H)=p-2$，所加總量為 $(p-2)/2$；
+本文的 $A=22$、$T=24$ 給出 $p=68$，實測的 $\sum_{x,t}h_{x,t}/2=33.000$
+與 $(p-2)/2=33$ 相符。
+
+\textbf{另一項須寫明的是本式只取了修正的第一項。} Lee-Carter 的線性預測子
+為\textbf{雙線性}而非線性，故依 \citet{kosmidis2009} 對非線性指數族的推廣，
+其修正量另有一項來自 $\partial^2\eta/\partial\beta_x\partial\kappa_t=1$ 的貢獻，
+完整的 pseudo-count 為
+$$a_{x,t}=\tfrac12 h_{x,t}+c_{x,t},\qquad
+c_{x,t}=\mu_{x,t}\,(I^{-})_{\beta_x\kappa_t},$$
+而 $c_{x,t}$ 可為負。本文的實作省略該項，
+而其數值影響已量測：$|c_{x,t}|/(h_{x,t}/2)$ 的中位數為 $0.006$ 至 $0.011$，
+最大值在人數一萬時達 $1.398$（落在 $1$--$4$ 歲）；
+但納入該項後 $\alpha$ 最大偏誤由 $0.2993$ 變為 $0.3161$、
+$\mathrm{SSE}(\beta)$ 由 $18.105$ 變為 $16.904$（兩者方向相反），
+人數五萬時三位數以內無差異。\textbf{故該項在理論上須交代，在數值上可忽略。}
 
 \textbf{與加常數的關係。} 單一參數、單一樣本時 $h=1$，
 式~\eqref{eq:firthscore} 的調整恰為 $+\tfrac12$，此即 \citet{haldane1956}
@@ -290,8 +306,23 @@ $D_{x,t}+\tfrac12 h_{x,t}$，其餘一概不動。}
 第\ref{subsec:relation}所述的不存在性。修正後的分數為
 $\sum_t(\tfrac12 h_{x,t}-\mu_{x,t})$：$\alpha_x\to-\infty$ 時
 $\mu_{x,t}\to0$ 而 $h_{x,t}$ 不趨於零，故該式為正；
-$\alpha_x\to+\infty$ 時為負。\textbf{分數因而變號，有限的根存在}，
-此即 \citet{kosmidis2021} 就二項反應所證性質在本模型的對應。
+$\alpha_x\to+\infty$ 時為負。\textbf{分數因而變號，有限的根存在}。
+
+\textbf{但存在的是局部根，而非全域的最大值，此一區分在本模型下是實質的。}
+\citet{kosmidis2021} 就二項反應的廣義線性模型所證的有限性
+\textbf{不能移植到 Lee-Carter}：沿 $\beta\to\infty$、$\kappa\to0$ 而
+$\eta$ 仍收斂的路徑（該路徑不違反 $\sum_x\beta_x=1$，蓋因該約束不限制
+$\|\boldsymbol\beta\|$），可算出
+$$\ell_J(\theta(s))=\ell(\eta_\infty)+(T-A-1)\log s+O(1),$$
+故 $T\ge A+2$ 時 $\sup\ell_J=+\infty$。本文的 $A=22$、$T=24$ 恰落在該區間，
+而數值核對給出 $\log\det I$ 對 $\log s$ 的斜率為 $1.941$，
+與 $2(T-A-1)=2$ 相符。
+\textbf{亦即本文所報的 Firth 結果是「由奇異值分解的起點出發所達到的局部根」}，
+而非全域的懲罰概似最大值；這一點須與第\ref{subsec:relation}所引
+\citet{lewis2024} 的「最大概似估計量不存在時 Firth 的行為沒有理論保證」
+並讀。此一不穩定來自正規化的選擇：改以 $\|\boldsymbol\beta\|_2=1$ 正規化時
+該路徑成為收斂路徑（數值上 $\log\det I$ 收斂至 $161.617$），
+而兩種正規化描述的是同一個模型、所有可識別量不變。
 
 \textbf{其隱含的替代值，以及與 $c_0$ 的對照。} 上段的極限可以算出量。
 年齡 $x$ 有兩個專屬的參數（$\alpha_x$ 與 $\beta_x$），

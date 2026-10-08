@@ -1,0 +1,263 @@
+\documentclass[12pt,a4paper]{article}
+\usepackage[margin=2.5cm]{geometry}
+\usepackage{xeCJK}
+\usepackage{fontspec}
+\usepackage{amsmath,amssymb,booktabs,array,enumitem,hyperref,setspace}
+\setCJKmainfont{Noto Serif CJK TC}
+\setmainfont{TeX Gyre Termes}
+\hypersetup{colorlinks=true,linkcolor=black,urlcolor=blue,citecolor=black}
+\setstretch{1.25}
+\setlist[itemize]{leftmargin=2em}
+\setlist[enumerate]{leftmargin=2.3em}
+
+\title{審稿意見：小人口 Lee--Carter 參數偏誤的閉式與事前可行性檢定}
+\author{Reviewer Report}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section*{整體評價與建議決定}
+
+本文針對標準 log--SVD Lee--Carter 模型在小人口資料下的年齡水準參數偏誤，提出偏誤函數
+\[
+b(\mu;c_0)=\operatorname{E}\!\left[\log\max(D,c_0)\right]-\log\mu,
+\]
+並證明
+\[
+\operatorname{E}(\widehat{\alpha}_x)-\alpha_x
+=\frac{1}{T}\sum_{t=1}^{T}b(\mu_{x,t};c_0).
+\]
+將零格替代、對數轉換與 Fisher 不一致性明確連結，是本文最具原創性且最有說服力的貢獻。事前可行性檢定的構想也具有實務潛力，因為其僅需曝露數及一組粗略死亡率，即可在模型配適前評估偏誤風險。
+
+然而，目前稿件將對 $\widehat{\alpha}_x$ 的精確結果延伸為對「小人口 Lee--Carter 偏誤」的廣泛解釋，論證範圍可能超過理論與實證結果實際支持的程度。尤其 $\widehat{\beta}_x$、$\widehat{\kappa}_t$、平均餘命及未來死亡率外推的誤差來源並未由同一閉式完整涵蓋。因此，本審稿意見建議：
+
+\begin{center}
+\textbf{Major Revision（大幅修訂）}
+\end{center}
+
+修訂重點不在否定偏誤閉式，而在收斂論文主張、補強 $\widehat{\mu}$ 代入誤差與模型誤設分析，並重新界定本文方法與 Firth、Poisson Lee--Carter 及現代死亡率模型之間的定位。
+
+\section*{主要意見}
+
+\subsection*{1. 對研究貢獻範圍的陳述過廣}
+
+\paragraph{問題。}
+本文已精確證明 $\widehat{\alpha}_x$ 的偏誤為各年份 $b(\mu_{x,t};c_0)$ 的平均，但 Lee--Carter 模型的估計與預測依賴 $(\alpha_x,\beta_x,\kappa_t)$ 三組參數。稿件後段的成分分解顯示，$\alpha_x$ 的偏誤在人數一萬與五萬時幾乎由確定性成分解釋，但 $\beta_x$ 的確定性成分占比很低；同時，$\kappa_t$ 的路徑與漂移並未納入閉式架構。這表示本文目前證明的是「標準 log--SVD Lee--Carter 中 $\alpha_x$ 偏誤的一項精確來源」，尚不足以宣稱已找到整個 Lee--Carter 小人口偏誤的共同根源。
+
+\paragraph{具體修訂建議。}
+\begin{enumerate}
+  \item 將標題、摘要、緒論及結論中的廣義敘述收斂。例如將「Lee--Carter 模型在小人口下的參數偏誤有閉式」改為「標準 log--SVD Lee--Carter 年齡水準參數 $\alpha_x$ 的偏誤有閉式」。
+  \item 在摘要中明確區分三層標的：
+  \begin{itemize}
+    \item 參數層：$\alpha_x$、$\beta_x$、$\kappa_t$；
+    \item 配適層：歷史死亡率重建；
+    \item 預測層：平均餘命與年金負債。
+  \end{itemize}
+  \item 新增一張「理論涵蓋範圍表」，逐項列示每個結果是否為精確恆等式、近似式、模擬發現或尚未處理。例如：
+  \begin{center}
+  \begin{tabular}{p{3.0cm}p{3.0cm}p{6.5cm}}
+  \toprule
+  對象 & 結果性質 & 本文目前可支持的結論\\
+  \midrule
+  $\widehat{\alpha}_x$ & 有限樣本恆等式 & 偏誤可由 $\bar b_x$ 精確刻畫\\
+  $\widehat{\beta}_x$ & 模擬與擾動分解 & 大部分誤差未由 $b(\mu;c_0)$ 解釋\\
+  $\widehat{\kappa}_t$ & 尚無完整理論 & 不宜宣稱校正改善預測趨勢\\
+  $e_0$ & 衍生量與模擬結果 & 改善依賴模型設定及 $\widehat\mu$ 品質\\
+  \bottomrule
+  \end{tabular}
+  \end{center}
+  \item 將結論中的核心主張改寫為：「本文辨識並量化標準 log--SVD Lee--Carter 中 $\widehat{\alpha}_x$ 偏誤的一個重要且可精確計算的來源。」
+\end{enumerate}
+
+\subsection*{2. 參數偏誤改善不等同於預測標的改善}
+
+\paragraph{問題。}
+本文對 $\alpha_x$ 的修正效果相當明確，但精算實務關心的常是零歲平均餘命、未來死亡率或年金現值。稿件的模擬結果顯示，在模型真值恰落於秩一 Lee--Carter 結構時，校正後的平均餘命偏誤可大幅下降；但在保留真實死亡率不規則性的 Poisson 抽薄設計中，本文方法在平均餘命上的優勢減弱，部分人口規模下劣於 Firth。這表示參數層的成功不能直接外推到精算標的層。
+
+\paragraph{具體修訂建議。}
+\begin{enumerate}
+  \item 將所有績效指標分成「參數估計」與「決策標的」兩組報告，不宜在同一段中混合解讀。
+  \item 對每一人口規模至少同時報告：
+  \begin{itemize}
+    \item $\alpha_x$ 的 bias、variance、RMSE；
+    \item $\beta_x$ 的 SSE 或逐年齡 RMSE；
+    \item $\kappa_t$ 的 drift bias、roughness 及 range compression；
+    \item $e_0$ 的 bias、standard deviation、RMSE 與命中率。
+  \end{itemize}
+  \item 將「平均餘命改善」寫成有條件的結論：當秩一結構近似成立且 $\widehat\mu$ 足夠準確時，$\alpha_x$ 校正可改善 $e_0$；當模型誤設明顯時，該改善不保證成立。
+  \item 若稿件強調年金應用，應增加至少一個年金現值或 longevity liability 指標。若暫不增加，請刪減或弱化對年金負債改善的正面暗示，並明確指出 $\kappa_t$ 尚未處理。
+\end{enumerate}
+
+\subsection*{3. 以 $\widehat\mu$ 取代 $\mu$ 所引入的誤差尚未充分處理}
+
+\paragraph{問題。}
+理論偏誤函數使用真實 $\mu_{x,t}$，但實作校正使用
+\[
+\widehat\mu_{x,t}=E_{x,t}\exp(\widehat\alpha_x+\widehat\beta_x\widehat\kappa_t).
+\]
+因此，實際校正誤差可寫為
+\[
+b(\widehat\mu_{x,t};c_0)-b(\mu_{x,t};c_0).
+\]
+當 $\mu$ 很小時，$b'(\mu;c_0)$ 的絕對值可能很大，故即使 $\widehat\mu$ 的相對誤差看似有限，代入後的校正誤差仍可能被放大。此問題正是極小人口與模型誤設情境下方法失效的關鍵，但稿件目前主要以模擬描述，尚缺乏清楚的誤差界限。
+
+\paragraph{具體修訂建議。}
+\begin{enumerate}
+  \item 利用文中已推導的 $b'(\mu;c_0)$，增加一階敏感度展開：
+  \[
+  b(\widehat\mu;c_0)-b(\mu;c_0)
+  \approx b'(\mu;c_0)(\widehat\mu-\mu).
+  \]
+  \item 進一步改寫為相對誤差形式：
+  \[
+  b(\widehat\mu;c_0)-b(\mu;c_0)
+  \approx \mu b'(\mu;c_0)
+  \frac{\widehat\mu-\mu}{\mu},
+  \]
+  並以圖形呈現 $\mu b'(\mu;c_0)$ 在實務範圍內的大小。
+  \item 報告 $\widehat\mu$ 的估計品質，包括按年齡及人口規模計算的 relative bias、RMSE 或 calibration plot。
+  \item 比較至少三種 $\widehat\mu$ 來源：
+  \begin{itemize}
+    \item 標準 Lee--Carter 初始配適；
+    \item Poisson/Firth 配適；
+    \item 外部粗略死亡率或交叉地區參考率。
+  \end{itemize}
+  藉此判斷方法的成敗究竟來自閉式本身，還是來自 $\widehat\mu$ 的選擇。
+  \item 對 $\mu<0.2$ 的區域，把「近似失準」正式列入演算法警示條件，而不只在結果段落敘述。
+\end{enumerate}
+
+\subsection*{4. Firth 比較需要更精確地定位}
+
+\paragraph{問題。}
+稿件有時將 Firth 描述為修正一般 $O(n^{-1})$ 的最大概似偏誤，而本文則修正由轉換與零格替代造成的 Fisher 不一致。此區分在理論上有意義，但實證比較中 Firth 使用計數尺度的 Poisson 模型，既避開零格替代，也透過調整分數函數避免無限估計及產生收縮效果。因此，Firth 與本文方法不只是「兩種偏誤修正」的比較，也同時混合了估計尺度、目標函數與收縮機制的差異。
+
+\paragraph{具體修訂建議。}
+\begin{enumerate}
+  \item 新增一張方法對照表，至少包含：估計尺度、是否需要零格替代、是否使用 likelihood、修正對象、是否產生 shrinkage、是否保證有限估計、所需假設。
+  \item 避免使用「Firth 不知道自己修正哪個偏誤」之類容易造成誤解的表述。較準確的說法是：Firth 的調整針對最大概似估計的首階偏誤，並非針對本文所定義之 log--zero-replacement 偏誤閉式。
+  \item 增加消融比較，盡可能分離三種效果：
+  \begin{itemize}
+    \item 從 log--SVD 改為 Poisson likelihood 的效果；
+    \item Firth adjusted score 的效果；
+    \item 本文 centering correction 的效果。
+  \end{itemize}
+  \item 將 Firth 的優勢解讀為「可能來自計數尺度配適與收縮的共同作用」，除非另有理論或實驗能單獨識別收縮貢獻。
+\end{enumerate}
+
+\subsection*{5. 現代死亡率模型下的實務相關性需要更清楚的定位}
+
+\paragraph{問題。}
+本文處理的是標準 log--SVD Lee--Carter 及其零格替代問題。然而，Poisson log-bilinear、負二項、P-spline、Bayesian hierarchical 及 multi-population 方法可直接在計數尺度建模，通常不需要以 $c_0$ 替代零死亡數。若不說明標準 log--SVD 方法在何種情境仍被使用，讀者可能認為本文只是精確描述一個已可由現代方法迴避的問題。
+
+\paragraph{具體修訂建議。}
+\begin{enumerate}
+  \item 在緒論中新增「適用場景」小節，說明哪些生命表編製流程、既有軟體或機構實務仍採 log--SVD 與零格替代。
+  \item 將本文貢獻分為兩層：
+  \begin{itemize}
+    \item 診斷層：即使最終改用 Poisson 或其他模型，閉式仍可量化原始 log--SVD 流程的偏誤；
+    \item 校正層：僅適用於仍需保留 SVD 架構的使用者。
+  \end{itemize}
+  \item 增加與至少一種現代基準模型的完整比較，例如 penalized Poisson Lee--Carter 或 Negative Binomial Lee--Carter；若無法增加，請明確說明本文不主張校正法優於這些模型。
+\end{enumerate}
+
+\subsection*{6. $\mu^*$ 與分級門檻具有分析慣例依賴性}
+
+\paragraph{問題。}
+稿件強調 $c_0=0.5$ 時的偏誤變號點 $\mu^*=0.9234$，並據此建立可行性分級。然而，$\mu^*$ 會隨 $c_0$ 改變，因此不是死亡資料本身的結構常數。更進一步，A--D 四級中的 2\%、15\%、35\% 門檻看起來是作者提出的實務規則，但目前尚未看到充分的決策理論、損失函數或外部驗證支持這些切點。
+
+\paragraph{具體修訂建議。}
+\begin{enumerate}
+  \item 將 $\mu^*$ 一律稱為「給定 $c_0$ 下的偏誤變號點」，避免稱為普遍門檻。
+  \item 在所有分級表格旁明列 $c_0$，並提供 $c_0\in\{0.1,0.3,0.5,1.0\}$ 的敏感度分析。
+  \item 說明 A--D 級切點的設定依據。若切點是作者建議，應明確標示為 proposal，而非由定理推出。
+  \item 以決策結果驗證分級，例如對每一級報告 $e_0$ RMSE、$\alpha$ 最大偏誤與失敗率，檢驗分級是否真的對應到實務可接受程度。
+  \item 可考慮將硬切點改為連續風險指標，同時輸出：低於 $\mu^*$ 的格子比例、$\max_x|\bar b_x|$、預測 RMSE 與校正代價，以避免同一地區因微小變化跨級。
+\end{enumerate}
+
+\subsection*{7. $\kappa_t$ 尚未處理，卻是死亡率預測的核心}
+
+\paragraph{問題。}
+稿件顯示，標準 Lee--Carter 可能壓縮時間趨勢，而中心化加權版本又可能放大時間路徑的粗糙度及全距。由於未來死亡率預測主要由 $\kappa_t$ 的時間序列外推驅動，未解決 $\kappa_t$ 意味著本文方法尚不足以直接支撐年金定價或準備金評估。
+
+\paragraph{具體修訂建議。}
+\begin{enumerate}
+  \item 將此限制移至摘要與結論，而非僅放在後段限制章節。
+  \item 在主結果表中加入 $\kappa_t$ 的至少三項指標：drift bias、innovation variance、range ratio。
+  \item 進行樣本外驗證：以前段年份估計參數，預測後段年份死亡率，並比較 forecast RMSE、$e_0$ forecast error 及 prediction interval coverage。
+  \item 在欠缺 $\kappa_t$ 理論前，將本文方法定位為「歷史年齡水準校正與可行性診斷」，不要直接定位為完整的 mortality forecasting correction。
+\end{enumerate}
+
+\subsection*{8. 模擬設計與模型誤設檢驗仍可補強}
+
+\paragraph{問題。}
+以全國 Lee--Carter 配適值作為真值，有利於檢驗閉式是否對應既定資料生成機制，但也使模型結構天然正確。Poisson 抽薄雖保留部分真實不規則性，真值仍以全國 Lee--Carter 配適定義，故對「真實小區域死亡率結構」的代表性仍有限。
+
+\paragraph{具體修訂建議。}
+\begin{enumerate}
+  \item 增加至少三種明確的模型誤設情境：
+  \begin{itemize}
+    \item 第二個年齡--時期因子；
+    \item cohort effect；
+    \item overdispersion 或年齡相依離散度。
+  \end{itemize}
+  \item 對每一情境分別報告診斷閉式與校正法的穩健性，而不是只報告總體結果。
+  \item 增加真實鄉鎮市區資料的案例研究。若無可靠真值，可採時間留置、跨期預測或與較大區域彙總結果的一致性作為驗證。
+  \item 報告 Monte Carlo standard error，避免將 100 次重複下的小幅差異解讀為方法間的實質差異。
+  \item 對表中粗體最佳結果增加統計不確定性，例如 bootstrap interval 或 paired simulation difference interval。
+\end{enumerate}
+
+\section*{次要意見}
+
+\subsection*{9. 建議統一三種「偏誤」的用語}
+
+請明確區分：
+\begin{enumerate}
+  \item Fisher inconsistency：母體估計方程在真值處期望不為零；
+  \item finite-sample bias：$\operatorname{E}(\widehat\theta)-\theta$；
+  \item prediction bias：衍生量或未來預測的系統性誤差。
+\end{enumerate}
+目前稿件在部分段落中交替使用這三者，容易使讀者誤以為修正其中一者必然修正另外兩者。
+
+\subsection*{10. 「閉式」一詞宜更精確說明}
+
+Poisson 情形的 $b(\mu;c_0)$ 以無窮級數表示，而非有限個初等函數。建議說明本文所稱 closed form 是「可直接數值計算的解析表示」，並交代截斷規則及數值誤差界限。
+
+\subsection*{11. 效率比較的母體需要再界定}
+
+相對效率
+\[
+\operatorname{RE}(\mu)=\operatorname{corr}\{g_{c_0}(D),D\}^2
+\]
+是逐格、局部且基於 Poisson 假設的結果。建議避免直接將「逐格效率損失不超過 12.2\%」解讀為整個 Lee--Carter 參數估計或預測效率也有相同上界。請在 Corollary 3 後明確加註：此結果不自動涵蓋雙線性參數估計、識別約束與時間序列外推。
+
+\subsection*{12. 可行性檢定與信賴度理論的關係應更謹慎}
+
+將偏誤診斷描述為「補上古典信賴度標準所缺的一半」具有啟發性，但兩者的標的、損失函數及決策門檻不同。建議改為「提供與變異型信賴度標準互補的偏誤診斷」，並避免暗示兩者已構成完整且經驗證的監理標準。
+
+\section*{建議作者新增的修訂檢核表}
+
+為使修訂可被清楚評估，建議作者在回覆審稿意見時逐項提供：
+
+\begin{enumerate}
+  \item 已收斂標題、摘要及結論對整體 Lee--Carter 偏誤的廣義主張。
+  \item 已新增理論涵蓋範圍表，區分 $\alpha_x$、$\beta_x$、$\kappa_t$ 與 $e_0$。
+  \item 已利用 $b'(\mu;c_0)$ 分析 $b(\widehat\mu)-b(\mu)$ 的代入誤差。
+  \item 已提供 $c_0$ 與 A--D 分級切點的敏感度分析及設定依據。
+  \item 已新增至少一種現代死亡率模型作為基準，或明確限制比較結論。
+  \item 已增加 $\kappa_t$ 與樣本外預測指標。
+  \item 已對模型誤設加入 factor、cohort 或 overdispersion 情境。
+  \item 已報告 Monte Carlo standard error 或 paired difference interval。
+  \item 已將 Firth 的角色改寫為 adjusted-score、有限估計與收縮效果的綜合比較。
+  \item 已在摘要及結論明確揭露：本文方法主要適用於標準 log--SVD 架構下的 $\alpha_x$ 診斷與校正，尚不是完整的死亡率預測修正。
+\end{enumerate}
+
+\section*{結論}
+
+本文對
+\[
+b(\mu;c_0)=\operatorname{E}[\log\max(D,c_0)]-\log\mu
+\]
+及 $\widehat\alpha_x$ 偏誤的推導具有明確原創性，且事前診斷的概念值得保留。主要問題不是核心公式不成立，而是目前稿件對整體 Lee--Carter 偏誤、平均餘命與精算預測的外推較公式本身更廣。若作者能收斂主張、正式處理 $\widehat\mu$ 代入誤差、補強 $\kappa_t$ 與模型誤設分析，並更公平地定位 Firth 與現代計數尺度模型，本文可形成一篇聚焦且有價值的方法論研究。
+
+\end{document}

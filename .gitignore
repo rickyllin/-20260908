@@ -38,3 +38,13 @@
 # 建議清單本身的 .md，其餘一律不入版控。
 20261008修改建議與參考資料/*
 !20261008修改建議與參考資料/V2修正建議與文獻補充清單.md
+
+# HMD（Human Mortality Database）原始資料。其使用條款限制再散布，而此 repo
+# 為公開 repo，故原始檔不入版控；R/core/hmd_load.R 與各研究程式已入版控，
+# 使用者自 mortality.org 重新下載 Deaths_5x1.txt 與 Exposures_5x1.txt
+# 置於同一路徑即可重現。
+data/Australia/
+data/Canada/
+data/Japan/
+data/NZ/
+data/US/

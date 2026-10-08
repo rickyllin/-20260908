@@ -481,6 +481,47 @@ $0.95$ 至 $0.98$，\textbf{美國卻只有 $0.7114$}，
 而它們也正是修勻的差分懲罰其零空間所要求的兩個條件，
 故跨國所遇到的限制與本研究另一條線索（修勻）所導出的條件是同一組。
 
+\subsection{估計流程}\label{ss:algo}
+
+為使本摘要可據以實作，此處列出完整的流程。
+
+\begin{table}[H]
+\centering
+\small
+\begin{tabular}{p{0.93\textwidth}}
+\toprule
+\textbf{輸入}：死亡數 $D_{x,t}$、曝露數 $E_{x,t}$（$A=22$ 個年齡組、
+$T=24$ 年）、零格替代值 $c_0=0.5$。\\
+\midrule
+\textbf{0.\ 事前檢定（配適之前）}：以曝露數與一組粗略的死亡率算出
+$\mu_{x,t}$，取低於 $\mu^{\ast}=0.9234$ 的格數佔比，依 $2\%$／$15\%$／$35\%$
+分為 A 至 D 級。門檻亦可由 $N_p=\mu^{\ast}/q_p$ 直接算出。\\
+\textbf{1.\ 起始}：$\ell_{x,t}=\log\big(\max(D_{x,t},c_0)/E_{x,t}\big)$，
+以標準 Lee-Carter（列平均加奇異值分解）取得
+$(\hat{\boldsymbol\alpha},\hat{\boldsymbol\beta},\hat{\boldsymbol\kappa})$。\\
+\textbf{2.\ 期望死亡數}：$\hat\mu_{x,t}
+=E_{x,t}\exp(\hat\alpha_x+\hat\beta_x\hat\kappa_t)$。\\
+\textbf{3.\ 校正 $\alpha$}：$\hat\alpha_x\leftarrow
+\overline{\ell_{x,\cdot}}-\overline{b(\hat\mu_{x,\cdot};c_0)}$，
+\textbf{其中兩個平均皆為等權}（閉式正是對等權列平均成立）。\\
+\textbf{4.\ 加權求解秩一結構}：以 $W_{x,t}=\hat\mu_{x,t}/\bar{\hat\mu}$
+為權重，對 $(\ell_{x,t}-\hat\alpha_x)\sqrt{W_{x,t}}$ 作奇異值分解，
+取第一對奇異向量，並依 $\sum_x\hat\beta_x=1$、$\sum_t\hat\kappa_t=0$ 正規化
+（建議另加 $\hat\beta_x\ge0$，見第\ref{ss:norm}節）。\\
+\textbf{5.\ 迭代}：回到步驟 2，直至參數的變動小於 $10^{-9}$（實測 3 至 6 次）。\\
+\midrule
+\textbf{失敗的處理}：不剔除、不重抽，一律保留，並以中位數而非平均數匯總。
+邊界配適的出現頻率須系統性回報（見第\ref{ss:data}節）。\\
+\textbf{匯總}：重複 $\ge100$ 次、固定亂數種子；關鍵比較須附蒙地卡羅標準誤。\\
+\bottomrule
+\end{tabular}
+\end{table}
+
+步驟 3 的「等權」一項是本輪新增的設計。前此 $\hat\alpha_x$ 亦以 $W$ 加權，
+而第\ref{s:sol}節的 $2\times2$ 顯示加權雖改善 $\beta$ 與 $\kappa$
+卻使 $\alpha$ 略差；既然變異函數只關係到秩一結構的求解，
+把加權限制於步驟 4 即可兩者兼得。
+
 \subsection{Firth 的具體形式，以及它與零格替代的關係}
 
 對照方法中最強的是 \citet{firth1993}，其在本模型下的形式值得寫出，
@@ -507,7 +548,131 @@ $$\sum_{x,t}\Big(D_{x,t}+\tfrac12 h_{x,t}-\mu_{x,t}\Big)
 
 \noindent（完整版第參至捌節；Firth 的推導為第柒節之二）
 
+\subsection{一個結構性的病灶，與一個不花成本的修法}\label{ss:norm}
+
+Firth 既是本文的主要對照，其在本模型下的\textbf{存在性}須查清楚，
+而查下去得到一個與正規化有關的結果。
+
+\textbf{其一，Jeffreys 懲罰概似在本文的維度下無上界。}
+沿 $\boldsymbol\beta\to\infty$、$\boldsymbol\kappa\to0$ 而 $\eta$ 仍收斂的路徑，
+$$\ell_J(\theta(s))=\ell(\eta_\infty)+(T-A-1)\log s+O(1),$$
+故 $T\ge A+2$ 時對\textbf{任何}資料 $\sup\ell_J=+\infty$。
+本文的 $A=22$、$T=24$ 恰落在該區間。數值核對：$\log\det I$ 對 $\log s$
+的斜率為 $1.941$（理論 $2(T-A-1)=2$），而該路徑上對數概似收斂、
+$\tfrac12\log\det I$ 每十倍上升 $2.30$，故合計無上界。
+\textbf{亦即 \citet{kosmidis2021} 就二項反應所證的有限性不能移植到
+Lee-Carter，而本文所報的 Firth 結果是「由奇異值分解的起點出發所達到的
+局部根」}，並非全域的最大值。這一點須與 \citet{lewis2024} 的
+「最大概似估計量不存在時 Firth 的行為沒有理論保證」並讀。
+
+\textbf{其二，成因是正規化而非資料，而三個常被混用的約束必須分開。}
+
+\begin{enumerate}[label=(\roman*)]
+\item $\sum_x\beta_x=1$，一個\textbf{仿射超平面}；
+\item $\sum_x|\beta_x|=1$，即 $L^1$ 的單位球面；
+\item $\|\boldsymbol\beta\|_2=1$，即 $L^2$ 的單位球面。
+\end{enumerate}
+
+\textbf{只有 (i) 不是範數約束}：它不限制 $\boldsymbol\beta$ 的大小，
+蓋因正負可以相消。沿上述路徑 $\sum_x\beta_x=1$ 恆成立，
+而 $\sum_x|\beta_x|$ 與 $\|\boldsymbol\beta\|_2$ 皆線性發散
+（$s=10^5$ 時為 $10^5$ 與 $2.6\times10^4$）。(ii) 與 (iii) 的可行集為緊緻，
+故皆封住該路徑；改以 (iii) 表示同一條路徑時，$\log\det I$ 收斂至 $161.617$。
+\citet{hunt2020} 已在一般層次指出識別約束是任意的、且會造成配適時的
+穩健性問題，並明言其所用的是 $L^1$ \textbf{範數}；
+本文所用的 $\sum_x\beta_x=1$ 則是 (i)。
+
+\textbf{其三，而對本文的資料，修法不花成本。}
+全國配適的 $\hat\beta_x$ 落在 $0.0078$ 至 $0.1066$、\textbf{無一為負}，
+故 $\sum_x|\beta_x|=\sum_x\beta_x=1.0000$——(i) 與 (ii) 在真值處重合。
+於是只要保留 $\sum_x\beta_x=1$ 而加上 $\beta_x\ge0$，
+可行集即由仿射超平面變為\textbf{單純形}、因而緊緻，
+\textbf{而 $\boldsymbol\beta$ 與 $\boldsymbol\kappa$ 的尺度完全不變、
+已報告的所有數值一概不動}。改用 (iii) 雖同樣可行，
+但會改動所有 $\hat\beta_x$ 與 $\hat\kappa_t$ 的尺度，代價較大而無額外好處。
+
+\subsection{插入式誤差的方法論歸屬}\label{ss:plugin}
+
+本文扣除的是 $b(\hat\mu)$ 而非 $b(\mu)$，而該誤差有明確的歸屬。
+以 $\hat\mu$ 代入一個本該在 $\mu$ 處求值的修正量，
+其所生的誤差即小區域估計文獻所稱的\textbf{插入式誤差}；
+\citet{lahiri2023} 指出「一個二階無偏估計量的函數並不必然是二階無偏的」，
+而 \citet{jiang2026} 把標準作法寫成兩步——先取插入式估計量，
+再對其偏誤作第二步的修正。
+\textbf{本文的設定與該結構相同，差別在於本文的修正量 $b$ 有閉式而該文獻的
+變異成分沒有}，故本文能把展開寫出來：
+$$\Ex[b(\hat\mu)]-b(\mu)=b'(\mu)\big(\Ex[\hat\mu]-\mu\big)
++\tfrac12 b''(\mu)\mathrm{Var}(\hat\mu)+\cdots$$
+而依 \citet{chernozhukov2018} 的語彙，本文的修正\textbf{不是}
+Neyman 正交的——$\partial b/\partial\log\mu=A(\mu)-1\to-1$ 而非趨於零——
+故插入式誤差進入一階。\textbf{這是本文須正面處理它，
+而不能以「$\hat\mu$ 收斂即可」帶過的理由。}
+
 \section{策略}\label{s:strat}
+
+\subsection{哪一項結果管到哪一個參數}\label{ss:map}
+
+本文最容易被誤讀之處是把 $\alpha_x$ 的恆等式當成「小人口 Lee-Carter 偏誤
+的一般解」。下表把各項結果的適用範圍逐一標明。
+
+\begin{table}[H]
+\centering
+\caption{結果與參數的對應}
+\small
+\renewcommand{\arraystretch}{1.15}
+\begin{tabular}{p{4.6cm}ccc}
+\toprule
+結果 & $\alpha_x$ & $\beta_x$ & $\kappa_t$／漂移\\
+\midrule
+偏誤的閉式 $b(\mu;c_0)$ & \textbf{恆等式} & 不適用 & 不適用\\
+變異數的閉式 $v(\mu;c_0)$ & \textbf{恆等式} & 不適用 & 不適用\\
+效率下界 $0.8776$ & 逐格、非參數層 & 不適用 & 不適用\\
+事前可行性檢定 & \textbf{直接} & 間接 & 不適用\\
+中心化校正 & \textbf{直接} & 不動 & 不動\\
+資訊加權 & 不動 & \textbf{直接} & \textbf{直接}\\
+對偏離秩一的穩健性 & \textbf{已驗證} & 未驗證 & 未驗證\\
+偏誤的解析刻畫 & 有 & 數值分解（確定性成分佔 $9.2\%$） & \textbf{無}\\
+\bottomrule
+\end{tabular}
+\label{t:map}
+\end{table}
+
+\textbf{據此，本文的中心主張應一律表述為「標準對數奇異值分解
+實作中年齡水準參數 $\alpha_x$ 的偏誤」}，而不是「Lee-Carter 的小人口偏誤」。
+$\beta_x$ 與 $\kappa_t$ 的誤差主要來自異質變異使奇異向量旋轉與奇異值衰減，
+不在同一個閉式的涵蓋範圍內。
+
+\subsection{依目標量的推薦}\label{ss:target}
+
+參數層的改善與精算目標量的改善不是同一件事，故須分開推薦。
+
+\begin{table}[H]
+\centering
+\caption{依目標量的證據強度與推薦}
+\small
+\renewcommand{\arraystretch}{1.15}
+\begin{tabular}{p{2.3cm}p{2.5cm}p{2.3cm}p{2.3cm}p{2.5cm}}
+\toprule
+目標量 & 理論保證 & 模擬證據 & 誤設下的證據 & 推薦的估計量\\
+\midrule
+$\alpha_x$ & 恆等式 & 相關 $\ge0.998$（六國） & 穩健（改善 $4$--$18$ 倍） & 分離式或 Firth\\
+$\beta_x$ & 無 & $\mathrm{SSE}$ 由 $5.95$ 降至 $1.18$ & 未測 & 分離式\\
+$\kappa_t$ 的形狀 & 無 & 相關 $0.393\to0.941$ & 未測 & 加權版\\
+漂移 & 無 & 偏誤 $0.333\to0.136$ & 未測 & \textbf{計數尺度的擬分數}（$-0.004$）\\
+配適的 $e_0$ & 無 & 偏誤 $-1.47\to-0.04$ & \textbf{好處會消失} & 保留，但須附三項分解\\
+外推的 $e_0$ & 無 & 未測 & 未測 & \textbf{不推薦}（$\kappa_t$ 未納入框架）\\
+年金現值 & 無 & 未測 & 未測 & \textbf{不推薦}\\
+\bottomrule
+\end{tabular}
+\label{t:target}
+\end{table}
+
+\textbf{三項讀法。} 其一，\textbf{參數層的改善比目標層的改善建立得更穩固}：
+$\alpha_x$ 有恆等式與跨國與誤設兩重驗證，而 $e_0$ 只有模擬證據且在誤設下退化。
+其二，\textbf{漂移應改用計數尺度的擬分數}，因對數尺度的各法皆留下約
+$+0.136$ 的漂移偏誤而計數尺度約為零。
+其三，\textbf{外推與年金現值目前一律不推薦}，
+蓋因 $\kappa_t$ 尚未納入框架，而外推的根本在 $\kappa_t$。
 
 \subsection{偏誤落在哪裡：三個參數三種型態}
 
@@ -525,8 +690,27 @@ $\kappa$ 的偏誤是\textbf{朝零的等比收縮}（與 $-\kappa_t$ 的相關�
 因其誤差九成以上來自異質變異使主奇異向量旋轉。
 \end{itemize}
 
-\textbf{一項須在報告中並列的警告：}人數五萬時本文的 $e_0$ 偏誤 $-0.041$ 歲
-是三項相消的結果（$\alpha$ 的 $-0.326$、$\beta$ 的 $+1.492$、$\kappa$ 的 $-0.603$）。
+一次只把一個參數換成估計值、其餘用真值，可把 $e_0$ 的偏誤歸因：
+
+\begin{table}[H]
+\centering
+\caption{$e_0$ 偏誤的逐參數歸因（歲，真值 $84.069$）}
+\small
+\begin{tabular}{llrrrr}
+\toprule
+人數 & 估計量 & 只放 $\alpha$ & 只放 $\beta$ & 只放 $\kappa$ & 全放\\
+\midrule
+一萬 & 標準 Lee-Carter & $-1.586$ & $+0.284$ & $-1.612$ & $-3.694$\\
+一萬 & 中心化＋加權 & $-0.454$ & $+1.209$ & $-1.121$ & $-1.170$\\
+五萬 & 標準 Lee-Carter & $+0.061$ & $-0.222$ & $\mathbf{-1.476}$ & $-1.481$\\
+五萬 & 中心化＋加權 & $-0.326$ & $+1.492$ & $-0.603$ & $\mathbf{+0.073}$\\
+\bottomrule
+\end{tabular}
+\label{t:attr}
+\end{table}
+
+\textbf{一項須在報告中並列的警告：}人數五萬時本文的 $e_0$ 偏誤 $+0.073$ 歲
+看來極佳，但它是三項不小的偏誤相消的結果。
 該相消沒有理由在年金現值、其他年齡的餘命或外推之後的值上也成立，
 故 $e_0$ 的數字不宜單獨呈現。
 
@@ -565,26 +749,55 @@ $b'(\mu)\mathrm{bias}(\hat\mu)+\tfrac12 b''(\mu)\mathrm{Var}(\hat\mu)$，
 
 \subsection{後續工作的優先序}
 
+以下的排序刻意\textbf{把區間推論與真實次國家資料排除在可排程的工作之外}，
+理由於本節末說明。
+
 \begin{enumerate}[label=\arabic*.]
-\item \textbf{區間推論（最高優先）。} 本文通篇為點估計，而監理框架要的是分布。
-三項須先處理的前提已查明：Wald 區間因 $\partial b/\partial\log\mu\to-1$
-而不適用；整列全零時任一精確信賴集合必有一個方向為無限長
-（\citealp{lewis2024}，以先例引用）；而偏誤不隨樣本消失時自助法重現的是
-含偏誤的分布（\citealp{cavaliere2024}），故須先確認其所重現的對象。
-\item \textbf{$\beta_x$ 的偏誤閉式。} $\hat\alpha_x$ 有恆等式而 $\hat\beta_x$ 沒有，
-因前者是列平均、後者是奇異向量，須以逐元而非子空間的擾動理論處理。
-校正後 $\beta$ 偏誤最大的年齡趨於穩定（$1$--$4$ 與 $70$--$74$），可為切入點。
+\item \textbf{$\kappa_t$ 與 $\beta_x$ 納入同一框架（最高優先）。}
+$\hat\alpha_x$ 有恆等式而兩者沒有，因前者是列平均、後者是奇異向量與奇異值，
+須以逐元而非子空間的擾動理論處理 \citep{abbe2020}。
+校正後 $\beta$ 偏誤最大的年齡趨於穩定（$1$--$4$ 與 $70$--$74$），可為切入點；
+而 $\kappa_t$ 在年金實務上是最關鍵的一條，第\ref{s:sol}節已顯示其
+衰減與形狀誤差須分開處理。
+\item \textbf{秩一是否足夠的檢定。} 本文全篇以秩一結構為前提而未檢定該前提，
+而第\ref{s:strat}節末顯示偏離秩一時 $\alpha$ 的校正穩健、
+$e_0$ 的好處則會消失，\textbf{故該檢定決定的是結論的適用範圍而非細節}。
+可用的工具有兩類且成本皆低：非可加性的單自由度檢定，
+以及以 Poisson 抽薄作交叉驗證來選因子個數。
+\item \textbf{正規化改為單純形。} 依第\ref{ss:norm}節，
+加上 $\beta_x\ge0$ 即可使可行集緊緻，
+且因本文的 $\hat\beta_x$ 皆為正而不改動任何已報告的數值。
+\textbf{成本最低而消掉一個結構性的病灶}，宜與第 1 項併行。
 \item \textbf{混合設計。} $\alpha$ 與 $\beta$ 由對數尺度的分離式求得，
 漂移改由計數尺度的擬分數估計——後者在人數五萬時把漂移偏誤清到約零
 （$-0.004$ 對本文的 $+0.136$）。三個參數的作用域已證可分離，
 故此種拼接在估計方程的層次上乾淨。
-\item \textbf{真實次國家資料。} 目前所有驗證皆為模擬或抽薄，
-\textbf{沒有一筆真正的小地區資料}——第\ref{ss:cross}節的跨國研究所驗證的是
-閉式與門檻公式，不是實務表現。這是唯一不受本人進度控制的一項，應盡早洽詢。
-除臺灣的鄉鎮市區之外，美國的 USMDB（州層級）與加拿大的 CHMD（省層級）
-其格式與人類死亡率資料庫相同，故現有的載入程式可直接沿用。
-\item \textbf{秩一是否足夠的檢定。} 本文全篇以秩一結構為前提而未檢定該前提。
+\item \textbf{偏誤定理與演算法定理的分離。} 本文的一階偏誤結果
+不自動保證修正後的估計方程有唯一根、亦不保證任意起點下的迭代收斂；
+兩者應在定理的陳述中分開，而第\ref{ss:norm}節的結果正是一個反例。
+\item \textbf{插入式誤差的二階處理。} 依第\ref{ss:plugin}節，
+兩項展開在幼年組幾乎互相抵銷而淨值落在三階，
+故直接的二階校正不可行；可行的方向是降低 $\mathrm{Var}(\hat\mu)$
+而不增加其偏誤。
 \end{enumerate}
+
+\textbf{兩項刻意排除，而理由不同。}
+
+\textbf{其一，區間推論。} 這並非因其不重要——本文通篇為點估計而監理框架
+要的是分布——而是因為\textbf{三條現成的路線目前各有一個否定的結果}：
+Wald 區間因 $\partial b/\partial\log\mu\to-1$ 而不適用；
+整列全零時任一精確信賴集合必有一個方向為無限長
+（\citealp{lewis2024}，以先例引用）；
+而偏誤不隨樣本量消失時，自助法所重現的是含偏誤的分布
+\citep{cavaliere2024}，而本文的偏誤正是有限樣本的恆等式。
+\textbf{在理論上找到一條可落地的路線之前，投入模擬是過早的}；
+故本文的立場是先把這三項障礙寫清楚，待其一被解開再排程。
+
+\textbf{其二，真實次國家資料。} 此項\textbf{不受本人進度控制}，
+故應持續洽詢而不列入可排程的工作。在取得之前，
+第\ref{s:prob}節的年齡結構分析與第\ref{ss:cross}節的跨國比較
+是外部效度所能做到的上限——\textbf{而該節已明確寫出，
+跨國所驗證的是閉式與門檻公式，不是實務表現}。
 
 \subsection{適用的界限}
 
@@ -603,8 +816,27 @@ $(\sqrt T+\sqrt A)/\sqrt T$，在 $A=22$、$T=24$ 下為 $1.96$ 倍且會飽和�
 其偏誤為 $\overline{b(\mu)}$，\textbf{與 $\log\mu$ 是否為秩一完全無關}；
 秩一只透過插入的 $\hat\mu$ 進入，而 $b$ 在 $\mu$ 上平滑。
 其二，\textbf{$e_0$ 的好處則隨偏離退化並會消失}：
-美國在第二成分佔 $35\%$ 時校正仍優於標準（$+0.609$ 對 $+0.903$ 歲），
-佔 $68\%$ 時\textbf{反而較差}（$+1.427$ 對 $+1.037$ 歲），
+
+\begin{table}[H]
+\centering
+\caption{受控偏離秩一下的表現（人數五萬）}
+\small
+\begin{tabular}{llrrrr}
+\toprule
+國家 & 第二成分佔比 & 標準 $\alpha$ 最大 & 分離式 & 標準 $e_0$ & 分離式 $e_0$\\
+\midrule
+臺灣 & 0.000 & 0.7896 & 0.0888 & $-1.440$ & $+0.489$\\
+臺灣 & 0.043 & 0.7886 & 0.1282 & $-1.326$ & $+0.629$\\
+臺灣 & 0.152 & 0.7876 & 0.0626 & $-1.354$ & $+0.715$\\
+美國 & 0.000 & 0.6184 & 0.0723 & $+0.326$ & $-0.109$\\
+美國 & 0.350 & 0.6159 & 0.0817 & $+0.903$ & $+0.609$\\
+美國 & 0.683 & 0.6134 & 0.0380 & $\mathbf{+1.037}$ & $\mathbf{+1.427}$\\
+\bottomrule
+\end{tabular}
+\label{t:rank2}
+\end{table}
+
+美國在第二成分佔 $35\%$ 時校正仍優於標準，佔 $68\%$ 時\textbf{反而較差}，
 故交叉點落在三成五至六成八之間。
 \textbf{亦即 $\alpha$ 層次的保證在模型誤設下存活，$e_0$ 層次的好處不然}，
 這是把 $e_0$ 降為下游敏感度分析而非並列證據的理由。

@@ -2467,6 +2467,88 @@ $\Ex[\psi_{\tau,c}(u(\theta_0))]$，其值一般\textbf{仍不為零}，事實�
 （$\psi$）與\textbf{權重}（$w$），中心化改變的是它的\textbf{位置}，
 兩者在該式中出現在不同的地方，因此彼此正交。
 
+\subsection{Firth 預先修正的具體形式}\label{subsec:firthmath}
+
+本文全篇以 \citet{firth1993} 為主要的對照方法，前此只引其結論。
+此處寫出其在本模型下的具體形式，蓋因該形式本身說明了它與本文的修正
+在零格上的關係，而該關係不寫出來看不見。
+
+\textbf{一般原理。} 最大概似估計量的偏誤首項可寫為
+$\mathrm{bias}(\hat\theta)=I(\theta)^{-1}A(\theta)+O(n^{-2})$。
+\citet{firth1993} 的作法是把 $A(\theta)$ 加在分數函數上，
+使修正後分數的根其偏誤為 $O(n^{-2})$；在正則連結的指數族下，
+該修正等價於以 Jeffreys 先驗懲罰對數概似，即
+\begin{equation}\label{eq:jeffreys}
+\ell^{*}(\theta)\;=\;\ell(\theta)+\tfrac12\log\det I(\theta).
+\end{equation}
+
+\textbf{在本模型下的形式。} 記 $\eta_{x,t}=\alpha_x+\beta_x\kappa_t$、
+$\mu_{x,t}=E_{x,t}e^{\eta_{x,t}}$，而 $\theta=(\boldsymbol\alpha,
+\boldsymbol\beta,\boldsymbol\kappa)$ 共 $p=2A+T$ 個分量。
+Poisson 對數概似的分數與資訊為
+$$U_r=\sum_{x,t}(D_{x,t}-\mu_{x,t})\frac{\partial\eta_{x,t}}{\partial\theta_r},
+\qquad I(\theta)=J^{\top}WJ,\quad W=\mathrm{diag}(\mu_{x,t}),$$
+其中 $J$ 為 $\eta$ 對 $\theta$ 的 Jacobian，其第 $(x,t)$ 列只有三處非零：
+$\partial\eta/\partial\alpha_x=1$、$\partial\eta/\partial\beta_x=\kappa_t$、
+$\partial\eta/\partial\kappa_t=\beta_x$。
+由 $\partial\mu_{x,t}/\partial\theta_r
+=\mu_{x,t}\,\partial\eta_{x,t}/\partial\theta_r$ 可得
+$$\frac{\partial}{\partial\theta_r}\log\det I
+=\mathrm{tr}\Big\{I^{-1}J^{\top}\frac{\partial W}{\partial\theta_r}J\Big\}
+=\sum_{x,t}h_{x,t}\,\frac{\partial\eta_{x,t}}{\partial\theta_r},$$
+其中 $h_{x,t}=\mu_{x,t}\,j_{x,t}^{\top}I^{-1}j_{x,t}$ 為帽子矩陣
+$H=W^{1/2}JI^{-1}J^{\top}W^{1/2}$ 的對角元，$j_{x,t}$ 為 $J$ 的該列。
+代回式~\eqref{eq:jeffreys} 即得修正後的估計方程
+
+\begin{equation}\label{eq:firthscore}
+U^{*}_r=\sum_{x,t}\Big(D_{x,t}+\tfrac{1}{2}h_{x,t}-\mu_{x,t}\Big)
+\frac{\partial\eta_{x,t}}{\partial\theta_r}=0 .
+\end{equation}
+
+\textbf{亦即 Firth 的修正就是把各格的死亡數由 $D_{x,t}$ 換成
+$D_{x,t}+\tfrac12 h_{x,t}$，其餘一概不動。}
+本文的實作即依式~\eqref{eq:firthscore}，以 $I$ 的 Moore--Penrose 廣義逆
+處理 Lee-Carter 參數化多出的兩個自由度。
+由 $\mathrm{tr}(H)=p$ 可知所加的總量恆為 $p/2$，
+而其在各格之間的分配由槓桿決定。
+
+\textbf{與加常數的關係。} 單一參數、單一樣本時 $h=1$，
+式~\eqref{eq:firthscore} 的調整恰為 $+\tfrac12$，此即 \citet{haldane1956}
+的加常數。第\ref{sec:biasred}所述 \citet[\S3.3]{firth1993} 的那句話
+（加 $\tfrac12$ 是其預先修正在單樣本下的形式）在此是一個恆等式而非類比。
+
+\textbf{為何不會發散。} 設年齡 $x$ 各年皆為零死亡。
+未修正的分數對 $\alpha_x$ 為 $\sum_t(0-\mu_{x,t})=-\sum_t\mu_{x,t}<0$，
+對一切 $\alpha_x$ 皆為負，故單調而根在 $-\infty$，此即
+第\ref{subsec:relation}所述的不存在性。修正後的分數為
+$\sum_t(\tfrac12 h_{x,t}-\mu_{x,t})$：$\alpha_x\to-\infty$ 時
+$\mu_{x,t}\to0$ 而 $h_{x,t}$ 不趨於零，故該式為正；
+$\alpha_x\to+\infty$ 時為負。\textbf{分數因而變號，有限的根存在}，
+此即 \citet{kosmidis2021} 就二項反應所證性質在本模型的對應。
+
+\textbf{其隱含的替代值，以及與 $c_0$ 的對照。} 上段的極限可以算出量。
+年齡 $x$ 有兩個專屬的參數（$\alpha_x$ 與 $\beta_x$），
+故該列的槓桿和在零死亡的極限下趨於 $2$，所加的總量為 $2/2=1$，
+於是 $\hat\alpha_x\to\log\big(1/\sum_t E_{x,t}\big)$。
+\textbf{亦即 Firth 使一整列零死亡的行為如同該列合計有一個死亡。}
+以人數一萬的模擬核對：全零列共 90 個，$\hat\alpha_x$ 與
+$\log(0.5/\sum_t E_{x,t})$ 的差其中位數為 $+0.607$，
+而上述推導預測的差為 $\log 2=0.693$。
+
+對照之下，標準 Lee-Carter 的 $\hat\alpha_x$ 在全零列\textbf{恰好}等於
+$\overline{\log(c_0/E_{x,t})}$（模擬中的差為 $0.000$），
+亦即其隱含的替代值是\textbf{逐格}半個死亡、該列合計 $T\times c_0=12$ 個。
+\textbf{兩者相差 $T=24$ 倍，而 $\log 24=3.18$ 正是兩法在該年齡的
+$\hat\alpha_x$ 之差的量級}（模擬中約 $2.6$）。
+
+此一對照給出一個本文前此未明言的定位：
+\textbf{Firth 並非與零格替代不同類的方法，而是一個隱含替代值由模型定出、
+而非由分析者選定的零格替代}，且其每格的替代量比慣例小 $T$ 倍。
+第\ref{sec:empmain}所測得 Firth 在 $\alpha$ 上優於本文的修正，
+其量級因而不是意外；而第\ref{subsec:c0disc}對 $c_0$ 任意性的批評
+在 Firth 上不適用——代價是它所隱含的替代值無法調整，
+且依 \citet{lewis2024}，最大概似估計量不存在時其行為沒有理論保證。
+
 \subsection{參數偏誤的成分分解}\label{sec:betadec}
 
 Corollary~\ref{cor:alpha} 只涵蓋 $\alpha_x$，因為它在奇異值分解之前即已由

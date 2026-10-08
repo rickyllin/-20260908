@@ -5,16 +5,18 @@ BIBTEX  := PATH="$(TEXBIN):$$PATH" bibtex
 
 # 目前維護中的三份文件。歷次已被取代的版本置於 封存/，不再編譯。
 #   v1012   進度報告_1012_V1             完整版的新一代（由 tools/make_1012_v1.py 自 V2 產生）
+#   brief   進度報告_1012_摘要版         九頁摘要（問題、解決方案、策略）
 #   v2      進度報告_1005_V2             1005 的完整版（1012 V1 的母本）
 #   v3      進度報告_1005_V3             精簡版（主文四十頁以內，由 tools/make_v3.py 產生）
 #   nonact  進度報告_1005_V2_無精算概念   統計版（由 tools/make_statistics_version.py 產生）
 #   theory  進度報告_1012_理論初探         理論初探（獨立撰寫，書目另加 references_1012.bib）
 #   quasi   進度報告_理論初探_擬概似…      理論初探（不取對數，書目另加 references_1013.bib）
-.PHONY: all v1012 v2 v3 nonact theory quasi gen clean distclean
+.PHONY: all v1012 brief v2 v3 nonact theory quasi gen clean distclean
 
-all: v1012 v2 v3 nonact theory quasi
+all: v1012 brief v2 v3 nonact theory quasi
 
 v1012:  進度報告_1012_V1.pdf
+brief:  進度報告_1012_摘要版.pdf
 v2:     進度報告_1005_V2.pdf
 v3:     進度報告_1005_V3.pdf
 nonact: 進度報告_1005_V2_無精算概念.pdf
@@ -52,4 +54,4 @@ clean:
 
 distclean: clean
 	rm -f 進度報告_1005_V2.pdf 進度報告_1005_V3.pdf 進度報告_1005_V2_無精算概念.pdf \
-	      進度報告_1012_V1.pdf 進度報告_1012_理論初探.pdf 進度報告_理論初探_擬概似與變異安定轉換.pdf
+	      進度報告_1012_V1.pdf 進度報告_1012_摘要版.pdf 進度報告_1012_理論初探.pdf 進度報告_理論初探_擬概似與變異安定轉換.pdf

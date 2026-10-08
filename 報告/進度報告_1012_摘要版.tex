@@ -1,0 +1,537 @@
+\documentclass[UTF8, fontset=macnew, a4paper, 12pt]{ctexart}
+
+\usepackage{geometry}
+\geometry{top=2.2cm, bottom=2.2cm, left=2.2cm, right=2.2cm}
+\usepackage{amsmath, amssymb}
+\usepackage{booktabs}
+\usepackage{multirow}
+\usepackage{tabularx}
+\usepackage{graphicx}
+\usepackage{caption}
+\usepackage{xcolor}
+\usepackage{float}
+\usepackage{enumitem}
+\usepackage{fancyhdr}
+\usepackage{setspace}
+\usepackage{pifont}
+\usepackage{natbib}
+% 拉丁作者名之後採半形括號（中文作者名在書目的中文部分仍用全形）；
+% 第五個引數留空表示作者與年份之間不加逗號。
+\bibpunct{(}{)}{; }{a}{}{,}
+\usepackage[hidelinks]{hyperref}
+
+\graphicspath{{../output/figures/}}
+\captionsetup{font=small, labelfont=bf, labelsep=quad}
+\setlist{itemsep=2pt, parsep=0pt, topsep=4pt}
+\singlespacing
+
+% ctexart 預設的圖表標號前綴為簡體「图」，改回正體。
+\renewcommand{\figurename}{圖}
+\renewcommand{\tablename}{表}
+
+\ctexset{
+  section/format = \raggedright\zihao{4}\bfseries,
+  section/name   = {},
+  section/number = \bignum{\value{section}},
+  section/aftername = 、,
+  subsection/format = \raggedright\zihao{5}\bfseries,
+  subsection/number = \chinese{subsection},
+  subsection/aftername = 、,
+  subsubsection/format = \raggedright\normalsize\bfseries,
+}
+\newcommand{\bignum}[1]{\ifcase#1\or 壹\or 貳\or 參\or 肆\or 伍\or
+  陸\or 柒\or 捌\or 玖\or 拾\fi}
+\renewcommand{\thesection}{\bignum{\value{section}}}
+% 交叉引用子節時補上節次，否則 \ref 只印出「三」而無從判斷屬於哪一節。
+\renewcommand{\thesubsection}{\chinese{subsection}}
+\makeatletter
+\renewcommand{\p@subsection}{\thesection 節之}
+\makeatother
+\setcounter{secnumdepth}{2}
+
+\pagestyle{fancy}
+\fancyhf{}
+\fancyhead[L]{}
+\fancyhead[R]{\small 進度報告（1012 摘要版）}
+\fancyfoot[C]{\small \thepage}
+\renewcommand{\headrulewidth}{0.4pt}
+
+% U+2460~2463 不在 xeCJK 認定的 CJK 範圍內，會落到拉丁字型而缺字，
+% 因此改用 pifont 的圈號。
+\newcommand{\cn}[1]{\ding{\number\numexpr171+#1\relax}}
+\newcommand{\edag}{e_0^{\dagger}}
+\newtheorem{prop}{Proposition}
+\newtheorem{cor}{Corollary}
+\newtheorem{lem}{Lemma}
+\newenvironment{proof}{\par\noindent\textit{Proof}.\ }{\hfill$\square$\par\vspace{4pt}}
+\newcommand{\Ex}{\mathbb{E}}
+
+% 分部標題
+\newcommand{\partline}[2]{%
+  \par\vspace{10pt}\noindent\rule{\textwidth}{0.8pt}\par\vspace{2pt}
+  \noindent{\zihao{4}\bfseries 第#1部\quad #2}\par
+  \vspace{2pt}\noindent\rule{\textwidth}{0.8pt}\par\vspace{6pt}%
+  \phantomsection\addcontentsline{toc}{part}{第#1部\quad #2}}
+
+% 目錄：只收到小節，部次以粗體與一行間距與節次區隔。
+\setcounter{tocdepth}{2}
+\makeatletter
+\renewcommand{\l@part}[2]{\par\vspace{8pt}%
+  \noindent{\bfseries #1}\par\vspace{2pt}}
+\renewcommand{\l@section}[2]{\@dottedtocline{1}{0em}{5.2em}{\bfseries #1}{\bfseries #2}}
+\renewcommand{\l@subsection}[2]{\@dottedtocline{2}{5.2em}{4.6em}{#1}{#2}}
+\makeatother
+
+\begin{document}
+\pagenumbering{arabic}
+
+\begin{center}
+{\zihao{3}\bfseries 小人口 Lee-Carter 參數偏誤的閉式}\\[4pt]
+{\zihao{5} ——問題、解決方案與策略（摘要版）}\\[8pt]
+{\zihao{5} （林子立）\quad 指導教授：余清祥\,教授\quad 國立政治大學統計學系}\\[4pt]
+{\zihao{5} 中華民國 115 年 10 月 12 日}
+\end{center}
+
+\vspace{4pt}
+\noindent\rule{\textwidth}{0.8pt}
+\vspace{2pt}
+
+\noindent 本文為 \texttt{進度報告\_1012\_V1}（74 頁）的摘要，
+只保留問題的界定、所提方法與其成績，以及後續的取捨。
+各節末標示完整版的對應節次。所有數值皆為女性 2001--2024 年資料、
+重複一百次、固定亂數種子。
+
+\vspace{2pt}
+\noindent\rule{\textwidth}{0.8pt}
+
+\section{問題}\label{s:prob}
+
+\subsection{現象與既有的處理}
+
+Lee-Carter 模型以 $\log m_{x,t}=\alpha_x+\beta_x\kappa_t$ 刻畫死亡率，
+其標準估計是對 $\log\hat m_{x,t}=\log\big(\max(D_{x,t},c_0)/E_{x,t}\big)$
+作奇異值分解，其中 $c_0$ 為零死亡時的替代值，慣例取 $0.5$。
+人口規模小時該估計的年齡參數有方向明確的偏誤，
+既有研究以模擬量化此一現象，並以修勻或參考母體加以緩解。
+
+\textbf{本文的出發點是：該偏誤不是模擬所觀察到的經驗現象，
+而是估計方程的一項可以寫出來的性質。}
+
+\subsection{偏誤的閉式與其兩個來源}
+
+$\hat\alpha_x$ 是 $\log\hat m_{x,t}$ 的列平均，而該平均在奇異值分解之前
+即已定出。故其偏誤為逐格偏誤的平均，而逐格偏誤有閉式：
+$D\sim\text{Poisson}(\mu)$ 時
+\begin{equation}\label{eq:b}
+b(\mu;c_0)=\Ex[\log\max(D,c_0)]-\log\mu
+= e^{-\mu}\log c_0+\sum_{d\ge1}\frac{e^{-\mu}\mu^{d}}{d!}\log d-\log\mu .
+\end{equation}
+式~\eqref{eq:b} 可再分解為兩項，\textbf{而兩項的成因不同}：
+$$b(\mu;c_0)=\underbrace{\pi\log\frac{c_0}{\mu_+}-\log(1-\pi)}_{\text{零格替代}}
+-\underbrace{(1-\pi)\big(\log\mu_+-\Ex[\log D\mid D\ge1]\big)}_{\text{Jensen}},$$
+其中 $\pi=\Pr(D=0)$、$\mu_+=\Ex[D\mid D\ge1]$。
+零格主導 $\mu$ 小的年齡，Jensen 主導 $\mu$ 大的年齡，
+而兩者的符號相反，故 $b$ 有唯一的變號點。
+
+\subsection{三個須先認清的性質}
+
+\textbf{其一，這是有限樣本的恆等式，不是漸近近似。} 式~\eqref{eq:b} 不含
+觀測年數 $T$，故\textbf{增加觀測年數不使該偏誤消失}；它只隨每格的期望死亡數
+$\mu_{x,t}$ 增大而消失。這與 \citet{coxsnell1968} 與 \citet{firth1993}
+所處理的 $O(n^{-1})$ 漸近偏誤性質不同。
+
+\textbf{其二，哪些年齡被高估是分析者選出來的。} 變號點 $\mu^{\ast}$ 隨 $c_0$ 移動：
+$c_0=0.1/0.3/0.5/1.0$ 分別給出 $\mu^{\ast}=0.134/0.533/0.923/1.509$。
+慣例的 $0.5$ 給出 $\mu^{\ast}=0.9234$，即「每年約一人死亡」這個分界。
+
+\textbf{其三，偏誤的位置與量都可在配適之前算出}，
+因為式~\eqref{eq:b} 只需要曝露數與一組粗略的死亡率。這一點是第\ref{s:sol}節
+事前檢定的基礎。
+
+\subsection{問題的規模}
+
+人數一萬、女性的年齡結構下，期望有 $39.2\%$ 的格為零死亡，
+且平均有 $0.90$ 個年齡整列全零；人數五千與兩千時零格佔 $48.7\%$ 與 $63.0\%$。
+而我國 368 個鄉鎮市區中有 299 個單一性別人數少於五萬、217 個少於兩萬。
+
+\begin{table}[H]
+\centering
+\caption{標準 Lee-Carter 的偏誤隨人口規模（重複 100 次的中位數）}
+\small
+\begin{tabular}{rrrrr}
+\toprule
+人數 & $\alpha$ 中位偏誤 & $\alpha$ 最大偏誤 & $e_0$ 偏誤（歲） & 整列全零的年齡數\\
+\midrule
+2{,}000 & 0.8807 & 3.9114 & $-16.92$ & 4.02\\
+5{,}000 & 0.2585 & 2.9951 & $-6.88$ & 2.06\\
+10{,}000 & 0.1712 & 2.3309 & $-3.73$ & 0.90\\
+50{,}000 & 0.0693 & 0.8658 & $-1.47$ & 0.00\\
+200{,}000 & 0.0231 & 0.1846 & $-1.22$ & 0.00\\
+\bottomrule
+\end{tabular}
+\label{t:prob}
+\end{table}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.82\textwidth]{figT1_alpha_band.png}
+\caption{逐年齡的 $\alpha$ 偏誤與其閉式預測（人數五萬）}
+\end{figure}
+
+圖中的實線為式~\eqref{eq:b} 所預測的偏誤、點為模擬實測的中位數。
+兩者在幼年組同為大的正值、在高齡組同為小的負值，而交叉處即 $\mu^{\ast}$。
+\textbf{值得注意的是帶寬與準度的脫鉤}：幼年組的帶最窄而偏離最遠。
+
+\noindent（完整版第壹、貳、參節）
+
+\subsection{資料與驗證的設計}\label{ss:data}
+
+全部分析使用內政部與衛福部的臺灣死亡與人口資料，女性 2001--2024 年、
+二十二個年齡組（$0$、$1$--$4$、$5$--$9$、\ldots、$100^{+}$），共 $22\times24$ 格。
+只用女性，因其死亡率曲線較平滑，可使閉式的驗證不混入模型誤設。
+依既定方針不作單齡組的分析。
+
+驗證以兩種方式進行。其一是\textbf{模擬}：以全國資料的 Poisson 配適為真值，
+按該年齡結構縮放至指定人數後模擬 Poisson 死亡數。
+此法的代價是它假設小人口的死亡率恰好等於全國的死亡率，
+而真實的鄉鎮市區顯然不是如此；但本文此處的目的是檢驗閉式，
+而閉式所刻畫的是估計程序對給定 $\mu_{x,t}$ 的反應。
+其二是\textbf{二項抽薄}：由實際的全國死亡數抽薄至小人口，
+如此保留臺灣死亡率的逐年不規則性，用於模型誤設下的穩健性檢驗。
+
+一律重複一百次、固定亂數種子，並\textbf{以中位數而非平均數匯總}，
+使少數發散的重複不致主導結論。
+邊界配適如實保留而不剔除、不重抽；其出現頻率系統性回報如下
+（\citealp{pawel2026} 指出 482 篇模擬研究中只有 $23\%$ 提到演算法失敗）。
+
+\begin{table}[H]
+\centering
+\caption{整列零死亡與邊界配適的出現頻率（Poisson 最大概似，100 次重複）}
+\small
+\begin{tabular}{rrr}
+\toprule
+人數 & 整列全零的年齡數 & 出現邊界配適的重複次數\\
+\midrule
+2{,}000 & 4.02 & 87\\
+5{,}000 & 2.06 & 98\\
+10{,}000 & 0.90 & 93\\
+50{,}000 & 0.00 & 5\\
+200{,}000 & 0.00 & 0\\
+\bottomrule
+\end{tabular}
+\label{t:bnd}
+\end{table}
+
+\textbf{人數一萬時一百次重複中有 93 次至少一個年齡落在邊界}，
+故這不是偶發的極端值而是該規模下的常態。
+人數五萬時已無整列全零卻仍有 5 次發散，
+可知接近全零而非恰好全零亦足以使解發散。
+
+\section{解決方案}\label{s:sol}
+
+\subsection{閉式的驗證}
+
+以 $\mathrm{mean}_t\,b(\mu_{x,t})$ 預測標準 Lee-Carter 的逐年齡 $\alpha$ 偏誤，
+對照模擬實測，逐年齡相關係數在人數 $10^4$、$5\times10^4$、$2\times10^5$ 時
+為 $1.000$、$1.000$、$0.988$，迴歸斜率為 $1.001$、$0.990$、$0.962$，
+殘差落在蒙地卡羅誤差的量級。
+\textbf{亦即標準 Lee-Carter 的 $\alpha$ 偏誤可由單一個死亡數的函數完全解釋。}
+
+\subsection{二階解析量與效率的上界}
+
+除偏誤之外另導出三個量，全部為截斷精確和、已通過數值核對：
+對數尺度的變異數 $v(\mu;c_0)=\mathrm{Var}[\log\max(D,c_0)]$、
+偏誤的導數 $b'(\mu;c_0)$，以及估計方程的靈敏度 $A(\mu)=1+\mu b'(\mu)$。
+由此得到一個可寫成恆等式的結果：相對於 Poisson 最大概似的效率為
+$\mathrm{corr}\big(\log\max(D,c_0),\,D\big)^2$，其值全程不低於 $0.8776$。
+\textbf{亦即取對數與零格替代合起來的效率損失不超過 $12.2\%$}——
+問題在偏誤，不在效率。
+
+另一項對實務有用的性質：$v(\mu;c_0)$ 對 $\mu$ 非單調，於 $\mu\approx2$ 取極大
+（$v(0.02)=0.0096$、$v(2)=0.480$、$v(300)=0.0034$）。
+零格主導的年齡其估計帶很窄卻離真值很遠，\textbf{「帶窄」與「準」在此完全脫鉤}。
+
+\subsection{卜瓦松假設是否要緊}
+
+式~\eqref{eq:b} 依賴卜瓦松假設，而真實死亡數可能過度離散。
+本文把偏誤寫成一般形式之後，此一問題可以直接回答：
+零格替代那一項只依賴 $\pi=\Pr(D=0)$ 與 $\mu_+$，
+而 Jensen 那一項在過度離散下由 $1/(2\mu)$ 變為 $\phi/(2\mu)$。
+以負二項取代卜瓦松重算變號點：
+$$\phi=1.0\Rightarrow\mu^{\ast}=0.9234,\qquad
+\phi=1.5\Rightarrow0.8690,\qquad
+\phi=2.0\Rightarrow0.8289 .$$
+\textbf{變號點只移動不到一成，故本文的診斷對卜瓦松假設並不敏感。}
+此一結果使閉式可用於真實資料，而不必先檢定離散程度。
+
+\subsection{事前可行性檢定與分級}
+
+既然偏誤只需曝露數與粗略死亡率即可算出，本文把它包裝成一個
+\textbf{不需模擬、不需真值、也不需參考母體}的事前檢定，並分四級。
+以臺灣女性的年齡結構計算，單一性別人數兩萬四千以下為 D 級、
+九萬六千以上為 B 級。
+
+此一檢定補上了古典信賴度標準所缺的一半。全信賴度把資料量換算為期望索賠次數
+（$k=5\%$、$p=90\%$ 時約 $1{,}082$ 件），\textbf{但它控制的是估計的變異，
+而其推導假設估計量無偏}；該假設在此不成立，而本文的門檻正是偏誤側的對應物。
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.80\textwidth]{figF1_feasibility.png}
+\caption{事前可行性檢定的四級分級與臺灣鄉鎮市區的分布}
+\end{figure}
+
+該分級只用兩個輸入：各年齡的曝露數與一組粗略的死亡率。
+其判讀方式與信賴度標準相同——把資料量換算為一個門檻——
+但所控制的是偏誤而非變異。
+
+\subsection{校正：只校正 $\alpha$，以資訊加權處理 $\beta$ 與 $\kappa$}
+
+偏誤可預測即可扣除。本文的設計有兩個要點。其一，\textbf{只把 $\bar b_x$ 扣在
+$\hat\alpha_x$ 上而完全不動中心化矩陣}，如此 $\hat\beta$ 與 $\hat\kappa$
+不受 $\hat\mu$ 的噪音注入。其二，以期望死亡數加權求解秩一結構。
+
+\textbf{兩項改善可以疊加，而其成因已查明。} 以 $2\times2$ 的設計分開施作：
+只中心化時 $\beta$ 與 $\kappa$ 的四項指標到小數第四位不動；
+只加權時 $\alpha$ 的最大偏誤亦幾乎不動（$0.8658\to0.8660$）。
+\textbf{兩者的作用域互不重疊，而分離是精確的}，
+因為加權修正的是變異函數（一階），中心化修正的是轉換的偏誤（二階）。
+
+\begin{table}[H]
+\centering
+\caption{人數五萬時各法的比較（重複 100 次的中位數）}
+\small
+\begin{tabular}{lrrrrr}
+\toprule
+估計量 & $\alpha$ 中位 & $\alpha$ 最大 & $\mathrm{SSE}(\beta)$ & 漂移偏誤 & $e_0$ 偏誤\\
+\midrule
+標準 Lee-Carter & 0.0693 & 0.8658 & 5.9523 & $+0.3327$ & $-1.472$\\
+Poisson 最大概似 & 0.0080 & 0.1945 & 1.4098 & $-0.0043$ & $-0.186$\\
+Firth 預先修正 & 0.0060 & 0.0733 & 1.2156 & $\mathbf{+0.0023}$ & $-0.251$\\
+本文（中心化＋加權） & 0.0193 & 0.0768 & \textbf{1.1586} & $+0.1362$ & $\mathbf{-0.041}$\\
+本文（分離式） & \textbf{0.0067} & \textbf{0.0391} & 1.1762 & $+0.1357$ & $+0.273$\\
+\bottomrule
+\end{tabular}
+
+\vspace{2pt}
+\parbox{0.92\textwidth}{\footnotesize 註：分離式指 $\hat\alpha_x$ 維持等權列平均、
+加權只用於秩一結構，為本輪新增的設計。}
+\label{t:main}
+\end{table}
+
+\subsection{平均餘命與時間參數}
+
+$e_0$ 是實務上真正要看的量，而本文的修正在該量上有一項值得指出的性質：
+人數五萬時 $e_0$ 偏誤由 $-1.48$ 歲降到 $-0.04$ 歲，
+而其標準差由 $0.585$ 只變為 $0.644$。\textbf{偏誤的移除沒有付出相稱的變異代價。}
+但 Firth 的均方根誤差仍較小（$0.513$ 對 $0.644$），
+故在 $e_0$ 上兩法各有勝負。
+
+時間參數則有一項須明寫的限制。$\hat\kappa_t$ 的全距被壓縮，
+而該壓縮須拆成兩件事才不致誇大：
+
+\begin{table}[H]
+\centering
+\caption{$\hat\kappa$ 的衰減與形狀（真值全距 $9.850$）}
+\small
+\begin{tabular}{llrrr}
+\toprule
+人數 & 估計量 & 逐次全距中位 & 中位路徑全距 & $\mathrm{cor}(\hat\kappa,\kappa)$\\
+\midrule
+一萬 & 標準 Lee-Carter & 5.183 & 1.576 & 0.340\\
+一萬 & 中心化＋加權 & 8.598 & 4.446 & 0.698\\
+五萬 & 標準 Lee-Carter & 5.602 & 1.785 & 0.393\\
+五萬 & 中心化＋加權 & \textbf{7.620} & 6.555 & \textbf{0.941}\\
+\bottomrule
+\end{tabular}
+\label{t:kappa}
+\end{table}
+
+\textbf{逐次的全距衰減到五成三至五成七，而各次 $\hat\kappa$ 的中位路徑
+其全距只有一成六至一成八}——後者小得多，是因為標準 Lee-Carter 各次的形狀
+彼此不一致（與真值的相關只有 $0.34$ 至 $0.39$），中位數因而互相抵銷。
+只引中位路徑的壓縮比例會把衰減說得過重。
+而加權把形狀大幅修回（五萬時相關 $0.393\to0.941$），
+故「校正後的時間路徑擺幅更大」在該規模上是衰減更少而非缺陷。
+
+\subsection{與參考母體修勻法的對照}
+
+既有的緩解手段是修勻與參考母體，故須與之比較。
+以 \citet{lee2003} 的 partial SMR 為代表、人數五萬、參考母體兩百萬：
+
+\begin{table}[H]
+\centering
+\caption{與參考母體法的比較（$\alpha$ 偏誤中位數）}
+\small
+\begin{tabular}{lrrr}
+\toprule
+情境 & Partial SMR & Whittaker 比值修勻 & 本文（中心化＋加權）\\
+\midrule
+年齡型態相同 & \textbf{0.0025} & 0.0095 & 0.0223\\
+型態遞增 & 0.2064 & 0.0100 & \textbf{0.0223}\\
+型態遞減 & 0.3313 & 0.0123 & \textbf{0.0223}\\
+\bottomrule
+\end{tabular}
+
+\vspace{2pt}
+\parbox{0.92\textwidth}{\footnotesize 註：本文的方法不使用參考母體，
+故三個情境下的結果相同。}
+\label{t:smr}
+\end{table}
+
+\textbf{參考母體的型態與目標區域相符時 partial SMR 明顯較優，
+型態不符時其 $\alpha$ 偏誤惡化至本文的九至十五倍。}
+前者應視為該法的上界而非實務可期待的表現，蓋因該情境下
+$\mathrm{SMR}\cdot m^{R}_x$ 幾乎就是真值。
+\textbf{本文方法的位置因而清楚：它不需要參考母體，
+故在找不到型態相符的參考母體時是可用的那一個。}
+
+另附一項分解：只把零格由 $c_0/E$ 改填 $\mathrm{SMR}_t\cdot m^{R}_{x,t}$、
+其餘各格完全不動，即可移除約一半的偏誤（$\alpha$ 最大偏誤 $0.866\to0.332$）。
+\textbf{剩下的一半來自非零格的 Jensen 項，而那一部分只有中心化能處理}——
+這是對第\ref{s:prob}節兩項分解的另一個支持。
+
+\subsection{Firth 的具體形式，以及它與零格替代的關係}
+
+對照方法中最強的是 \citet{firth1993}，其在本模型下的形式值得寫出，
+蓋因它說明了為何它在 $\alpha$ 上勝出。以 Jeffreys 先驗懲罰對數概似
+$\ell^{*}=\ell+\tfrac12\log\det I(\theta)$，其修正後的估計方程為
+$$\sum_{x,t}\Big(D_{x,t}+\tfrac12 h_{x,t}-\mu_{x,t}\Big)
+\frac{\partial\eta_{x,t}}{\partial\theta_r}=0,$$
+其中 $h_{x,t}$ 為帽子矩陣的對角元。
+\textbf{亦即 Firth 的修正就是把死亡數換成 $D_{x,t}+\tfrac12 h_{x,t}$。}
+由 $\mathrm{tr}(H)=p$ 可知所加總量恆為 $p/2$；單一樣本時 $h=1$、
+調整恰為 $+\tfrac12$，此即 \citet{haldane1956} 的加常數。
+
+\textbf{關鍵的對照在零死亡的整列上。} 年齡 $x$ 有兩個專屬參數，
+故該列的槓桿和趨於 $2$、所加總量為 $1$，於是 Firth 使一整列零死亡的行為
+如同\textbf{該列合計有一個死亡}；而標準 Lee-Carter 的 $c_0=0.5$ 是\textbf{逐格}的，
+該列合計 $T\times0.5=12$ 個。\textbf{兩者相差 $T=24$ 倍}，
+而 $\log 24=3.18$ 正是兩法在該年齡 $\hat\alpha_x$ 之差的量級。
+
+由此得到一個定位：\textbf{Firth 並非與零格替代不同類的方法，
+而是一個隱含替代值由模型定出、而非由分析者選定的零格替代}，
+且其每格的替代量比慣例小 $T$ 倍。本文對 $c_0$ 任意性的批評在 Firth 上不適用，
+代價是其替代值無法調整，且依 \citet{lewis2024}，
+最大概似估計量不存在時 Firth 的行為沒有理論保證。
+
+\noindent（完整版第參至捌節；Firth 的推導為第柒節之二）
+
+\section{策略}\label{s:strat}
+
+\subsection{偏誤落在哪裡：三個參數三種型態}
+
+這一節決定了後續工作的排序。把三者的貢獻換算到同一尺度後：
+
+\begin{itemize}
+\item \textbf{曲面偏誤由 $\alpha$ 主導}（標準 Lee-Carter 人數五萬時佔 $85\%$、
+一萬時 $98\%$），校正後降至 $8\%$ 而 $\beta$ 成為最大殘項。
+\item \textbf{但 $e_0$ 的偏誤由 $\kappa$ 主導}（五萬時 $\kappa$ 貢獻 $-1.476$ 歲
+而合計 $-1.481$，$\alpha$ 只貢獻 $+0.061$）。不矛盾：$\alpha$ 偏誤最大的年齡
+是幼年組，而幼年組對 $e_0$ 影響小。
+\item $\alpha$ 的位置\textbf{可由閉式事前算出}（集中在 $\mu<\mu^{\ast}$ 的幼年組）；
+$\kappa$ 的偏誤是\textbf{朝零的等比收縮}（與 $-\kappa_t$ 的相關為 $0.999$），
+故集中在觀測期兩端；$\beta$ 的\textbf{沒有穩定位置}，
+因其誤差九成以上來自異質變異使主奇異向量旋轉。
+\end{itemize}
+
+\textbf{一項須在報告中並列的警告：}人數五萬時本文的 $e_0$ 偏誤 $-0.041$ 歲
+是三項相消的結果（$\alpha$ 的 $-0.326$、$\beta$ 的 $+1.492$、$\kappa$ 的 $-0.603$）。
+該相消沒有理由在年金現值、其他年齡的餘命或外推之後的值上也成立，
+故 $e_0$ 的數字不宜單獨呈現。
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.82\textwidth]{figT9_age_profile.png}
+\caption{校正的改善倍數隨年齡（人數五萬）}
+\end{figure}
+
+$\alpha$ 的改善集中在 $\mu$ 小的年齡（$0$ 至 $14$ 歲約 $1.9$ 倍），
+$\beta$ 的改善遍及全齡（最高 $34$ 倍）；
+而 $15$ 至 $34$ 歲因 $\mu\approx\mu^{\ast}$ 而幾乎沒有改善——
+\textbf{該處本來就沒有偏誤可改}，與閉式的預測一致。
+
+\subsection{已確定不可行的方向}
+
+列出負面結果，以免重複投入。
+
+\begin{itemize}
+\item \textbf{不取對數並不解決小樣本問題。} 恆等轉換下估計方程恆為無偏
+（$\Ex[D-\mu]=0$），故本文所研究的偏誤完全是轉換造成的；
+但代價是解的存在性——人數一萬時 Poisson 最大概似的 $\alpha$ 最大偏誤為
+$6.50$，且一百次重複中有 $93$ 次至少一個年齡落在邊界。
+\textbf{偏誤由估計方程移到了解的存在性，而小樣本的困難主要在後者。}
+\item \textbf{變異安定轉換可用而不宜為主。} Anscombe 尺度在人數一萬處
+優於標準 Lee-Carter（$\alpha$ 最大 $2.33\to1.45$），但劣於 Firth（$0.18$）
+與本文的分離式（$0.51$）。
+\item \textbf{有界影響的截斷買不到東西。} 人數五萬時截斷是純粹的損失。
+成因是病灶為\textbf{整列沒有資訊}而非少數離群值，
+而截斷單一格無法替一個沒有資訊的列造出資訊。
+\item \textbf{二階的插入式校正在數值上不穩定。} 插入式誤差可分解為
+$b'(\mu)\mathrm{bias}(\hat\mu)+\tfrac12 b''(\mu)\mathrm{Var}(\hat\mu)$，
+而兩項在幼年組幾乎互相抵銷（$1$--$4$ 歲：$-0.113$ 與 $+0.075$，實際 $+0.001$），
+淨值落在三階。
+\end{itemize}
+
+\subsection{後續工作的優先序}
+
+\begin{enumerate}[label=\arabic*.]
+\item \textbf{區間推論（最高優先）。} 本文通篇為點估計，而監理框架要的是分布。
+三項須先處理的前提已查明：Wald 區間因 $\partial b/\partial\log\mu\to-1$
+而不適用；整列全零時任一精確信賴集合必有一個方向為無限長
+（\citealp{lewis2024}，以先例引用）；而偏誤不隨樣本消失時自助法重現的是
+含偏誤的分布（\citealp{cavaliere2024}），故須先確認其所重現的對象。
+\item \textbf{$\beta_x$ 的偏誤閉式。} $\hat\alpha_x$ 有恆等式而 $\hat\beta_x$ 沒有，
+因前者是列平均、後者是奇異向量，須以逐元而非子空間的擾動理論處理。
+校正後 $\beta$ 偏誤最大的年齡趨於穩定（$1$--$4$ 與 $70$--$74$），可為切入點。
+\item \textbf{混合設計。} $\alpha$ 與 $\beta$ 由對數尺度的分離式求得，
+漂移改由計數尺度的擬分數估計——後者在人數五萬時把漂移偏誤清到約零
+（$-0.004$ 對本文的 $+0.136$）。三個參數的作用域已證可分離，
+故此種拼接在估計方程的層次上乾淨。
+\item \textbf{真實鄉鎮市區資料。} 目前所有驗證皆為模擬或抽薄，
+\textbf{沒有一筆真正的鄉鎮市區資料}；這是唯一不受本人進度控制的一項，
+應盡早洽詢。
+\item \textbf{秩一是否足夠的檢定。} 本文全篇以秩一結構為前提而未檢定該前提。
+\end{enumerate}
+
+\subsection{適用的界限}
+
+誠實的結論是\textbf{本方法把可用範圍往下推了，但沒有移除下限}。
+人數一萬時所有方法都不足以支持單獨編表，最佳的均方根誤差仍有 $1.378$ 歲。
+該下限有兩項一般性的理由：跨年齡合併所能換得的有效樣本量上限為
+$(\sqrt T+\sqrt A)/\sqrt T$，在 $A=22$、$T=24$ 下為 $1.96$ 倍且會飽和，
+而遷移學習的理論指出該上限會隨來源與目標的差距退化 \citep{reeve2021}；
+又本文所查範圍內未見任何方法降低相變的可偵測門檻。
+
+另有兩項限制須明寫。其一，所提校正\textbf{依賴秩一雙線性結構}。
+其二，時間參數的全距被壓縮，外推後將低估年金負債；
+該項不在所提修正的涵蓋範圍內。
+
+最後，\textbf{「Lee-Carter 實務上預測得好好的」這個質疑與本文並不衝突}：
+預測表現良好與估計值不支持參數層次的詮釋可以同時成立
+\citep{bratsberg2026}。本文所主張的始終是後者。
+
+\subsection{三項貢獻的收束}
+
+\begin{enumerate}[label=\arabic*.]
+\item \textbf{把一個以模擬觀察到的現象化為恆等式。}
+小人口 Lee-Carter 的 $\alpha$ 偏誤有閉式 $b(\mu;c_0)$，
+為有限樣本的恆等式而非漸近近似，驗證的逐年齡相關係數為
+$1.000$、$1.000$、$0.988$。
+\item \textbf{由該閉式導出一個事前的可行性檢定。}
+因偏誤只需曝露數與粗略死亡率即可算出，
+該檢定不需模擬、不需真值、也不需參考母體，
+並補上了信賴度標準所缺的偏誤側門檻。
+\item \textbf{指出校正的正確施加位置。}
+只校正 $\alpha$ 而以資訊加權處理秩一結構，兩項改善可以疊加，
+而其成因是加權修正變異函數（一階）、中心化修正轉換的偏誤（二階），
+兩者的作用域互不重疊且分離是精確的。
+\end{enumerate}
+
+\noindent（完整版第玖節）
+
+\clearpage
+\bibliographystyle{plainnat}
+\bibliography{references}
+
+\end{document}
